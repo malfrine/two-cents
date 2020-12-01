@@ -1,6 +1,13 @@
 import Vue from 'vue'
-import store from '@/store'
-import router from '@/router'
+import store from '@/store/index'
+import router from '@/router/index'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faUserAstronaut, faMoneyBillWave, faCreditCard, faPlus, faAddressCard, faChartLine, faSignOutAlt, faEdit, faSave, faCaretDown, faCaretUp } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+library.add(faUserAstronaut, faCreditCard, faMoneyBillWave, faPlus, faAddressCard, faChartLine, faSignOutAlt, faEdit, faSave, faCaretDown, faCaretUp)
+
+Vue.component('font-awesome-icon', FontAwesomeIcon)
+
 
 
 import axios from 'axios'
