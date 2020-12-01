@@ -1,7 +1,7 @@
 // jsconfig.json
 {
   "compilerOptions": {
-      "target": "ES6",
+      "target": "ES9",
       "module": "commonjs",
       "allowSyntheticDefaultImports": true,
       "baseUrl": "./",

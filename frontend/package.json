@@ -5,30 +5,42 @@
   "scripts": {
     "serve": "npm i && vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint",
-    "test:unit": "vue-cli-service test:unit"
+    "lint": "vue-cli-service lint"
   },
   "dependencies": {
     "axios": "^0.18.0",
     "register-service-worker": "^1.5.2",
-    "vue": "^2.5.17",
-    "vue-router": "^3.0.1",
     "vue-raven": "^1.0.0",
-    "vuex": "^3.0.1"
+    "@fortawesome/fontawesome-svg-core": "^1.2.32",
+    "@fortawesome/free-brands-svg-icons": "^5.15.1",
+    "@fortawesome/free-regular-svg-icons": "^5.15.1",
+    "@fortawesome/free-solid-svg-icons": "^5.15.1",
+    "@fortawesome/vue-fontawesome": "^2.0.0",
+    "bootstrap": "^4.3.1",
+    "core-js": "^3.6.5",
+    "jquery": "^3.5.1",
+    "popper.js": "^1.16.1",
+    "vue": "^2.6.11",
+    "vue-router": "^3.2.0",
+    "vuex": "^3.4.0"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "^3.0.1",
-    "@vue/cli-plugin-eslint": "^3.0.1",
-    "@vue/cli-plugin-pwa": "^3.0.1",
-    "@vue/cli-plugin-unit-jest": "^3.0.1",
-    "@vue/cli-service": "^3.0.1",
-    "@vue/eslint-config-standard": "^3.0.1",
-    "@vue/test-utils": "^1.0.0-beta.24",
-    "babel-core": "^6.26.3",
-    "babel-jest": "^23.4.2",
-    "node-sass": "^4.9.3",
-    "sass-loader": "^7.1.0",
-    "vue-template-compiler": "^2.5.17"
+    "@vue/cli-plugin-babel": "~4.5.0",
+    "@vue/cli-plugin-eslint": "~4.5.0",
+    "@vue/cli-plugin-router": "~4.5.0",
+    "@vue/cli-plugin-vuex": "~4.5.0",
+    "@vue/cli-service": "~4.5.0",
+    "@vue/eslint-config-standard": "^5.1.2",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^6.7.2",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "eslint-plugin-vue": "^6.2.2",
+    "sass": "^1.26.5",
+    "sass-loader": "^8.0.2",
+    "vue-template-compiler": "^2.6.11"
   },
   "eslintConfig": {
     "root": true,
@@ -53,27 +65,5 @@
     "> 1%",
     "last 2 versions",
     "not ie <= 8"
-  ],
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "jsx",
-      "json",
-      "vue"
-    ],
-    "transform": {
-      "^.+\\.vue$": "vue-jest",
-      ".+\\.(css|styl|less|sass|scss|png|jpg|ttf|woff|woff2)$": "jest-transform-stub",
-      "^.+\\.jsx?$": "babel-jest"
-    },
-    "moduleNameMapper": {
-      "^@/(.*)$": "<rootDir>/src/$1"
-    },
-    "snapshotSerializers": [
-      "jest-serializer-vue"
-    ],
-    "testMatch": [
-      "<rootDir>/(tests/unit/**/*.spec.(js|jsx|ts|tsx)|**/__tests__/*.(js|jsx|ts|tsx))"
-    ]
-  }
+  ]
 }
