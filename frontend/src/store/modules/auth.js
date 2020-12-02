@@ -2,6 +2,7 @@ import router from '@/router'
 import axios from 'axios'
 
 const state = {
+  loggingIn: false,
   loggedIn: false,
   profile: {},
   validation: {email: true},
@@ -11,30 +12,34 @@ const state = {
 const getters = {}
 
 const mutations = {
+  startLogin (state) {
+    state.loggingIn = true
+  },
   login (state) {
-    console.log("login")
+    state.loggingIn = false
     state.loggedIn = true
   },
   logout (state) {
     state.loggedIn = false
   },
   setProfile (state, payload) {
-    console.log("setting profile")
-    console.log(payload)
     state.profile = payload
   },
   setValidationEmail (state, bool) {
     state.validation.email = bool
   },
   setAuthError (state, bool) {
+    state.loggingIn = false
     state.authError = bool
   }
 }
 
 const actions = {
   postLogin (context, payload) {
+    context.commit('startLogin')
     return axios.post('/api/users/login/', payload)
       .then(response => {
+        context.commit('login')
         context.dispatch('getProfile')
         router.push('/dashboard/profile')
       })
@@ -59,7 +64,6 @@ const actions = {
   getProfile (context) {
     return axios.get('/api/users/profile')
       .then(response => {
-        context.commit('login')
         context.commit('setProfile', response.data)
       })
       .catch(e => {
