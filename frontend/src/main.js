@@ -33,7 +33,7 @@ Vue.use(VueRaven, {
 
 
 
-
+console.log(store)
 
 
 new Vue({

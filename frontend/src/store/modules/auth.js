@@ -1,3 +1,4 @@
+import router from '@/router'
 import axios from 'axios'
 
 const state = {
@@ -11,12 +12,15 @@ const getters = {}
 
 const mutations = {
   login (state) {
+    console.log("login")
     state.loggedIn = true
   },
   logout (state) {
     state.loggedIn = false
   },
   setProfile (state, payload) {
+    console.log("setting profile")
+    console.log(payload)
     state.profile = payload
   },
   setValidationEmail (state, bool) {
@@ -30,7 +34,10 @@ const mutations = {
 const actions = {
   postLogin (context, payload) {
     return axios.post('/api/users/login/', payload)
-      .then(response => {})
+      .then(response => {
+        context.dispatch('getProfile')
+        router.push('/dashboard/profile')
+      })
       .catch(e => {
         context.commit('setAuthError', true)
         console.log(e)
@@ -63,6 +70,7 @@ const actions = {
 }
 
 export default {
+  namespaced: true,
   state,
   getters,
   mutations,

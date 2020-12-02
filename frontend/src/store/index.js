@@ -13,8 +13,8 @@ const store = new Vuex.Store({
   modules: {
     users,
     auth,
-    authentication,
-    user,
+    // authentication,
+    // user,
     instruments
   }
 })
