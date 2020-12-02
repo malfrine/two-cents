@@ -1,16 +1,11 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Home from '@/views/Home.vue'
 import '../assets/scss/argon-dashboard.scss'
 import 'bootstrap'
 
 Vue.use(VueRouter)
 
-const routes = [{
-  path: '/',
-  name: 'Home',
-  component: Home
-},
+const routes = [
 {
   path: '/coming-soon',
   name: 'Coming Soon',
@@ -31,7 +26,14 @@ const routes = [{
 {
   path: '/login',
   name: 'Login',
+  alias: '/',
   component: () => import(/* webpackChunkName: "auth" */ '@/views/Login.vue')
+},
+{
+  path: '/register',
+  name: 'Register',
+  alias: '/',
+  component: () => import(/* webpackChunkName: "auth" */ '@/views/Register.vue')
 }
 ]
 

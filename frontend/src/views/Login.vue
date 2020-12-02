@@ -10,7 +10,7 @@
                 class="img-fluid"
                 alt="Responsive image"
               />
-              <h2 class="text-center text-default">Dashboard Login</h2>
+              <h2 class="text-center text-default">Login</h2>
             </div>
             <div class="card-body">
             <form @submit.prevent="handleSubmit">
@@ -49,6 +49,7 @@
                     </div>
                   </div>
                   <div class="form-group" align="center">
+
                     <button class="btn btn-primary" :disabled="loggingIn">
                       Login
                     </button>
@@ -63,6 +64,9 @@
 
             </div>
             <div class="card-footer">
+              <div class="text">
+                <router-link to="/register">Register</router-link>
+              </div>
             </div>
           </div>
         </div>
@@ -89,6 +93,7 @@ export default {
   },
   methods: {
     handleSubmit (e) {
+      this.submitted = true
       const { email, password } = this
       if (email && password) {
         this.$store.dispatch('auth/postLogin', { email, password })
