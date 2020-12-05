@@ -10,26 +10,26 @@
                 class="img-fluid"
                 alt="Responsive image"
               />
-              <h2 class="text-center text-default">Dashboard Login</h2>
+              <h2 class="text-center text-default">Login</h2>
             </div>
             <div class="card-body">
             <form @submit.prevent="handleSubmit">
               <div class="card-body px-lg-5 py-lg-5">
                 <div class="text-muted mb-4">
                   <div class="form-group">
-                    <label for="username">Username</label>
+                    <label for="username">Email</label>
                     <input
                       type="text"
-                      v-model="username"
+                      v-model="email"
                       name="username"
                       class="form-control"
-                      :class="{ 'is-invalid': submitted && !username }"
+                      :class="{ 'is-invalid': submitted && !email }"
                     />
                     <div
-                      v-show="submitted && !username"
+                      v-show="submitted && !email"
                       class="invalid-feedback"
                     >
-                      Username is required
+                      Email is required
                     </div>
                   </div>
                   <div class="form-group">
@@ -49,6 +49,7 @@
                     </div>
                   </div>
                   <div class="form-group" align="center">
+
                     <button class="btn btn-primary" :disabled="loggingIn">
                       Login
                     </button>
@@ -63,6 +64,9 @@
 
             </div>
             <div class="card-footer">
+              <div class="text">
+                <router-link to="/register">Register</router-link>
+              </div>
             </div>
           </div>
         </div>
@@ -77,27 +81,22 @@ export default {
   components: { SimpleLayout },
   data () {
     return {
-      username: '',
+      email: '',
       password: '',
       submitted: false
     }
   },
   computed: {
     loggingIn () {
-      return this.$store.state.authentication.status.loggingIn
+      return this.$store.state.auth.loggingIn
     }
-  },
-  created () {
-    // reset login status
-    this.$store.dispatch('authentication/logout')
   },
   methods: {
     handleSubmit (e) {
       this.submitted = true
-      const { username, password } = this
-      const { dispatch } = this.$store
-      if (username && password) {
-        dispatch('authentication/login', { username, password })
+      const { email, password } = this
+      if (email && password) {
+        this.$store.dispatch('auth/postLogin', { email, password })
       }
     }
   }

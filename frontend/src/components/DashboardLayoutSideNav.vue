@@ -69,7 +69,7 @@
           </li>
 
           <li class="nav-item">
-            <router-link to="/login" v-on:click.native="logout" class="nav-link">
+            <router-link to="/login" v-on:click.native="postLogout" class="nav-link">
               <font-awesome-icon
                 icon="sign-out-alt"
                 class="mr-2"
@@ -87,7 +87,7 @@
 import { mapActions } from 'vuex'
 export default {
   methods: {
-    ...mapActions('authentication', ['logout'])
+    ...mapActions('auth', ['postLogout'])
   }
 }
 </script>

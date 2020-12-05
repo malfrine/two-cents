@@ -4,6 +4,9 @@ import router from '@/router/index'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faUserAstronaut, faMoneyBillWave, faCreditCard, faPlus, faAddressCard, faChartLine, faSignOutAlt, faEdit, faSave, faCaretDown, faCaretUp } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import Cookie from 'js-cookie'
+// import Cookie from 'js-cookie'
+
 library.add(faUserAstronaut, faCreditCard, faMoneyBillWave, faPlus, faAddressCard, faChartLine, faSignOutAlt, faEdit, faSave, faCaretDown, faCaretUp)
 
 Vue.component('font-awesome-icon', FontAwesomeIcon)
@@ -14,7 +17,7 @@ import axios from 'axios'
 axios.defaults.xsrfCookieName = 'csrftoken'
 axios.defaults.xsrfHeaderName = 'X-CSRFToken'
 
-
+console.log(Cookie.get('sessionid'))
 
 
 import VueRaven from 'vue-raven'
@@ -31,9 +34,8 @@ Vue.use(VueRaven, {
   disableReport: process.env.NODE_ENV === 'development'
 })
 
-
-
-
+console.log(store)
+console.log(router)
 
 
 new Vue({
