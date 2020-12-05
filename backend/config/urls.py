@@ -9,11 +9,8 @@ from django.contrib.auth import views
 from config.api import api
 
 
-
 urlpatterns = [
-    path('admin/', admin.site.urls, name='admin'),
-    
-    path('api/', include(api.urls)),
-    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    
+    path("admin/", admin.site.urls, name="admin"),
+    path("api/", include(api.urls)),
+    path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
 ]
