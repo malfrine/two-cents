@@ -60,16 +60,12 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(methods=["POST"], detail=False)
     def logout(self, request, format=None):
-        print(request)
-        print("hi")
         try:
             logout(request)
             return Response(status=status.HTTP_200_OK)
         except:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-
-
     @action(methods=['POST'], detail=False)
     def register(self, request):
         last_name = request.data.get('last_name', None)
