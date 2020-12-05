@@ -6,6 +6,9 @@
 
 <script>
 export default {
-  name: 'App'
+  name: 'App',
+  created: function () {
+    this.$store.dispatch('auth/getLoginStatus')
+  }
 }
 </script>

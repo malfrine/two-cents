@@ -1,7 +1,8 @@
 import requests
 from uuid import uuid4
 
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.sessions.models import Session
 from django.conf import settings
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
@@ -57,6 +58,18 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_200_OK)
         return Response(status=status.HTTP_404_NOT_FOUND)
 
+    @action(methods=["POST"], detail=False)
+    def logout(self, request, format=None):
+        print(request)
+        print("hi")
+        try:
+            logout(request)
+            return Response(status=status.HTTP_200_OK)
+        except:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+
     @action(methods=['POST'], detail=False)
     def register(self, request):
         last_name = request.data.get('last_name', None)
@@ -66,7 +79,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
         if User.objects.filter(email__iexact=email).exists():
             return Response({'status': 210})
-
+        
         # user creation
         user = User.objects.create(
             email=email,
@@ -75,6 +88,8 @@ class UserViewSet(viewsets.ModelViewSet):
             first_name=first_name,
             is_admin=False,
         )
+        user.set_password(password)
+        user.save()
         return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
 
     @action(methods=['POST'], detail=False)
@@ -102,3 +117,13 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+    @action(methods=["GET"], detail=False)
+    def check_login(self, request, format=None):
+        if hasattr(request.session, "session_key"):
+            try:
+                session = Session.objects.get(session_key=request.session.session_key)
+                return Response(status=status.HTTP_200_OK)
+            except Session.DoesNotExist:
+               pass 
+        return Response(status=status.HTTP_404_NOT_FOUND)

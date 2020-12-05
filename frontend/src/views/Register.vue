@@ -2,7 +2,7 @@
   <simple-layout>
     <div class="container mt--8 pb-9">
       <div class="row justify-content-center">
-        <div class="col-lg-7 col-md-9">
+        <div class="col-lg-6 col-md-8">
           <div class="card shadow">
             <div class="card-header">
               <img
@@ -112,17 +112,15 @@ export default {
       submitted: false,
     };
   },
-  computed: {
-    loggingIn() {
-      return this.$store.state.auth.loggingIn;
-    },
-  },
   methods: {
+    validData() {
+      return (this.email && this.password.trim() == this.confirmPassword.trim())
+    },
     handleSubmit(e) {
       this.submitted = true;
-      const { email, password } = this;
-      if (email && password) {
-        this.$store.dispatch("auth/postRegister", { email, password });
+      if (this.validData()) {
+        const { email, password, firstname, lastname } = this;
+        this.$store.dispatch("auth/postRegister", { email, password, "first_name": firstname, "last_name": lastname });
       }
     },
   },

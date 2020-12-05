@@ -39,6 +39,7 @@ const actions = {
     context.commit('startLogin')
     return axios.post('/api/users/login/', payload)
       .then(response => {
+        console.log(response)
         context.commit('login')
         context.dispatch('getProfile')
         router.push('/dashboard/profile')
@@ -52,11 +53,13 @@ const actions = {
     return axios.post('/api/users/register/', payload)
       .then(response => {
         if (response.data.status === 210) {
+          console.log(response)
           context.commit('setValidationEmail', false)
         } else {
           context.commit('setValidationEmail', true)
           context.commit('login')
           context.commit('setProfile', response.data)
+          router.push('/login')
         }
       })
       .catch(e => { console.log(e) })
@@ -69,6 +72,27 @@ const actions = {
       .catch(e => {
         context.commit('logout')
         console.log(e)
+      })
+  },
+  postLogout (context, payload) {
+    return axios.post('/api/users/logout/')
+      .then(response => {
+        console.log(context)
+        context.commit('logout')
+        router.push('/login')
+      })
+      .catch(e => {console.log(e)})
+  },
+  getLoginStatus (context, payload) {
+    return axios.get('/api/users/check_login')
+      .then(response => {
+        console.log(response)
+        context.commit('login')
+        context.dispatch('getProfile')
+        router.push('/dashboard/profile')
+      })
+      .catch(e => {
+        context.commit('logout')
       })
   }
 }

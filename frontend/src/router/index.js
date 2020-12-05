@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import '../assets/scss/argon-dashboard.scss'
 import 'bootstrap'
+import store from '@/store'
 
 Vue.use(VueRouter)
 
@@ -44,17 +45,17 @@ const router = new VueRouter({
   linkExactActiveClass: 'active'
 })
 
-// router.beforeEach((to, from, next) => {
-//   // redirect to login page if not logged in and trying to access a restricted page
-//   const publicPages = ['/login', '/', '/coming-soon']
-//   const authRequired = !publicPages.includes(to.path)
-//   const loggedIn = localStorage.getItem('user')
+router.beforeEach((to, from, next) => {
+  // redirect to login page if not logged in and trying to access a restricted page
+  const publicPages = ['/login', '/', '/coming-soon','/register']
+  const authRequired = !publicPages.includes(to.path)
+  const loggedIn = store.state.auth.loggedIn
 
-//   if (authRequired && !loggedIn) {
-//     return next('/login')
-//   } else {
-//     next()
-//   }
-// })
+  if (authRequired && !loggedIn) {
+    return next('/login')
+  } else {
+    next()
+  }
+})
 
 export default router
