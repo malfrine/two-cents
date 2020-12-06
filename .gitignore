@@ -56,7 +56,7 @@ node_modules
 media/
 
 # Collected staticfiles
-*/staticfiles/
+staticfiles/
 
 .cache/
 **/certs

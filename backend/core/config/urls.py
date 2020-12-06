@@ -2,7 +2,7 @@ from django.urls import path
 from django.contrib import admin
 from django.conf.urls import include
 
-from backend.config.api import api
+from core.config.api import api
 
 
 urlpatterns = [

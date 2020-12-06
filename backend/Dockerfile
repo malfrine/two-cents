@@ -7,7 +7,7 @@ ENV PYTHONFAULTHANDLER=1 \
     PIP_NO_CACHE_DIR=off \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
     PIP_DEFAULT_TIMEOUT=100 \
-    PYTHONPATH="${PYTHONPATH}:/app/apps/pennies:/app"
+    PYTHONPATH="${PYTHONPATH}:/app/core/apps/pennies:/app/core"
 
 # python dependencies
 COPY ./requirements.txt /

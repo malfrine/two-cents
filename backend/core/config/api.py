@@ -1,5 +1,5 @@
 from rest_framework import routers
-from backend.apps.users.views import UserViewSet
+from core.apps.users.views import UserViewSet
 
 # Settings
 api = routers.DefaultRouter()

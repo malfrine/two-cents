@@ -1,5 +1,5 @@
 from django.db import models
-from backend.apps.users.models import User as AuthUser
+from core.apps.users.models import User as AuthUser
 
 # Create your models here.
 LOAN_CHOICES = (("General", "General Loan"), )
