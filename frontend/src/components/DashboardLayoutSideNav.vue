@@ -69,7 +69,7 @@
           </li>
 
           <li class="nav-item">
-            <router-link to="/login" v-on:click.native="postLogout" class="nav-link">
+            <router-link to="/goodbye" v-on:click.native="postLogout" class="nav-link">
               <font-awesome-icon
                 icon="sign-out-alt"
                 class="mr-2"

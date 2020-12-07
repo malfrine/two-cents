@@ -35,6 +35,12 @@ const routes = [
   name: 'Register',
   alias: '/',
   component: () => import(/* webpackChunkName: "auth" */ '@/views/Register.vue')
+},
+{
+  path: '/goodbye',
+  name: 'Goodbye',
+  alias: '/',
+  component: () => import(/* webpackChunkName: "auth" */ '@/views/Goodbye.vue')
 }
 ]
 
@@ -45,11 +51,16 @@ const router = new VueRouter({
   linkExactActiveClass: 'active'
 })
 
+const publicPages = ['/login', '/', '/coming-soon','/register','/goodbye']
 router.beforeEach((to, from, next) => {
   // redirect to login page if not logged in and trying to access a restricted page
-  const publicPages = ['/login', '/', '/coming-soon','/register']
   const authRequired = !publicPages.includes(to.path)
   const loggedIn = store.state.auth.loggedIn
+  console.log(to.path)
+  console.log(from.path)
+  console.log(authRequired)
+  console.log(loggedIn)
+
 
   if (authRequired && !loggedIn) {
     return next('/login')

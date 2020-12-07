@@ -3,10 +3,7 @@ import axios from 'axios'
 
 const state = {
   loggingIn: false,
-  loggedIn: false,
-  profile: {},
-  validation: {email: true},
-  authError: false
+  loggedIn: false, // only used to access private views
 }
 
 const getters = {}
@@ -21,16 +18,6 @@ const mutations = {
   },
   logout (state) {
     state.loggedIn = false
-  },
-  setProfile (state, payload) {
-    state.profile = payload
-  },
-  setValidationEmail (state, bool) {
-    state.validation.email = bool
-  },
-  setAuthError (state, bool) {
-    state.loggingIn = false
-    state.authError = bool
   }
 }
 
@@ -41,7 +28,6 @@ const actions = {
       .then(response => {
         console.log(response)
         context.commit('login')
-        context.dispatch('getProfile')
         router.push('/dashboard/profile')
       })
       .catch(e => {
@@ -53,47 +39,29 @@ const actions = {
     return axios.post('/api/users/register/', payload)
       .then(response => {
         if (response.data.status === 210) {
+          // Internal server error
           console.log(response)
-          context.commit('setValidationEmail', false)
         } else {
-          context.commit('setValidationEmail', true)
-          context.commit('login')
-          context.commit('setProfile', response.data)
           router.push('/login')
         }
       })
       .catch(e => { console.log(e) })
   },
-  getProfile (context) {
-    return axios.get('/api/users/profile')
-      .then(response => {
-        context.commit('setProfile', response.data)
-      })
-      .catch(e => {
-        context.commit('logout')
-        console.log(e)
-      })
-  },
   postLogout (context, payload) {
     return axios.post('/api/users/logout/')
       .then(response => {
-        console.log(context)
         context.commit('logout')
-        router.push('/login')
       })
       .catch(e => {console.log(e)})
   },
   getLoginStatus (context, payload) {
+    console.log("Checking log in status")
     return axios.get('/api/users/check_login')
       .then(response => {
-        console.log(response)
         context.commit('login')
-        context.dispatch('getProfile')
         router.push('/dashboard/profile')
       })
-      .catch(e => {
-        context.commit('logout')
-      })
+      .catch(e => {console.log(e)})
   }
 }
 
