@@ -1,7 +1,8 @@
+import re
 import requests
 from uuid import uuid4
 
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, get_user, login, logout
 from django.contrib.sessions.models import Session
 from django.conf import settings
 from django.core.mail import send_mail
@@ -11,8 +12,8 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from .models import User
-from .serializers import UserSerializer, UserWriteSerializer
+from core.apps.users.models import User
+from core.apps.users.serializers import UserSerializer, UserWriteSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -39,13 +40,6 @@ class UserViewSet(viewsets.ModelViewSet):
     def perform_destroy(self, instance):
         instance.is_active = False
         instance.save()
-
-    @action(methods=["GET"], detail=False)
-    def profile(self, request):
-        if request.user.is_authenticated:
-            serializer = self.serializer_class(request.user)
-            return Response(status=status.HTTP_200_OK, data=serializer.data)
-        return Response(status=status.HTTP_401_UNAUTHORIZED)
 
     @action(methods=["POST"], detail=False)
     def login(self, request, format=None):
@@ -116,10 +110,9 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(methods=["GET"], detail=False)
     def check_login(self, request, format=None):
-        if hasattr(request.session, "session_key"):
-            try:
-                session = Session.objects.get(session_key=request.session.session_key)
-                return Response(status=status.HTTP_200_OK)
-            except Session.DoesNotExist:
-                pass
-        return Response(status=status.HTTP_404_NOT_FOUND)
+        user = get_user(request)
+        print(user)
+        if not user.is_anonymous and user.is_authenticated:
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
