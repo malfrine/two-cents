@@ -28,13 +28,14 @@ class FinancialProfileSerializer(serializers.ModelSerializer):
 
 class UserFinancesSerializer(serializers.ModelSerializer):
 
-    loans = LoanSerializer(many=True)
-    investments = InvestmentSerializer(many=True)
-    FinancialProfile = FinancialProfileSerializer()
+    loans = LoanSerializer(many=True, read_only=True)
+    investments = InvestmentSerializer(many=True, read_only=True)
+    financial_profile = FinancialProfileSerializer(read_only=True)
 
     class Meta:
         model = User
         fields = ("first_name", "last_name", "loans", "investments", "financial_profile")
+        depth = 1
 
     
     

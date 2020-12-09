@@ -28,7 +28,7 @@ class Investment(models.Model):
         return " - ".join(("Investment", str(self.pk), str(self.name)))
 
 class FinancialProfile(models.Model):
-    user = models.ForeignKey(AuthUser, on_delete=models.CASCADE, related_name="financial_profile", unique=True)
+    user = models.OneToOneField(AuthUser, on_delete=models.CASCADE, related_name="financial_profile")
     birth_date = models.DateField(verbose_name="Birth Date")
     monthly_allowance = models.FloatField(verbose_name="Monthly Allowance")
     retirement_age = models.IntegerField(verbose_name="Retirement Age")

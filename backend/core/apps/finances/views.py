@@ -9,7 +9,7 @@ from core.apps.finances import serializers
 from core.apps.finances.models import FinancialProfile, Investment, Loan
 from rest_framework import viewsets
 
-from core.apps.finances.serializers import FinancialProfileSerializer, InvestmentSerializer, LoanSerializer
+from core.apps.finances.serializers import FinancialProfileSerializer, InvestmentSerializer, LoanSerializer, UserFinancesSerializer
 from core.apps.users.models import User
 
 
@@ -46,7 +46,10 @@ class FinancialProfileView(viewsets.GenericViewSet):
     serializer_class = FinancialProfileSerializer
 
     def get_object(self):
-        return FinancialProfile.objects.get(user=self.request.user)
+        try:
+            return FinancialProfile.objects.get(user=self.request.user)
+        except FinancialProfile.DoesNotExist:
+            return None
 
     def list(self, request, format=None):
         instance = self.get_object()
@@ -60,7 +63,13 @@ class FinancialProfileView(viewsets.GenericViewSet):
             success_status = status.HTTP_200_OK
         else: # create
             serializer = self.get_serializer(data=request.data)
-            success_status = status.HTTP_201_created
+            success_status = status.HTTP_201_CREATED
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        serializer.save(user=request.user)
         return Response(serializer.data, status=success_status)
+
+class UserFinancesViewset(viewsets.GenericViewSet):
+    serializer_class = UserFinancesSerializer
+
+    def list(self, request):
+        return Response(self.get_serializer(request.user).data)
