@@ -9,9 +9,13 @@ from core.apps.finances import serializers
 from core.apps.finances.models import FinancialProfile, Investment, Loan
 from rest_framework import viewsets
 
-from core.apps.finances.serializers import FinancialProfileSerializer, InvestmentSerializer, LoanSerializer, UserFinancesSerializer
+from core.apps.finances.serializers import (
+    FinancialProfileSerializer,
+    InvestmentSerializer,
+    LoanSerializer,
+    UserFinancesSerializer,
+)
 from core.apps.users.models import User
-
 
 
 # Create your views here.
@@ -28,6 +32,7 @@ class LoanViewset(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         return serializer.save(user=self.request.user)
 
+
 class InvestmentViewset(viewsets.ModelViewSet):
     queryset = Investment.objects.none()
     serializer_class = InvestmentSerializer
@@ -42,6 +47,7 @@ class InvestmentViewset(viewsets.ModelViewSet):
         # TODO: check if anonymous users can actually add investments
         return serializer.save(user=self.request.user)
 
+
 class FinancialProfileView(viewsets.GenericViewSet):
     serializer_class = FinancialProfileSerializer
 
@@ -55,18 +61,19 @@ class FinancialProfileView(viewsets.GenericViewSet):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
-    
+
     def create(self, request, *args, **kwargs):
-        instance =  self.get_object()
-        if instance: # update instead of create
+        instance = self.get_object()
+        if instance:  # update instead of create
             serializer = self.get_serializer(instance, data=request.data)
             success_status = status.HTTP_200_OK
-        else: # create
+        else:  # create
             serializer = self.get_serializer(data=request.data)
             success_status = status.HTTP_201_CREATED
         serializer.is_valid(raise_exception=True)
         serializer.save(user=request.user)
         return Response(serializer.data, status=success_status)
+
 
 class UserFinancesViewset(viewsets.GenericViewSet):
     serializer_class = UserFinancesSerializer

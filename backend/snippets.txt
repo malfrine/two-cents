@@ -7,3 +7,6 @@ def dispatch(self, *args, **kwargs):
     for query in connection.queries:
         print(str(query['sql']))
     return response
+
+# bash script to chown of some files - (docker makes files root protected when running django startapp)
+sudo chown <new-owner-name> <path>

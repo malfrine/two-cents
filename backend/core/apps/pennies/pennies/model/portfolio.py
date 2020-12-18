@@ -5,7 +5,11 @@ from pydantic import BaseModel, validator, ValidationError
 from pennies.model.instrument import Instrument
 from pennies.model.investment import Investment
 from pennies.model.loan import Loan
-from pennies.utilities.utilities import get_value_from_dict, remove_from_dict, add_to_dict
+from pennies.utilities.utilities import (
+    get_value_from_dict,
+    remove_from_dict,
+    add_to_dict,
+)
 
 
 class Portfolio(BaseModel):
@@ -49,8 +53,4 @@ class Portfolio(BaseModel):
         return sum(loan.current_balance for loan in self.loans)
 
     def __str__(self):
-        return "\n\t".join(
-            str(instrument) for instrument in self.instruments.values()
-        )
-
-
+        return "\n\t".join(str(instrument) for instrument in self.instruments.values())

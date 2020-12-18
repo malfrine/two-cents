@@ -1,0 +1,22 @@
+accounts:
+	1. depository: checking, savings
+	2. credit: credit card
+	3. loan: auto, line of credit, student, mortgage
+	4. investment: rrsp, tfsa, gic, mutual fund, etf (?), rdsp, resp
+
+liabilities:
+	1. credit/auto/student:
+		apr: 
+		balance_subject_to_apr:
+		minimum_payment:
+	2. mortgage:
+		interest_rate: {
+			type: fixed/variable
+			precentage:
+			nex_change_date:
+		}
+		monthly_payment_amount:
+		pre_payment_plan: ?
+		outstanding_principal_balance: ?
+		maturity_date: ?
+	3. line of credit

@@ -13,7 +13,9 @@ class PortfolioManager:
         cls._remove_paid_off_loans(portfolio)
 
     @classmethod
-    def _implement_allocation_plan(cls, portfolio: Portfolio, payments: Dict[str, float]) -> None:
+    def _implement_allocation_plan(
+        cls, portfolio: Portfolio, payments: Dict[str, float]
+    ) -> None:
         for instrument_name, payment in payments.items():
             if payment == 0:
                 continue
