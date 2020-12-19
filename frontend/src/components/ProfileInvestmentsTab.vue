@@ -31,7 +31,7 @@ import InvestmentModal from './InvestmentModal.vue'
 export default {
   components: { InvestmentCard, InvestmentModal },
   computed: {
-    ...mapGetters('instruments', ['getInvestments'])
+    ...mapGetters('finances', ['getInvestments'])
   }
 }
 </script>

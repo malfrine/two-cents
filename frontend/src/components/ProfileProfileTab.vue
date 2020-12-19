@@ -26,15 +26,45 @@
               <div class="row">
                 <div class="col-lg-6">
                   <div class="form-group">
-                    <label class="form-control-label" for="input-username"
-                      >Username</label
+                    <label class="form-control-label" for="input-first-name"
+                      >First name</label
                     >
                     <input
                       type="text"
+                      id="input-first-name"
+                      class="form-control form-control-alternative"
+                      v-model="first_name"
+                      v-bind:disabled="true"
+                    />
+                  </div>
+                </div>
+                <div class="col-lg-6">
+                  <div class="form-group">
+                    <label class="form-control-label" for="input-last-name"
+                      >Last name</label
+                    >
+                    <input
+                      type="text"
+                      id="input-last-name"
+                      class="form-control form-control-alternative"
+                      v-model="last_name"
+                      v-bind:disabled="true"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-lg-6">
+                  <div class="form-group">
+                    <label class="form-control-label" for="input-birthdate"
+                      >Birth Date</label
+                    >
+                    <input
+                      type="date"
                       id="input-username"
                       class="form-control form-control-alternative"
                       placeholder="Username"
-                      v-model="user.username"
+                      v-model="financial_profile.birth_date"
                       v-bind:disabled="!this.editMode"
                     />
                   </div>
@@ -48,38 +78,8 @@
                       type="email"
                       id="input-email"
                       class="form-control form-control-alternative"
-                      v-model="user.email"
-                      v-bind:disabled="!this.editMode"
-                    />
-                  </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-lg-6">
-                  <div class="form-group">
-                    <label class="form-control-label" for="input-first-name"
-                      >First name</label
-                    >
-                    <input
-                      type="text"
-                      id="input-first-name"
-                      class="form-control form-control-alternative"
-                      v-model="user.firstname"
-                      v-bind:disabled="!this.editMode"
-                    />
-                  </div>
-                </div>
-                <div class="col-lg-6">
-                  <div class="form-group">
-                    <label class="form-control-label" for="input-last-name"
-                      >Last name</label
-                    >
-                    <input
-                      type="text"
-                      id="input-last-name"
-                      class="form-control form-control-alternative"
-                      v-model="user.lastname"
-                      v-bind:disabled="!this.editMode"
+                      v-model="email"
+                      v-bind:disabled="true"
                     />
                   </div>
                 </div>
@@ -108,8 +108,35 @@
                       <input
                         type="text"
                         class="form-control pl-2"
-                        v-model="user.monthlyAllowance"
-                        placeholder="monthly-allowance"
+                        v-model="financial_profile.monthly_allowance"
+                        placeholder="1000"
+                        aria-label="monthly-allowance"
+                        aria-describedby="basic-addon1"
+                        v-bind:disabled="!this.editMode"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label
+                      class="form-control-label"
+                      for="input-retirement-age"
+                      >Planned Retirement Age</label
+                    >
+                    <div class="input-group mb-3">
+                      <div class="input-group-prepend">
+                        <span
+                          class="input-group-text bg-light"
+                          id="basic-addon1"
+                          >$</span
+                        >
+                      </div>
+                      <input
+                        type="text"
+                        class="form-control pl-2"
+                        v-model="financial_profile.retirement_age"
+                        placeholder="65"
                         aria-label="monthly-allowance"
                         aria-describedby="basic-addon1"
                         v-bind:disabled="!this.editMode"
@@ -128,25 +155,40 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters } from "vuex";
 
 export default {
-  data () {
+  data() {
     return {
-      editMode: false
-    }
+      editMode: false,
+    };
   },
   computed: {
-    ...mapGetters('user', { user: ['getUser'] })
+    financial_profile() {
+      return this.$store.getters["finances/getFinancialProfile"];
+    },
+    first_name() {
+      return this.$store.getters["finances/getFirstName"];
+    },
+    last_name() {
+      return this.$store.getters["finances/getLastName"];
+    },
+    email() {
+      return this.$store.getters["finances/getEmail"];
+    }
   },
   methods: {
-    toggleEditMode () {
+    toggleEditMode() {
       if (this.editMode) {
-        // save changes
-        this.$store.dispatch('user/updateUser', this.user)
+        const fp = {
+          "birth_date": this.financial_profile.birth_date,
+          "monthly_allowance": this.financial_profile.monthly_allowance,
+          "retirement_age": this.financial_profile.retirement_age
+        }
+        this.$store.dispatch('finances/updateFinancialProfile', fp)
       }
-      this.editMode = !this.editMode
-    }
-  }
-}
+      this.editMode = !this.editMode;
+    },
+  },
+};
 </script>

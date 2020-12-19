@@ -84,7 +84,6 @@ export const instruments = {
       } else {
         investmentId = object.id
       }
-      console.log(investmentId)
       commit('SET_INVESTMENT', {
         id: investmentId,
         name: object.name,

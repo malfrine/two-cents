@@ -46,7 +46,7 @@
                   <input
                     type="number"
                     class="form-control pl-2"
-                    v-model.lazy="localLoan.currentBalance"
+                    v-model.lazy="localLoan.current_balance"
                     placeholder=10000
                   />
                 </div>
@@ -82,7 +82,7 @@
                   <input
                     type="number"
                     class="form-control pl-2 pr-2"
-                    v-model.lazy="localLoan.minimumMonthlyPayment"
+                    v-model.lazy="localLoan.minimum_monthly_payment"
                     placeholder="5"
                   />
                 </div>
@@ -94,7 +94,7 @@
                 <input
                   type="date"
                   class="form-control pl-2 pr-2"
-                  v-model.lazy="localLoan.dueDate"
+                  v-model.lazy="localLoan.end_date"
                 />
               </div>
             </form>
@@ -122,20 +122,19 @@ export default {
   props: ['modalName', 'loanId'],
   methods: {
     createOrUpdateLoan () {
-      this.$store.dispatch('instruments/createOrUpdateLoan', this.localLoan)
+      this.$store.dispatch('finances/createOrUpdateLoan', this.localLoan)
     }
   },
   computed: {
-
     localLoan () {
-      const loan = this.$store.getters['instruments/getLoanById'](this.loanId)
+      const loan = this.$store.getters['finances/getLoanById'](this.loanId)
       if (loan === null) {
         return {
           name: null,
-          currentBalance: null,
+          current_balance: null,
           apr: null,
-          minimumMonthlyPayment: null,
-          dueDate: null,
+          minimum_monthly_payment: null,
+          end_date: null,
           id: null
         }
       } else {

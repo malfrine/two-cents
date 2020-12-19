@@ -9,16 +9,10 @@ from core.utilities import get_current_age, get_months_between
 
 
 class LoanSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Loan
-        fields = (
-            "name",
-            "current_balance",
-            "apr",
-            "minimum_monthly_payment",
-            "end_date",
-        )
-
+        exclude = ("user",)
 
 class PenniesLoanSerializer(serializers.ModelSerializer):
 
@@ -27,6 +21,8 @@ class PenniesLoanSerializer(serializers.ModelSerializer):
 
     def get_current_balance(self, obj: Loan):
         return -obj.current_balance
+
+
 
     class Meta:
         model = Loan
@@ -40,9 +36,10 @@ class PenniesLoanSerializer(serializers.ModelSerializer):
 
 
 class InvestmentSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Investment
-        fields = ("name", "current_balance", "risk_level")
+        exclude = ("user",)
 
 
 class FinancialProfileSerializer(serializers.ModelSerializer):
@@ -80,9 +77,17 @@ class UserFinancesSerializer(serializers.ModelSerializer):
     investments = InvestmentSerializer(many=True, read_only=True)
     financial_profile = FinancialProfileSerializer(read_only=True)
 
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep["loans"] = {loan["id"]: loan for loan in rep["loans"]}
+        rep["investments"] = {loan["id"]: loan for loan in rep["investments"]}
+        print(rep)
+        return rep
+
     class Meta:
         model = User
         fields = (
+            "email",
             "first_name",
             "last_name",
             "loans",

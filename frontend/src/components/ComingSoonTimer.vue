@@ -47,7 +47,6 @@ export default {
     }
   },
   created () {
-    console.log('Created timer')
     this.runClock(secondsRemaining)
   },
 
