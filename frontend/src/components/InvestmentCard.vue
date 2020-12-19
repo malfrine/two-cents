@@ -22,8 +22,9 @@
               <button
                 class="dropdown-item"
                 v-on:click.prevent="deleteInvestment(investment)"
-                >Delete</button
               >
+                Delete
+              </button>
               <div class="dropdown-divider"></div>
               <button
                 type="button"
@@ -37,7 +38,7 @@
           </div>
           <div align="left">{{ investment.name }}</div>
           <h5 class="display-3 card-title text-primary mb--2">
-            $ {{ investment.currentBalance }}
+            $ {{ investment.current_balance }}
           </h5>
           <div class="row justify-content-center">
             <div
@@ -64,7 +65,7 @@
         >
           <div class="card-body">
             <p class="card-text small mt--3">
-              {{ investment.apr }}% <em>APR</em>
+              <em>Risk Level:</em> {{ investment.risk_level }}
             </p>
           </div>
         </div>
@@ -79,27 +80,31 @@
 </template>
 
 <script>
-import InvestmentModal from './InvestmentModal.vue'
-import { mapActions } from 'vuex'
+import InvestmentModal from "./InvestmentModal.vue";
+import { mapActions } from "vuex";
 
 export default {
   components: {
-    InvestmentModal
+    InvestmentModal,
   },
-  data () {
+  data() {
     return {
-      showAllInfo: false
-    }
+      showAllInfo: false,
+    };
   },
-  props: ['investmentId'],
+  props: ["investmentId"],
   methods: {
-    changeShowMode () {
-      this.showAllInfo = !this.showAllInfo
+    changeShowMode() {
+      this.showAllInfo = !this.showAllInfo;
     },
-    ...mapActions('instruments', ['deleteInvestment'])
+    ...mapActions("finances", ["deleteInvestment"]),
   },
   computed: {
-    investment () { return this.$store.getters['instruments/getInvestmentById'](this.investmentId) }
-  }
-}
+    investment() {
+      return this.$store.getters["finances/getInvestmentById"](
+        this.investmentId
+      );
+    },
+  },
+};
 </script>

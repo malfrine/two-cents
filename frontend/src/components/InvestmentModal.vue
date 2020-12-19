@@ -50,27 +50,20 @@
                   <input
                     type="number"
                     class="form-control pl-2"
-                    v-model.lazy="investment.currentBalance"
+                    v-model.lazy="investment.current_balance"
                     placeholder="10000"
                   />
                 </div>
               </div>
               <div class="form-group">
-                <label class="form-control-label" for="apr">APR</label>
+                <label class="form-control-label" for="risk_level">Risk Level</label>
                 <div class="input-group">
                   <input
-                    type="number"
+                    type="string"
                     class="form-control pl-2 pr-2"
-                    v-model.lazy="investment.apr"
-                    placeholder="5"
+                    v-model.lazy="investment.risk_level"
+                    placeholder="Medium"
                   />
-                  <div class="input-group-append">
-                    <span
-                      class="input-group-text bg-light"
-                      id="apr-percent-addon"
-                      >%</span
-                    >
-                  </div>
                 </div>
               </div>
             </form>
@@ -98,17 +91,17 @@ export default {
   props: ['modalName', 'investmentId'],
   methods: {
     createOrUpdateInvestment () {
-      this.$store.dispatch('instruments/createOrUpdateInvestment', this.investment)
+      this.$store.dispatch('finances/createOrUpdateInvestment', this.investment)
     }
   },
   computed: {
     investment () {
-      const investment = this.$store.getters['instruments/getInvestmentById'](this.investmentId)
+      const investment = this.$store.getters['finances/getInvestmentById'](this.investmentId)
       if (investment === null) {
         return {
           name: null,
-          currentBalance: null,
-          apr: null
+          current_balance: null,
+          risk_level: null
         }
       } else {
         return { ...investment }

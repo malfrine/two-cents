@@ -9,17 +9,17 @@
       >
         <font-awesome-icon icon="plus"></font-awesome-icon>
       </button>
-      <loan-modal modalName="newLoanModal" v-bind:loanId="null">
-      </loan-modal>
     </div>
     <div class="row">
       <loan-card
-        v-for="loan in getLoans"
+        v-for="loan in loans"
         v-bind:key="loan.id"
         v-bind:loanId="loan.id"
       >
       </loan-card>
     </div>
+    <loan-modal modalName="newLoanModal" v-bind:loanId="null">
+    </loan-modal>
   </div>
 </template>
 
@@ -32,7 +32,9 @@ import { mapGetters } from 'vuex'
 export default {
   components: { LoanCard, LoanModal },
   computed: {
-    ...mapGetters('instruments', { getLoans: 'getLoans' })
+    loans() {
+      return this.$store.getters["finances/getLoans"]
+    }
   }
 }
 </script>

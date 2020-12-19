@@ -37,7 +37,7 @@
             </div>
           </div>
           <div align="left"> {{ loan.name }}</div>
-          <h5 class="display-3 card-title text-primary mb--2">$ {{ loan.currentBalance }}</h5>
+          <h5 class="display-3 card-title text-primary mb--2">$ {{ loan.current_balance }}</h5>
           <div class="row justify-content-center">
           <div
             class="btn btn-sm mb--3"
@@ -57,8 +57,8 @@
         <div class="collapse" v-bind:id="'collapse-target' + loan.id">
           <div class="card-body">
             <p class="card-text small mt--3">{{ loan.apr }}% <em>APR</em></p>
-            <p class="card-text small mt--3"><em>Minimum Payment:</em> ${{ loan.minimumMonthlyPayment }}</p>
-            <p class="card-text small mt--3"><em>Due:</em> {{ loan.dueDate }}</p>
+            <p class="card-text small mt--3"><em>Minimum Payment:</em> ${{ loan.minimum_monthly_payment }}</p>
+            <p class="card-text small mt--3"><em>Due:</em> {{ loan.end_date }}</p>
           </div>
         </div>
       </div>
@@ -87,10 +87,12 @@ export default {
   props: ['loanId'],
   methods: {
     changeShowMode () { this.showAllInfo = !this.showAllInfo },
-    ...mapActions('instruments', ['deleteLoan'])
+    ...mapActions('finances', ['deleteLoan'])
   },
   computed: {
-    loan () { return this.$store.getters['instruments/getLoanById'](this.loanId) }
+    loan () { 
+      return this.$store.getters['finances/getLoanById'](this.loanId) 
+      }
   }
 }
 </script>

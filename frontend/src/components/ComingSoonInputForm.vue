@@ -48,7 +48,7 @@ export default {
     submitEmail () {
       const trimmedEmail = this.email.trim()
       if (trimmedEmail) {
-        console.log(this.email) // TODO: post the email
+        // TODO: post the email
         this.message = "Thanks for signing up! We're excited to save you money!"
         this.email = ''
       }

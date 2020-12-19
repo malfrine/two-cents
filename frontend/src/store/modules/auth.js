@@ -26,12 +26,10 @@ const actions = {
     context.commit('startLogin')
     return axios.post('/api/users/login/', payload)
       .then(response => {
-        console.log(response)
         context.commit('login')
         router.push('/dashboard/profile')
       })
       .catch(e => {
-        context.commit('setAuthError', true)
         console.log(e)
       })
   },
@@ -55,7 +53,6 @@ const actions = {
       .catch(e => {console.log(e)})
   },
   getLoginStatus (context, payload) {
-    console.log("Checking log in status")
     return axios.get('/api/users/check_login')
       .then(response => {
         context.commit('login')
