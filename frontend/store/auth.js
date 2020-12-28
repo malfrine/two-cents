@@ -48,6 +48,7 @@ const actions = {
       .catch((e) => { console.log(e) })
   },
   postLogout (context, payload) {
+    console.log('posting logout')
     return this.$axios.$post('/api/users/logout/')
       .then((response) => {
         context.commit('logout')

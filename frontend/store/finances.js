@@ -1,6 +1,6 @@
 import Vue from 'vue'
 
-const state = function () {
+const defaultState = function () {
   return {
     is_loading: true,
     no_finances: true,
@@ -13,6 +13,10 @@ const state = function () {
       financial_profile: {}
     }
   }
+}
+
+const state = function () {
+  return defaultState()
 }
 
 const getters = {
@@ -46,13 +50,14 @@ const mutations = {
   setUserFinances (state, payload) {
     state.user_finances = payload
     state.no_finances = false
-    console.log(state.no_finances)
+  },
+  resetUserFinances (state) {
+    Object.assign(state, defaultState())
   },
   setLoan: (state, payload) => {
     Vue.set(state.user_finances.loans, payload.id, payload)
   },
   deleteLoan: (state, payload) => {
-    console.log(payload)
     Vue.delete(state.user_finances.loans, payload.id)
   },
   setInvestment: (state, payload) => {
@@ -62,7 +67,7 @@ const mutations = {
     Vue.delete(state.user_finances.investments, payload.id)
   },
   setFinancialProfile: (state, payload) => {
-    Vue.set(state.user_finances.financial_profile, payload)
+    state.user_finances.financial_profile = payload
   },
   setIsLoading: (state, payload) => {
     state.is_loading = payload
@@ -71,6 +76,7 @@ const mutations = {
 
 const actions = {
   getUserFinances (context, payload) {
+    console.log('Getting user finances')
     return this.$axios.$get('/api/my/finances')
       .then((response) => {
         if (response.financial_profile == null) {
@@ -85,7 +91,6 @@ const actions = {
       })
   },
   createOrUpdateLoan (context, payload) {
-    console.log(payload)
     if (payload.id == null) {
       this.$axios.$post('/api/my/finances/loans', payload)
         .then(

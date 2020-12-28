@@ -1,36 +1,35 @@
 <template>
-  <div>
-    <div class="container mt--8 pb-9">
-      <div class="row justify-content-center">
-        <div class="col-lg-5 col-md-7">
-          <div class="card shadow">
-            <div class="card-header">
-              <img
-                src="@/static/big-logo-dark.png"
-                class="img-fluid"
-                alt="Responsive image"
-              >
-              <p class="text-center text-default">
-                DIY financial planning powered by AI
-              </p>
-            </div>
-            <div class="card-footer">
-              <div class="text-center">
-                <nuxt-link to="/dashboard/profile">
-                  Dashboard
-                </nuxt-link>
-              </div>
-            </div>
+  <v-container>
+    <v-row justify="center">
+      <v-col cols="12" lg="5" md="7">
+        <v-card>
+          <v-img
+            src="/big-logo-dark.png"
+          />
+          <div class="text-subtitle1 text-center">
+            DIY financial planning powered by AI
           </div>
-        </div>
-      </div>
-    </div>
-  </div>
+          <v-divider class="my-5" />
+          <div class="text-subtitle1 text-center">
+            <nuxt-link dark to="/dashboard/profile">
+              Dashboard
+            </nuxt-link>
+          </div>
+          <v-divider class="my-3" />
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
 
 export default {
-  layout: 'simple'
+  layout: 'simple',
+  head () {
+    return {
+      title: 'Welcome!'
+    }
+  }
 }
 </script>

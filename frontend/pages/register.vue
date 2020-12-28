@@ -1,102 +1,55 @@
 <template>
-  <div class="container mt--8 pb-9">
-    <div class="row justify-content-center">
-      <div class="col-lg-6 col-md-8">
-        <div class="card shadow">
-          <div class="card-header">
-            <img
-              src="@/static/big-logo-dark.png"
-              class="img-fluid"
-              alt="Responsive image"
-            >
-            <h2 class="text-center text-default">
+  <div>
+    <v-container class="pb-9">
+      <v-row justify="center">
+        <v-col cols="12" md="6" lg="5">
+          <v-card elevation="15">
+            <v-img
+              src="/big-logo-dark.png"
+            />
+            <div class="text-h5 text-center">
               Register
-            </h2>
-          </div>
-          <div class="card-body">
-            <form @submit.prevent="handleSubmit">
-              <div class="card-body px-lg-5 py-lg-5">
-                <div class="text-muted mb-4">
-                  <div class="form-group">
-                    <label for="firstname">First Name</label>
-                    <input
-                      v-model="firstname"
-                      type="text"
-                      name="firstname"
-                      class="form-control"
-                    >
-                  </div>
-                  <div class="form-group">
-                    <label for="lastname">Last Name</label>
-                    <input
-                      v-model="lastname"
-                      type="text"
-                      name="lastname"
-                      class="form-control"
-                    >
-                  </div>
-
-                  <div class="form-group">
-                    <label for="username">Email</label>
-                    <input
-                      v-model="email"
-                      type="text"
-                      name="username"
-                      class="form-control"
-                      :class="{ 'is-invalid': submitted && !email }"
-                    >
-                    <div
-                      v-show="submitted && !email"
-                      class="invalid-feedback"
-                    >
-                      Email is required
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <label htmlFor="password">Password</label>
-                    <input
-                      v-model="password"
-                      type="password"
-                      name="password"
-                      class="form-control"
-                      :class="{ 'is-invalid': submitted && !password }"
-                    >
-                    <div
-                      v-show="submitted && !password"
-                      class="invalid-feedback"
-                    >
-                      Password is required
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <label htmlFor="confirmPassword">Confirm Password</label>
-                    <input
-                      v-model="confirmPassword"
-                      type="password"
-                      name="password"
-                      class="form-control"
-                      :class="{ 'is-invalid': submitted && !confirmPassword }"
-                    >
-                    <div
-                      v-show="submitted && !confirmPassword"
-                      class="invalid-feedback"
-                    >
-                      Password is required
-                    </div>
-                  </div>
-                  <div class="form-group" align="center">
-                    <button class="btn btn-primary">
-                      Register
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </form>
-          </div>
-          <div class="card-footer" />
-        </div>
-      </div>
-    </div>
+            </div>
+            <v-divider class="my-6" />
+            <v-container>
+              <v-text-field
+                v-model="firstname"
+                label="First Name"
+                outlined
+              />
+              <v-text-field
+                v-model="lastname"
+                label="Last Name"
+                outlined
+              />
+              <v-text-field
+                v-model="email"
+                label="Email"
+                outlined
+                type="email"
+              />
+              <v-text-field
+                v-model="password"
+                label="Password"
+                outlined
+                type="password"
+              />
+              <v-text-field
+                v-model="confirmPassword"
+                label="Confirm Password"
+                outlined
+                type="password"
+              />
+              <v-row justify="center" class="my-3">
+                <v-btn color="accent" @click.prevent="handleSubmit">
+                  Register
+                </v-btn>
+              </v-row>
+            </v-container>
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-container>
   </div>
 </template>
 
