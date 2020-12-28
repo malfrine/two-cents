@@ -1,28 +1,36 @@
 <template>
-  <div class="bg-default">
-    <div class="main-content">
-      <SimpleLayoutNav />
-
-      <SimpleLayoutHeader />
-
-      <div class="container-fluid mt--9 pb--3">
-        <nuxt />
+  <v-app dark>
+    <v-app-bar
+      fixed
+      app
+    >
+      <div class="d-flex justify-center">
+        <v-img
+          max-width="150"
+          max-height="75"
+          src="/logo-black.png"
+        />
       </div>
-    </div>
-    <v-footer absolute>
-      <span>&copy; {{ new Date().getFullYear() }}</span>
-    </v-footer>
-  </div>
+      <v-spacer />
+      <v-btn icon @click.prevent="$vuetify.theme.isDark = !$vuetify.theme.isDark">
+        <v-icon>mdi-theme-light-dark</v-icon>
+      </v-btn>
+    </v-app-bar>
+    <v-main>
+      <v-container>
+        <nuxt />
+      </v-container>
+    </v-main>
+    <BaseFooter />
+  </v-app>
 </template>
 
 <script>
-import SimpleLayoutHeader from '@/components/SimpleLayoutHeader.vue'
-import SimpleLayoutNav from '@/components/SimpleLayoutNav.vue'
+import BaseFooter from '@/components/base/BaseFooter'
 
 export default {
   components: {
-    SimpleLayoutHeader,
-    SimpleLayoutNav
+    BaseFooter
   }
 }
 </script>

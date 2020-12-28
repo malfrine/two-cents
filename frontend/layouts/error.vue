@@ -1,23 +1,31 @@
 <template>
-  <div>
-    <div class="container mt--8 pb-9">
-      <div class="row justify-content-center">
-        <div class="col-lg-5 col-md-7">
-          <v-card>
-            <h1 class="text-center" v-if="error.statusCode === 404">
-              {{ pageNotFound }}
-            </h1>
-            <h1 class="text-center" v-else>
-              {{ otherError }}
-            </h1>
-            <NuxtLink class="text-center" to="/">
+  <v-container>
+    <v-row justify="center">
+      <v-col cols="12" md="7" lg="5">
+        <v-card>
+          <v-img
+            src="/big-logo-dark.png"
+          />
+          <div class="text-subtitle-1 text-center mb-5">
+            Uh-oh! Looks like there was an error...
+          </div>
+          <div v-if="error.statusCode === 404" class="text-h5 text-center">
+            {{ pageNotFound }}
+          </div>
+          <div v-else class="text-h5 text-center">
+            {{ otherError }}
+          </div>
+          <v-divider class="my-9" />
+          <NuxtLink to="/">
+            <div class="text-subtitle1 text-center">
               Home page
-            </NuxtLink>
-          </v-card>
-        </div>
-      </div>
-    </div>
-  </div>
+            </div>
+          </NuxtLink>
+          <v-divider class="mt-6" />
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>

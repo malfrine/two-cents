@@ -5,7 +5,12 @@
 <script>
 export default {
   layout: 'dashboard',
-  middleware: 'auth'
+  middleware: 'auth',
+  head () {
+    return {
+      title: 'Plan'
+    }
+  }
 }
 </script>
 
