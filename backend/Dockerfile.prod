@@ -1,0 +1,28 @@
+FROM python:3.7
+
+# python envs
+ENV PYTHONFAULTHANDLER=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONHASHSEED=random \
+    PIP_NO_CACHE_DIR=off \
+    PIP_DISABLE_PIP_VERSION_CHECK=on \
+    PIP_DEFAULT_TIMEOUT=100 \
+    PYTHONPATH="${PYTHONPATH}:/app/core/apps/pennies:/app/core"
+
+
+RUN mkdir -p /app && mkdir -p /app/staticfiles
+COPY ./backend /app
+WORKDIR /app
+
+USER root
+RUN apt-get update &&\
+ apt-get install -y coinor-cbc
+
+# python dependencies
+RUN pip install -r requirements.txt
+
+EXPOSE 8000
+
+RUN chmod +x ./scripts/gunicorn.sh
+
+CMD ./scripts/gunicorn.sh
