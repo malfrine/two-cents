@@ -18,8 +18,8 @@ export default {
   },
 
   server: {
-    port: 8000, // default: 3000
-    host: '0.0.0.0' // default: localhost
+    port: process.env.NUXT_PORT || 8000, // default: 3000
+    host: process.env.NUXT_HOST || '0.0.0.0' // default: localhost
   },
 
   // Global CSS (https://go.nuxtjs.dev/config-css)
@@ -50,9 +50,21 @@ export default {
     '@nuxtjs/pwa'
   ],
 
-  // Axios module configuration (https://go.nuxtjs.dev/config-axios)
+  // Axios module configuration (https://go.nuxtjs.devThe Same Origin Policy disallows reading the remote resource at/config-axios)
   axios: {
     baseUrl: 'http://localhost:8000'
+  },
+
+  publicRuntimeConfig: {
+    axios: {
+      browserBaseURL: process.env.AXIOS_BASE_URL
+    }
+  },
+
+  privateRuntimeConfig: {
+    axios: {
+      baseURL: process.env.AXIOS_BASE_URL
+    }
   },
 
   // Vuetify module configuration (https://go.nuxtjs.dev/config-vuetify)
