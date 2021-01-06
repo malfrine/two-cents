@@ -18,24 +18,41 @@ const mutations = {
   },
   logout (state) {
     state.loggedIn = false
+  },
+  stopLogin (state) {
+    state.loggingIn = false
   }
 }
 
 const actions = {
   postLogin (context, payload) {
-    console.log(this.$store)
     context.commit('startLogin')
-    return this.$axios.$post('/api/users/login/', payload)
+    return this.$axios.$post('/api/my/session', payload)
       .then((response) => {
         context.commit('login')
         this.$router.push('/dashboard/profile')
       })
       .catch((e) => {
-        console.log(e)
+        if (e.response.status === 404) {
+          // send alert
+          this.$toast.error('Username or password is not recognized', {
+            duration: 3000,
+            action: {
+              icon: 'check',
+              onClick: (e, toast) => {
+                toast.goAway(0)
+              }
+            }
+          })
+          console.log(this.$toast)
+          console.log("I don't know you")
+          context.commit('stopLogin')
+        }
       })
   },
   postRegister (context, payload) {
-    return this.$axios.$post('/api/users/register/', payload)
+    console.log(payload)
+    return this.$axios.$post('/api/my/account/', payload)
       .then((response) => {
         console.log(response)
         if (response.status === 210) {
@@ -48,15 +65,14 @@ const actions = {
       .catch((e) => { console.log(e) })
   },
   postLogout (context, payload) {
-    console.log('posting logout')
-    return this.$axios.$post('/api/users/logout/')
+    return this.$axios.$delete('/api/my/session')
       .then((response) => {
         context.commit('logout')
       })
       .catch((e) => { console.log(e) })
   },
   getLoginStatus (context, payload) {
-    return this.$axios.$get('/api/users/check_login')
+    return this.$axios.$get('/api/my/session')
       .then((response) => {
         context.commit('login')
         this.$router.push('/dashboard/profile')

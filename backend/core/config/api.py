@@ -6,14 +6,14 @@ from core.apps.finances.views import (
     UserFinancesViewset,
 )
 from core.apps.plan.views import UserPlanViewSet
-from core.apps.users.views import UserViewSet
+from core.apps.users.views import AccountViewSet, SessionAPIView
 
 # Settings
 api = routers.DefaultRouter()
 api.trailing_slash = "/?"
 
 # Users API
-api.register(r"users", UserViewSet)
+api.register(r"my/account", AccountViewSet, basename="account")
 api.register(r"my/finances", UserFinancesViewset, basename="user-finances")
 api.register(r"my/finances/loans", LoanViewset)
 api.register(r"my/finances/investments", InvestmentViewset)
