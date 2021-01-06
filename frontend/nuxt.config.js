@@ -28,7 +28,8 @@ export default {
 
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
   plugins: [
-    '~/plugins/axios.js'
+    '~/plugins/axios.js',
+    { src: '~/plugins/vue-toastification.js', mode: 'client' }
   ],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
@@ -47,7 +48,8 @@ export default {
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
     // https://go.nuxtjs.dev/pwa
-    '@nuxtjs/pwa'
+    '@nuxtjs/pwa',
+    'vue-toastification/nuxt'
   ],
 
   // Axios module configuration (https://go.nuxtjs.devThe Same Origin Policy disallows reading the remote resource at/config-axios)
@@ -74,16 +76,16 @@ export default {
       dark: true,
       themes: {
         dark: {
-          primary: colors.blue.darken2,
+          primary: colors.blue.darken1,
           accent: '#25b245',
-          secondary: colors.amber.darken3,
+          secondary: colors.grey.darken3,
           info: colors.teal.lighten1,
           warning: colors.amber.base,
           error: colors.deepOrange.accent4,
           success: colors.green.accent3
         },
         light: {
-          primary: colors.grey.darken1,
+          primary: colors.blue.darken1,
           accent: '#25b245',
           secondary: colors.blueGrey.lighten5,
           info: colors.teal.lighten1,
@@ -94,6 +96,21 @@ export default {
       }
     }
   },
+
+  // toast: {
+  //   position: 'top-center',
+  //   keepOnHover: true,
+  //   duration: 3000,
+  //   register: [ // Register custom toasts
+  //     {
+  //       name: 'my-error',
+  //       message: 'Oops...Something went wrong',
+  //       options: {
+  //         type: 'error'
+  //       }
+  //     }
+  //   ]
+  // },
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)
   build: {

@@ -33,14 +33,6 @@
       app
     >
       <v-app-bar-nav-icon v-if="!drawer" @click.stop="drawer = !drawer; miniVariant=false" />
-      <!-- <v-btn
-        icon
-        @click.stop="miniVariant = !miniVariant"
-      >
-        <v-icon v-if="!$vuetify.breakpoint.mobile">
-          mdi-{{ `chevron-${miniVariant ? 'right' : 'left'}` }}
-        </v-icon>
-      </v-btn> -->
       <v-spacer />
       <div class="d-flex justify-center">
         <v-img

@@ -1,4 +1,5 @@
 import re
+from django.db.models.query import QuerySet
 import requests
 from uuid import uuid4
 
@@ -8,41 +9,29 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 
-from rest_framework import viewsets, status
+from rest_framework import mixins, views, viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework import serializers
 
 from core.apps.users.models import User
-from core.apps.users.serializers import UserSerializer, UserWriteSerializer
+from core.apps.users.serializers import UserWriteSerializer
 
 
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = []
+class SessionAPIView(views.APIView):
 
-    def get_serializer_class(self):
-        if self.action in ["list", "retrieve"]:
-            return UserSerializer
-        return UserWriteSerializer
+    def get(self, request, format=None):
+        """Return session cookie in header if session exists"""
+        user = get_user(request)
+        print(user)
+        if not user.is_anonymous and user.is_authenticated:
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
-    def perform_create(self, serializer):
-        user = serializer.save()
-        user.set_password(self.request.data.get("password"))
-        user.save()
 
-    def perform_update(self, serializer):
-        user = serializer.save()
-        if "password" in self.request.data:
-            user.set_password(self.request.data.get("password"))
-            user.save()
-
-    def perform_destroy(self, instance):
-        instance.is_active = False
-        instance.save()
-
-    @action(methods=["POST"], detail=False)
-    def login(self, request, format=None):
+    def post(self, request, format=None):
+        """Crete a new session by logging in"""
         email = request.data.get("email", None)
         password = request.data.get("password", None)
         user = authenticate(email=email, password=password)
@@ -52,67 +41,22 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_200_OK)
         return Response(status=status.HTTP_404_NOT_FOUND)
 
-    @action(methods=["POST"], detail=False)
-    def logout(self, request, format=None):
+    def delete(self, request, format=None):
+        """Destroy a session and throw out the cookie"""
         try:
             logout(request)
             return Response(status=status.HTTP_200_OK)
         except:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    @action(methods=["POST"], detail=False)
-    def register(self, request):
-        last_name = request.data.get("last_name", None)
-        first_name = request.data.get("first_name", None)
-        email = request.data.get("email", None)
-        password = request.data.get("password", None)
 
-        if User.objects.filter(email__iexact=email).exists():
-            return Response({"status": 210})
+class AccountViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
+    serializer_class = UserWriteSerializer
+    queryset = User.objects.none()
 
-        # user creation
-        user = User.objects.create(
-            email=email,
-            password=password,
-            last_name=last_name,
-            first_name=first_name,
-            is_admin=False,
-        )
-        user.set_password(password)
+    def perform_create(self, serializer):
+        if self.request.data.get("password") is None:
+            raise serializers.ValidationError("Password is required.")
+        user = serializer.save()
+        user.set_password(self.request.data.get("password"))
         user.save()
-        return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
-
-    @action(methods=["POST"], detail=False)
-    def password_reset(self, request, format=None):
-        if User.objects.filter(email=request.data["email"]).exists():
-            user = User.objects.get(email=request.data["email"])
-            params = {"user": user, "DOMAIN": settings.DOMAIN}
-            send_mail(
-                subject="Password reset",
-                message=render_to_string("mail/password_reset.txt", params),
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[request.data["email"]],
-            )
-            return Response(status=status.HTTP_200_OK)
-        else:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-    @action(methods=["POST"], detail=False)
-    def password_change(self, request, format=None):
-        if User.objects.filter(token=request.data["token"]).exists():
-            user = User.objects.get(token=request.data["token"])
-            user.set_password(request.data["password"])
-            user.token = uuid4()
-            user.save()
-            return Response(status=status.HTTP_200_OK)
-        else:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-    @action(methods=["GET"], detail=False)
-    def check_login(self, request, format=None):
-        user = get_user(request)
-        print(user)
-        if not user.is_anonymous and user.is_authenticated:
-            return Response(status=status.HTTP_200_OK)
-        else:
-            return Response(status=status.HTTP_404_NOT_FOUND)
