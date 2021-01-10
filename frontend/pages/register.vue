@@ -41,7 +41,7 @@
                 type="password"
               />
               <v-row justify="center" class="my-3">
-                <v-btn color="accent" @click.prevent="handleSubmit">
+                <v-btn color="primary" @click.prevent="handleSubmit">
                   Register
                 </v-btn>
               </v-row>

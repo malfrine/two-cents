@@ -49,7 +49,7 @@
         <LoanDialog :visible="showLoanDialog" :loan-id="loan.id" @close="showLoanDialog=false" />
       </v-row>
       <v-card-title>
-        <div class="text-h2 accent--text" color="accent">
+        <div class="text-h2 primary--text" color="primary">
           $ {{ loan.current_balance }}
         </div>
       </v-card-title>

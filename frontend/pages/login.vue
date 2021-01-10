@@ -30,7 +30,7 @@
                 />
               </v-form>
               <v-row justify="center">
-                <v-btn color="accent" :disabled="loggingIn" :loading="loggingIn" @click.prevent="handleSubmit">
+                <v-btn color="primary" :disabled="loggingIn" :loading="loggingIn" @click.prevent="handleSubmit">
                   Login
                 </v-btn>
               </v-row>
@@ -38,12 +38,12 @@
             <v-divider class="my-4" />
             <v-row class="mx-4 py-4">
               <v-col cols="12" sm="6" class="d-flex justify-center justify-sm-start">
-                <v-btn small to="/register" color="primary">
+                <v-btn small to="/register" color="accent">
                   Register
                 </v-btn>
               </v-col>
               <v-col cols="12" sm="6" class="d-flex justify-center justify-sm-end">
-                <v-btn small to="/forgot-password" color="primary">
+                <v-btn small to="/forgot-password" color="accent">
                   Forgot Password
                 </v-btn>
               </v-col>

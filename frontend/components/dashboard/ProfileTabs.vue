@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-tabs color="accent" centered>
+    <v-tabs color="primary" centered>
       <v-tab>
         <v-icon class="mr-1">mdi-account</v-icon>
         Profile

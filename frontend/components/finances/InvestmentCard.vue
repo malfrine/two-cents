@@ -49,7 +49,7 @@
         <InvestmentDialog :visible="showInvestmentDialog" :investment-id="investment.id" @close="showInvestmentDialog=false" />
       </v-row>
       <v-card-title>
-        <div class="text-h2 accent--text" color="accent">
+        <div class="text-h2 primary--text" color="primary">
           $ {{ investment.current_balance }}
         </div>
       </v-card-title>
