@@ -4,7 +4,7 @@
       <v-btn
         fab
         large
-        color="accent"
+        color="primary"
         @click.stop="showLoanDialog=true"
       >
         <v-icon>mdi-plus</v-icon>

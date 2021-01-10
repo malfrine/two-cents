@@ -4,14 +4,7 @@ const defaultState = function () {
   return {
     is_loading: true,
     no_finances: true,
-    user_finances: {
-      first_name: '',
-      last_name: '',
-      email: '',
-      loans: {},
-      investments: {},
-      financial_profile: {}
-    }
+    user_finances: null
   }
 }
 
@@ -43,76 +36,67 @@ const getters = {
   },
   getInvestmentById: state => (id) => {
     return state.user_finances.investments[id]
+  },
+  getUserFinancesExists (state) {
+    return state.user_finances != null
   }
 }
 
 const mutations = {
-  setUserFinances (state, payload) {
+  SET_USER_FINANCES (state, payload) {
     state.user_finances = payload
     state.no_finances = false
   },
-  resetUserFinances (state) {
+  RESET_USER_FINANCES (state) {
     Object.assign(state, defaultState())
   },
-  setLoan: (state, payload) => {
+  SET_LOAN: (state, payload) => {
     Vue.set(state.user_finances.loans, payload.id, payload)
   },
-  deleteLoan: (state, payload) => {
+  DELETE_LOAN: (state, payload) => {
     Vue.delete(state.user_finances.loans, payload.id)
   },
-  setInvestment: (state, payload) => {
+  SET_INVESTMENT: (state, payload) => {
     Vue.set(state.user_finances.investments, payload.id, payload)
   },
-  deleteInvestment: (state, payload) => {
+  DELETE_INVESTMENT: (state, payload) => {
     Vue.delete(state.user_finances.investments, payload.id)
   },
-  setFinancialProfile: (state, payload) => {
+  SET_FINANCIAL_PROFILE: (state, payload) => {
     state.user_finances.financial_profile = payload
   },
-  setIsLoading: (state, payload) => {
+  SET_IS_LOADING: (state, payload) => {
     state.is_loading = payload
   }
 }
 
 const actions = {
-  getUserFinances (context, payload) {
-    console.log('Getting user finances')
-    return this.$axios.$get('/api/my/finances')
-      .then((response) => {
-        if (response.financial_profile == null) {
-          response.financial_profile = {}
-          // TODO: do this in a cleaner way
-        }
-        context.commit('setUserFinances', response)
-        context.commit('setIsLoading', false)
-      })
-      .catch((e) => {
-        console.log(e)
-      })
+  resetUserFinances (context) {
+    context.commit('RESET_USER_FINANCES')
   },
   createOrUpdateLoan (context, payload) {
     if (payload.id == null) {
       this.$axios.$post('/api/my/finances/loans', payload)
         .then(
           (response) => {
-            context.commit('setLoan', response)
+            context.commit('SET_LOAN', response)
           }
         )
         .catch(
           (e) => {
-            console.log(e)
+            this.$toast.error('Could not create loan')
           }
         )
     } else {
       this.$axios.$put(`/api/my/finances/loans/${payload.id}`, payload)
         .then(
           (response) => {
-            context.commit('setLoan', response)
+            context.commit('SET_LOAN', response)
           }
         )
         .catch(
           (e) => {
-            console.log(e)
+            this.$toast.error('Could not update loan')
           }
         )
     }
@@ -121,12 +105,12 @@ const actions = {
     this.$axios.$delete(`/api/my/finances/loans/${payload.id}`)
       .then(
         (response) => {
-          context.commit('deleteLoan', payload)
+          context.commit('DELETE_LOAN', payload)
         }
       )
       .catch(
         (e) => {
-          console.log(e)
+          this.$toast.error('Could not delete loan')
         }
       )
   },
@@ -135,24 +119,24 @@ const actions = {
       this.$axios.$post('/api/my/finances/investments', payload)
         .then(
           (response) => {
-            context.commit('setInvestment', response)
+            context.commit('SET_INVESTMENT', response)
           }
         )
         .catch(
           (e) => {
-            console.log(e)
+            this.$toast.error('Could not create investment')
           }
         )
     } else {
       this.$axios.$put(`/api/my/finances/investments/${payload.id}`, payload)
         .then(
           (response) => {
-            context.commit('setInvestment', response)
+            context.commit('SET_INVESTMENT', response)
           }
         )
         .catch(
           (e) => {
-            console.log(e)
+            this.$toast.error('Could not update investment')
           }
         )
     }
@@ -161,12 +145,12 @@ const actions = {
     this.$axios.$delete(`/api/my/finances/investments/${payload.id}`)
       .then(
         (response) => {
-          context.commit('deleteInvestment', payload)
+          context.commit('DELETE_INVESTMENT', payload)
         }
       )
       .catch(
         (e) => {
-          console.log(e)
+          this.$toast.error('Could not delete investment')
         }
       )
   },
@@ -174,12 +158,15 @@ const actions = {
     this.$axios.$post('/api/my/finances/profile', payload)
       .then(
         (response) => {
-          context.commit('setFinancialProfile', response)
+          context.commit('SET_FINANCIAL_PROFILE', response)
         }
       )
       .catch(
-        e => console.log(e)
+        (e) => { this.$toast.error('Could not update your information') }
       )
+  },
+  setIsLoading (context, payload) {
+    context.commit('SET_IS_LOADING', payload)
   }
 }
 

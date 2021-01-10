@@ -36,7 +36,7 @@
           outlined
         />
         <v-card-actions class="justify-center">
-          <v-btn x-large color="accent" @click.stop="show=false; createOrUpdateLoan()">
+          <v-btn x-large color="primary" @click.stop="show=false; createOrUpdateLoan()">
             Save Loan
           </v-btn>
         </v-card-actions>

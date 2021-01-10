@@ -6,11 +6,6 @@
       :expand-on-hover="!$vuetify.breakpoint.mobile"
       app
     >
-      <!-- <div class="d-flex align-center">
-        <v-img
-          src="/logo-black.png"
-        />
-      </div> -->
       <v-list>
         <v-list-item
           v-for="(item, i) in items"
@@ -53,7 +48,7 @@
       </v-btn>
     </v-app-bar>
     <v-main>
-      <v-container>
+      <v-container fluid>
         <nuxt />
       </v-container>
     </v-main>
@@ -94,7 +89,7 @@ export default {
   methods: {
     onLogoutClick () {
       this.$store.dispatch('auth/postLogout')
-      this.$store.commit('finances/resetUserFinances')
+      this.$store.dispatch('finances/resetUserFinances')
       this.$router.push('/')
     }
   }

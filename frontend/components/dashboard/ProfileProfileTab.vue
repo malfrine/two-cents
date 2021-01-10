@@ -4,7 +4,7 @@
       <v-btn
         fab
         large
-        color="accent"
+        color="primary"
         @click.prevent="toggleEditMode()"
       >
         <v-icon v-if="!this.editMode" color="white">

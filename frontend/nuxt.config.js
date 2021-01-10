@@ -22,6 +22,11 @@ export default {
     host: process.env.NUXT_HOST || '0.0.0.0' // default: localhost
   },
 
+  loading: {
+    color: '#25b245',
+    height: '5px'
+  },
+
   // Global CSS (https://go.nuxtjs.dev/config-css)
   css: [
   ],
@@ -76,8 +81,8 @@ export default {
       dark: true,
       themes: {
         dark: {
-          primary: colors.blue.darken1,
-          accent: '#25b245',
+          primary: '#25b245',
+          accent: colors.blue.darken1,
           secondary: colors.grey.darken3,
           info: colors.teal.lighten1,
           warning: colors.amber.base,
@@ -85,8 +90,8 @@ export default {
           success: colors.green.accent3
         },
         light: {
-          primary: colors.blue.darken1,
-          accent: '#25b245',
+          primary: '#25b245',
+          accent: colors.blue.darken1,
           secondary: colors.blueGrey.lighten5,
           info: colors.teal.lighten1,
           warning: colors.amber.base,
@@ -114,5 +119,6 @@ export default {
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)
   build: {
+    vendo: ['~/assets/plan-utils.js']
   }
 }

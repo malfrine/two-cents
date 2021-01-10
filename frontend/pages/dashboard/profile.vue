@@ -1,5 +1,14 @@
 <template>
-  <ProfileTabs v-if="!isLoading" />
+  <v-container>
+    <v-overlay v-if="isLoading">
+      <v-progress-circular
+        :size="150"
+        color="primary"
+        indeterminate
+      />
+    </v-overlay>
+    <ProfileTabs v-else />
+  </v-container>
 </template>
 
 <script>
@@ -8,16 +17,30 @@ export default {
   components: {
     ProfileTabs
   },
-  computed: {
-    isLoading () {
-      return this.$store.state.finances.is_loading
+  async fetch () {
+    if (!this.$store.getters['finances/getUserFinancesExists']) {
+      console.log('no user finances available - going to fetch it')
+      this.isLoading = true
+      const response = await this.$axios.$get('/api/my/finances')
+        .then((response) => {
+          if (response.financial_profile == null) {
+            response.financial_profile = {}
+          // TODO: do this in a cleaner way
+          }
+          return response
+        })
+        .catch((e) => {
+          this.$toast.error('Could not get your financial information')
+          return null
+        })
+      this.$store.commit('finances/SET_USER_FINANCES', response)
+      this.$store.commit('finances/SET_IS_LOADING', false)
+      this.isLoading = false
     }
   },
-  mounted () {
-    // TODO: move isLoading out of store into local data
-    if (this.$store.state.finances.no_finances) {
-      this.$store.commit('finances/setIsLoading', true)
-      this.$store.dispatch('finances/getUserFinances')
+  data () {
+    return {
+      isLoading: false
     }
   },
   head () {

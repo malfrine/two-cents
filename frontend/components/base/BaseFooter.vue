@@ -1,6 +1,6 @@
 <template>
   <v-footer
-    absolute
+    fixed
     app
   >
     <span>Privacy | Terms of Service</span>
