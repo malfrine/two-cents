@@ -1,8 +1,8 @@
-import { makeFakePlan, RawPlanProcessor } from '~/assets/plan-utils.js'
+import { PlanMaker } from '~/assets/plans.js'
 
 const defaultState = function () {
   return {
-    plan: null
+    plans: null
   }
 }
 
@@ -12,46 +12,38 @@ const state = function () {
 
 const getters = {
   getStrategies (state) {
-    return state.plan.strategies
+    return state.plans.strategies || []
   },
-  getNetWorth (state) {
-    return state.plan.net_worth
+  getNetWorth: state => (strategyName) => {
+    return state.plans.data[strategyName].netWorthForecast
   },
-  getSummary (state) {
-    return state.plan.summary
+  getSummary: state => (strategyName) => {
+    return state.plans.data[strategyName].summary
   },
-  getIsLoading (state) {
-    return state.is_loading
+  getMilestones: state => (strategyName) => {
+    return state.plans.data[strategyName].milestones
   }
 }
 
 const mutations = {
-  SET_PLAN (state, payload) {
-    state.plan = payload
+  SET_PLANS (state, payload) {
+    console.log(payload)
+    state.plans = payload
   }
 }
 
 const actions = {
   getPlan (context) {
-    context.commit('SET_IS_LOADING', true)
     this.$axios.$get('/api/my/plan/processed')
       .then(
         (response) => {
-          const rp = new RawPlanProcessor()
-          rp.processResponse(response.data)
-          context.commit('SET_PLAN', response.data)
-          context.commit('SET_IS_LOADING', false)
+          const plans = PlanMaker.fromResponseData(response.data)
+          context.commit('SET_PLAN', plans)
         }
       )
       .catch(
         e => this.$toast.error('Uh oh, something went wrong')
       )
-  },
-  getFakePlan (context) {
-    const data = makeFakePlan()
-    const rp = new RawPlanProcessor()
-    rp.processResponse(data)
-    context.commit('SET_PLAN', data)
   }
 }
 
