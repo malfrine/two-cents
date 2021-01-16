@@ -44,7 +44,7 @@
                   </div>
                 </v-expansion-panel-header>
                 <v-expansion-panel-content>
-                  <PlanSummary />
+                  <PlanMilestones :selected-strategy="selectedStrategy" />
                 </v-expansion-panel-content>
               </v-expansion-panel>
             </v-container>
@@ -111,7 +111,7 @@
               />
             </v-container>
             <v-divider class="my-2" />
-            <PlanSummary />
+            <PlanSummary :selected-strategy="selectedStrategy" />
           </v-card>
         </v-col>
       </v-row>
@@ -139,6 +139,7 @@ export default {
   async fetch () {
     await delay(1000) // temp delay to show loading
     const data = makeFakePlansResponseData()
+    console.log(data)
     const pm = new PlanMaker()
     const plans = pm.fromResponseData(data)
     this.$store.commit('plan/SET_PLANS', plans)
@@ -146,45 +147,16 @@ export default {
   data () {
     return {
       selectedStrategy: 'Two Cents Plan',
-      showPanel: false,
       panel: [0, 1, 2, 3]
     }
   },
   computed: {
     netWorthData () {
-      console.log("I'm getting the net worth data")
       const refData = this.$store.getters['plan/getNetWorth'](this.selectedStrategy)
       return JSON.parse(JSON.stringify(refData))
     },
     strategies () {
-      console.log("I'm getting strategies")
       return this.$store.getters['plan/getStrategies']
-    },
-    userHasLoans () {
-      return (Object.keys(this.loans)).length > 0
-    },
-    loans () {
-      return this.$store.getters['finances/getLoans']
-    },
-    userHasInvestments () {
-      return (Object.keys(this.investments)).length > 0
-    },
-    investments () {
-      return this.$store.getters['finances/getInvestments']
-    },
-    totalInvestments () {
-      let total = 0
-      for (const id in this.investments) {
-        total += this.investments[id].current_balance
-      }
-      return total
-    },
-    totalLoans () {
-      let total = 0
-      for (const id in this.loans) {
-        total += this.loans[id].current_balance
-      }
-      return total
     },
     possessiveUserName () {
       const firstName = this.$store.getters['finances/getFirstName']

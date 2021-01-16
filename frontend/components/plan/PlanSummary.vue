@@ -1,7 +1,7 @@
 <template>
   <v-row>
     <v-container>
-      <v-col v-for="summary in summaries" :key="summary.name" cols="12">
+      <v-col v-for="summary in testSummaries" :key="summary.name" cols="12">
         <v-card>
           <v-card-title>
             {{ summary.name }}
@@ -18,6 +18,7 @@
 
 <script>
 export default {
+  props: ['selectedStrategy'],
   data () {
     return {
       summaries: {
@@ -33,8 +34,12 @@ export default {
           name: 'Money Saved',
           text: 'This is a summary of how much money you can save'
         }
-
       }
+    }
+  },
+  computed: {
+    testSummaries () {
+      return this.$store.getters['plan/getSummaries'](this.selectedStrategy)
     }
   }
 }

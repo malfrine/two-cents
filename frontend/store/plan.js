@@ -17,9 +17,10 @@ const getters = {
   getNetWorth: state => (strategyName) => {
     return state.plans.data[strategyName].netWorthForecast
   },
-  getSummary: state => (strategyName) => {
-    return state.plans.data[strategyName].summary
+  getSummaries: state => (strategyName) => {
+    return state.plans.data[strategyName].summaries
   },
+
   getMilestones: state => (strategyName) => {
     return state.plans.data[strategyName].milestones
   }

@@ -24,8 +24,19 @@ const makeFakePlansResponseData = function () {
         ],
         labels: [new Date('January 1, 2020'), new Date('February 1, 2020'), new Date('March 1, 2020'), new Date('April 1, 2020')]
       },
-      summary: {
-
+      summaries: {
+        'summary 1': {
+          name: 'Priorities',
+          text: 'This is a summary of your priorities'
+        },
+        'summary 2': {
+          name: 'Important Dates',
+          text: 'This is a summary of your important dates'
+        },
+        'summary 3': {
+          name: 'Money Saved',
+          text: 'This is a summary of how much money you can save'
+        }
       },
       milestones: {
         'Milestone # 1 TC': {
@@ -60,7 +71,20 @@ const makeFakePlansResponseData = function () {
         labels: [new Date('January 1, 2020'), new Date('February 1, 2020'), new Date('March 1, 2020'), new Date('April 1, 2020')]
 
       },
-      summary: {},
+      summaries: {
+        'summary 1': {
+          name: 'Priorities',
+          text: 'This is a summary of your priorities'
+        },
+        'summary 2': {
+          name: 'Important Dates',
+          text: 'This is a summary of your important dates'
+        },
+        'summary 3': {
+          name: 'Money Saved',
+          text: 'This is a summary of how much money you can save'
+        }
+      },
       milestones: {
         'Milestone # 1 AV': {
           date: new Date(),
@@ -94,7 +118,20 @@ const makeFakePlansResponseData = function () {
         labels: [new Date('January 1, 2020'), new Date('February 1, 2020'), new Date('March 1, 2020'), new Date('April 1, 2020')]
 
       },
-      summary: {},
+      summaries: {
+        'summary 1': {
+          name: 'Priorities',
+          text: 'This is a summary of your priorities'
+        },
+        'summary 2': {
+          name: 'Important Dates',
+          text: 'This is a summary of your important dates'
+        },
+        'summary 3': {
+          name: 'Money Saved',
+          text: 'This is a summary of how much money you can save'
+        }
+      },
       milestones: {
         'Milestone # 1 SB': {
           date: new Date(),
@@ -128,7 +165,20 @@ const makeFakePlansResponseData = function () {
         labels: [new Date('January 1, 2020'), new Date('February 1, 2020'), new Date('March 1, 2020'), new Date('April 1, 2020')]
 
       },
-      summary: {},
+      summaries: {
+        'summary 1': {
+          name: 'Priorities',
+          text: 'This is a summary of your priorities'
+        },
+        'summary 2': {
+          name: 'Important Dates',
+          text: 'This is a summary of your important dates'
+        },
+        'summary 3': {
+          name: 'Money Saved',
+          text: 'This is a summary of how much money you can save'
+        }
+      },
       milestones: {
         'Milestone # 1 CPP': {
           date: new Date(),
@@ -174,13 +224,13 @@ class Plans {
 
 class Plan {
     netWorthForecast = null
-    summary = null
+    summaries = null
     milestones = null
     name = null
 
-    constructor (netWorthForecast, summary, milestones, name) {
+    constructor (netWorthForecast, summaries, milestones, name) {
       this.netWorthForecast = netWorthForecast
-      this.summary = summary
+      this.summaries = summaries
       this.milestones = milestones
       this.name = name
     }
@@ -229,7 +279,7 @@ export class PlanMaker {
         }
         const plan = new Plan(
           planResponseData.net_worth,
-          planResponseData.summary,
+          planResponseData.summaries,
           planResponseData.milestones,
           planName
         )
