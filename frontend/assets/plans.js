@@ -200,7 +200,6 @@ const makeFakePlansResponseData = function () {
           header: 'Paid off Loan 1',
           text: 'Paid of Loan 1 20 days before schedule. Paid $20 on interest'
         }
-
       }
     }
   }
