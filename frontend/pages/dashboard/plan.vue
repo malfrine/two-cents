@@ -44,7 +44,7 @@
                   </div>
                 </v-expansion-panel-header>
                 <v-expansion-panel-content>
-                  <PlanMilestones :selected-strategy="selectedStrategy" />
+                  <PlanSummary :selected-strategy="selectedStrategy" />
                 </v-expansion-panel-content>
               </v-expansion-panel>
             </v-container>
@@ -89,6 +89,20 @@
                       <PlanMilestones :selected-strategy="selectedStrategy" />
                     </v-container>
                   </v-card>
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+            </v-container>
+            <v-container fluid>
+              <v-expansion-panel class="my-n1">
+                <v-expansion-panel-header>
+                  <div class="text-h5">
+                    Action Plan
+                  </div>
+                </v-expansion-panel-header>
+                <v-expansion-panel-content style="max-height: 600px" class="overflow-y-auto">
+                  <v-container>
+                    <PlanActionPlan :selected-strategy="selectedStrategy" />
+                  </v-container>
                 </v-expansion-panel-content>
               </v-expansion-panel>
             </v-container>

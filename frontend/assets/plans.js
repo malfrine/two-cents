@@ -54,6 +54,27 @@ const makeFakePlansResponseData = function () {
           header: 'Paid off Loan 1',
           text: 'Paid of Loan 1 20 days before schedule. Paid $20 on interest'
         }
+      },
+      action_plan: {
+        monthly_allowance: 500,
+        payments: {
+          'loan 1': {
+            instrument: 'loan 1',
+            payment: 100
+          },
+          'loan 2': {
+            instrument: 'loan 2',
+            payment: 300
+          },
+          'investment 1': {
+            instrument: 'investment 1',
+            payment: 0
+          },
+          'investment 2': {
+            instrument: 'investment 2',
+            payment: 100
+          }
+        }
       }
     },
     'Avalanche Plan': {
@@ -101,6 +122,27 @@ const makeFakePlansResponseData = function () {
           header: 'Paid off Loan 1',
           text: 'Paid of Loan 1 20 days before schedule. Paid $20 on interest'
         }
+      },
+      action_plan: {
+        monthly_allowance: 500,
+        payments: {
+          'loan 1': {
+            instrument: 'loan 1',
+            payment: 100
+          },
+          'loan 2': {
+            instrument: 'loan 2',
+            payment: 300
+          },
+          'investment 1': {
+            instrument: 'investment 1',
+            payment: 0
+          },
+          'investment 2': {
+            instrument: 'investment 2',
+            payment: 100
+          }
+        }
       }
     },
     'Snowball Plan': {
@@ -147,6 +189,27 @@ const makeFakePlansResponseData = function () {
           date: new Date(),
           header: 'Paid off Loan 1',
           text: 'Paid of Loan 1 20 days before schedule. Paid $20 on interest'
+        }
+      },
+      action_plan: {
+        monthly_allowance: 500,
+        payments: {
+          'loan 1': {
+            instrument: 'loan 1',
+            payment: 100
+          },
+          'loan 2': {
+            instrument: 'loan 2',
+            payment: 300
+          },
+          'investment 1': {
+            instrument: 'investment 1',
+            payment: 0
+          },
+          'investment 2': {
+            instrument: 'investment 2',
+            payment: 100
+          }
         }
       }
     },
@@ -200,6 +263,27 @@ const makeFakePlansResponseData = function () {
           header: 'Paid off Loan 1',
           text: 'Paid of Loan 1 20 days before schedule. Paid $20 on interest'
         }
+      },
+      action_plan: {
+        monthly_allowance: 500,
+        payments: {
+          'loan 1': {
+            instrument: 'loan 1',
+            payment: 100
+          },
+          'loan 2': {
+            instrument: 'loan 2',
+            payment: 300
+          },
+          'investment 1': {
+            instrument: 'investment 1',
+            payment: 0
+          },
+          'investment 2': {
+            instrument: 'investment 2',
+            payment: 100
+          }
+        }
       }
     }
   }
@@ -225,12 +309,14 @@ class Plan {
     netWorthForecast = null
     summaries = null
     milestones = null
+    actionPlan = null
     name = null
 
-    constructor (netWorthForecast, summaries, milestones, name) {
+    constructor (netWorthForecast, summaries, milestones, actionPlan, name) {
       this.netWorthForecast = netWorthForecast
       this.summaries = summaries
       this.milestones = milestones
+      this.actionPlan = actionPlan
       this.name = name
     }
 }
@@ -280,6 +366,7 @@ export class PlanMaker {
           planResponseData.net_worth,
           planResponseData.summaries,
           planResponseData.milestones,
+          planResponseData.action_plan,
           planName
         )
         plans.push(plan)

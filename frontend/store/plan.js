@@ -20,7 +20,9 @@ const getters = {
   getSummaries: state => (strategyName) => {
     return state.plans.data[strategyName].summaries
   },
-
+  getActionPlan: state => (strategyName) => {
+    return state.plans.data[strategyName].actionPlan
+  },
   getMilestones: state => (strategyName) => {
     return state.plans.data[strategyName].milestones
   }
