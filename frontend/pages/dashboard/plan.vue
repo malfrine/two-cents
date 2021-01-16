@@ -44,9 +44,7 @@
                   </div>
                 </v-expansion-panel-header>
                 <v-expansion-panel-content>
-                  <v-card style="min-height: 300px">
-                    <v-container />
-                  </v-card>
+                  <PlanMilestones :selected-strategy="selectedStrategy" />
                 </v-expansion-panel-content>
               </v-expansion-panel>
             </v-container>
@@ -74,80 +72,7 @@
                   </div>
                 </v-expansion-panel-header>
                 <v-expansion-panel-content>
-                  <v-row>
-                    <v-col cols="12" md="6">
-                      <v-card class="pb-1" style="min-height: 100px">
-                        <v-card-title>
-                          {{ possessiveUserName }} Loans
-                        </v-card-title>
-                        <v-divider class="mt-n2 mb-3" />
-                        <div v-if="userHasLoans" class="py-1">
-                          <v-row v-for="loan in loans" :key="loan.id" class="px-6 my-2">
-                            <div class="text">
-                              {{ loan.name }}
-                            </div>
-                            <v-spacer />
-                            <div class="text red--text">
-                              $ {{ loan.current_balance }}
-                            </div>
-                          </v-row>
-                          <v-divider />
-                          <v-row class="px-6 my-2">
-                            <div class="text">
-                              Total Loans
-                            </div>
-                            <v-spacer class="my-2" />
-                            <div class="text red--text">
-                              $ {{ totalLoans }}
-                            </div>
-                          </v-row>
-                        </div>
-                        <div v-else>
-                          <v-container fluid>
-                            <div class="h3-text">
-                              No loans added
-                            </div>
-                          </v-container>
-                        </div>
-                      </v-card>
-                    </v-col>
-                    <v-col cols="12" md="6">
-                      <v-card class="pb-1">
-                        <v-card-title>
-                          {{ possessiveUserName }} Investments
-                        </v-card-title>
-                        <v-divider class="mt-n2 mb-3" />
-                        <div v-if="userHasInvestments" class="py-1">
-                          <v-row v-for="inv in investments" :key="inv.id" class="px-6 my-2">
-                            <div class="text">
-                              {{ inv.name }}
-                            </div>
-                            <v-spacer />
-                            <div class="text primary--text">
-                              $ {{ inv.current_balance }}
-                            </div>
-                          </v-row>
-                          <v-divider />
-                          <v-row class="px-6 my-2">
-                            <div class="text">
-                              Total Investments
-                            </div>
-                            <v-spacer class="my-2" />
-                            <div class="text primary--text">
-                              $ {{ totalInvestments }}
-                            </div>
-                          </v-row>
-                        </div>
-                        <div v-else>
-                          <v-container fluid>
-                            <div class="h2-text">
-                              No investments added
-                            </div>
-                          </v-container>
-                        </div>
-                      </v-card>
-                    </v-col>
-                  </v-row>
+                  <PlanCurrentFinances />
                 </v-expansion-panel-content>
               </v-expansion-panel>
             </v-container>
@@ -172,7 +97,6 @@
         <v-col v-if="$vuetify.breakpoint.mdAndUp" cols="3" md="4" lg="3">
           <v-card
             max-width="344"
-            style="height: 300px;"
             class="sticky-nav mt-2"
           >
             <v-container>
@@ -186,6 +110,8 @@
                 class="mb-n7"
               />
             </v-container>
+            <v-divider class="my-2" />
+            <PlanSummary :selected-strategy="selectedStrategy" />
           </v-card>
         </v-col>
       </v-row>
@@ -196,6 +122,8 @@
 <script>
 import NetWorthChart from '@/components/plan/net-worth-chart.js'
 import PlanMilestones from '@/components/plan/PlanMilestones.vue'
+import PlanCurrentFinances from '@/components/plan/PlanCurrentFinances.vue'
+import PlanSummary from '@/components/plan/PlanSummary.vue'
 import { makeFakePlansResponseData, PlanMaker } from '~/assets/plans.js'
 import { delay } from '~/assets/utils.js'
 
@@ -204,11 +132,14 @@ export default {
   middleware: 'auth',
   components: {
     NetWorthChart,
-    PlanMilestones
+    PlanMilestones,
+    PlanCurrentFinances,
+    PlanSummary
   },
   async fetch () {
     await delay(1000) // temp delay to show loading
     const data = makeFakePlansResponseData()
+    console.log(data)
     const pm = new PlanMaker()
     const plans = pm.fromResponseData(data)
     this.$store.commit('plan/SET_PLANS', plans)
@@ -216,44 +147,16 @@ export default {
   data () {
     return {
       selectedStrategy: 'Two Cents Plan',
-      showPanel: false
+      panel: [0, 1, 2, 3]
     }
   },
   computed: {
     netWorthData () {
-      console.log("I'm getting the net worth data")
       const refData = this.$store.getters['plan/getNetWorth'](this.selectedStrategy)
       return JSON.parse(JSON.stringify(refData))
     },
     strategies () {
-      console.log("I'm getting strategies")
       return this.$store.getters['plan/getStrategies']
-    },
-    userHasLoans () {
-      return (Object.keys(this.loans)).length > 0
-    },
-    loans () {
-      return this.$store.getters['finances/getLoans']
-    },
-    userHasInvestments () {
-      return (Object.keys(this.investments)).length > 0
-    },
-    investments () {
-      return this.$store.getters['finances/getInvestments']
-    },
-    totalInvestments () {
-      let total = 0
-      for (const id in this.investments) {
-        total += this.investments[id].current_balance
-      }
-      return total
-    },
-    totalLoans () {
-      let total = 0
-      for (const id in this.loans) {
-        total += this.loans[id].current_balance
-      }
-      return total
     },
     possessiveUserName () {
       const firstName = this.$store.getters['finances/getFirstName']
