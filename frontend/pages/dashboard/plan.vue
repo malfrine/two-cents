@@ -74,80 +74,7 @@
                   </div>
                 </v-expansion-panel-header>
                 <v-expansion-panel-content>
-                  <v-row>
-                    <v-col cols="12" md="6">
-                      <v-card class="pb-1" style="min-height: 100px">
-                        <v-card-title>
-                          {{ possessiveUserName }} Loans
-                        </v-card-title>
-                        <v-divider class="mt-n2 mb-3" />
-                        <div v-if="userHasLoans" class="py-1">
-                          <v-row v-for="loan in loans" :key="loan.id" class="px-6 my-2">
-                            <div class="text">
-                              {{ loan.name }}
-                            </div>
-                            <v-spacer />
-                            <div class="text red--text">
-                              $ {{ loan.current_balance }}
-                            </div>
-                          </v-row>
-                          <v-divider />
-                          <v-row class="px-6 my-2">
-                            <div class="text">
-                              Total Loans
-                            </div>
-                            <v-spacer class="my-2" />
-                            <div class="text red--text">
-                              $ {{ totalLoans }}
-                            </div>
-                          </v-row>
-                        </div>
-                        <div v-else>
-                          <v-container fluid>
-                            <div class="h3-text">
-                              No loans added
-                            </div>
-                          </v-container>
-                        </div>
-                      </v-card>
-                    </v-col>
-                    <v-col cols="12" md="6">
-                      <v-card class="pb-1">
-                        <v-card-title>
-                          {{ possessiveUserName }} Investments
-                        </v-card-title>
-                        <v-divider class="mt-n2 mb-3" />
-                        <div v-if="userHasInvestments" class="py-1">
-                          <v-row v-for="inv in investments" :key="inv.id" class="px-6 my-2">
-                            <div class="text">
-                              {{ inv.name }}
-                            </div>
-                            <v-spacer />
-                            <div class="text primary--text">
-                              $ {{ inv.current_balance }}
-                            </div>
-                          </v-row>
-                          <v-divider />
-                          <v-row class="px-6 my-2">
-                            <div class="text">
-                              Total Investments
-                            </div>
-                            <v-spacer class="my-2" />
-                            <div class="text primary--text">
-                              $ {{ totalInvestments }}
-                            </div>
-                          </v-row>
-                        </div>
-                        <div v-else>
-                          <v-container fluid>
-                            <div class="h2-text">
-                              No investments added
-                            </div>
-                          </v-container>
-                        </div>
-                      </v-card>
-                    </v-col>
-                  </v-row>
+                  <PlanCurrentFinances />
                 </v-expansion-panel-content>
               </v-expansion-panel>
             </v-container>
@@ -196,6 +123,7 @@
 <script>
 import NetWorthChart from '@/components/plan/net-worth-chart.js'
 import PlanMilestones from '@/components/plan/PlanMilestones.vue'
+import PlanCurrentFinances from '@/components/plan/PlanCurrentFinances.vue'
 import { makeFakePlansResponseData, PlanMaker } from '~/assets/plans.js'
 import { delay } from '~/assets/utils.js'
 
@@ -204,7 +132,8 @@ export default {
   middleware: 'auth',
   components: {
     NetWorthChart,
-    PlanMilestones
+    PlanMilestones,
+    PlanCurrentFinances
   },
   async fetch () {
     await delay(1000) // temp delay to show loading
