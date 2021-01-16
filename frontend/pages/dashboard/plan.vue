@@ -44,9 +44,7 @@
                   </div>
                 </v-expansion-panel-header>
                 <v-expansion-panel-content>
-                  <v-card style="min-height: 300px">
-                    <v-container />
-                  </v-card>
+                  <PlanSummary />
                 </v-expansion-panel-content>
               </v-expansion-panel>
             </v-container>
@@ -99,7 +97,6 @@
         <v-col v-if="$vuetify.breakpoint.mdAndUp" cols="3" md="4" lg="3">
           <v-card
             max-width="344"
-            style="height: 300px;"
             class="sticky-nav mt-2"
           >
             <v-container>
@@ -113,6 +110,8 @@
                 class="mb-n7"
               />
             </v-container>
+            <v-divider class="my-2" />
+            <PlanSummary />
           </v-card>
         </v-col>
       </v-row>
@@ -124,6 +123,7 @@
 import NetWorthChart from '@/components/plan/net-worth-chart.js'
 import PlanMilestones from '@/components/plan/PlanMilestones.vue'
 import PlanCurrentFinances from '@/components/plan/PlanCurrentFinances.vue'
+import PlanSummary from '@/components/plan/PlanSummary.vue'
 import { makeFakePlansResponseData, PlanMaker } from '~/assets/plans.js'
 import { delay } from '~/assets/utils.js'
 
@@ -133,7 +133,8 @@ export default {
   components: {
     NetWorthChart,
     PlanMilestones,
-    PlanCurrentFinances
+    PlanCurrentFinances,
+    PlanSummary
   },
   async fetch () {
     await delay(1000) // temp delay to show loading
@@ -145,7 +146,8 @@ export default {
   data () {
     return {
       selectedStrategy: 'Two Cents Plan',
-      showPanel: false
+      showPanel: false,
+      panel: [0, 1, 2, 3]
     }
   },
   computed: {
