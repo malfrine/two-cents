@@ -1,11 +1,12 @@
 from typing import Dict, List
+from uuid import UUID
 
 from pydantic import BaseModel, validator, ValidationError
 
 from pennies.model.instrument import Instrument
 from pennies.model.investment import Investment
 from pennies.model.loan import Loan
-from pennies.utilities.utilities import (
+from pennies.utilities.dict import (
     get_value_from_dict,
     remove_from_dict,
     add_to_dict,
@@ -31,6 +32,10 @@ class Portfolio(BaseModel):
     def loans(self) -> List[Loan]:
         return list(l for l in self.instruments.values() if isinstance(l, Loan))
 
+    @property
+    def loans_as_dict(self) -> Dict[UUID, Loan]:
+        return {loan.id_: loan for loan in self.loans}
+
     def investments(self) -> List[Investment]:
         return list(i for i in self.instruments.values() if isinstance(i, Investment))
 
@@ -50,7 +55,13 @@ class Portfolio(BaseModel):
         remove_from_dict(instrument_name, self.instruments)
 
     def get_debt(self) -> float:
-        return sum(loan.current_balance for loan in self.loans)
+        return abs(sum(loan.current_balance for loan in self.loans))
+
+    @property
+    def net_worth(self) -> float:
+        return sum(
+            instrument.current_balance for instrument in self.instruments.values()
+        )
 
     def __str__(self):
         return "\n\t".join(str(instrument) for instrument in self.instruments.values())

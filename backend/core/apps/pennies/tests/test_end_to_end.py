@@ -1,7 +1,9 @@
 from pennies.model.problem_input import ProblemInput
+from pennies.model.processed.solution import ProcessedSolution
+from pennies.model.status import PenniesStatus
 from pennies.model.user_personal_finances import UserPersonalFinances
 from pennies.model.solution import Solution
-from pennies.solver import solve, process_request
+from pennies.solver import solve, solve_request
 from tests.examples import simple_problem, pennies_request_as_dict
 
 
@@ -15,6 +17,12 @@ def test_simple_solve():
 
 def test_process_request():
     request = pennies_request_as_dict()
-    response = process_request(request)
-    assert len(response["msg"]["plans"]) == len(request["strategies"])
-    assert response["status"] == "success"
+    response = solve_request(request)
+    if response["status"] == PenniesStatus.FAILURE:
+        print(response["result"])
+        assert False
+    assert isinstance(response["result"], dict)
+    assert len(response["result"]) == len(request["strategies"])
+    assert len(response["result"]["linear-program"]["milestones"]) >= len(
+        request["loans"]
+    )

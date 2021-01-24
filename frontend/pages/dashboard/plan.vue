@@ -138,8 +138,7 @@ import NetWorthChart from '@/components/plan/net-worth-chart.js'
 import PlanMilestones from '@/components/plan/PlanMilestones.vue'
 import PlanCurrentFinances from '@/components/plan/PlanCurrentFinances.vue'
 import PlanSummary from '@/components/plan/PlanSummary.vue'
-import { makeFakePlansResponseData, PlanMaker } from '~/assets/plans.js'
-import { delay } from '~/assets/utils.js'
+import { PlanMaker } from '~/assets/plans.js'
 
 export default {
   layout: 'dashboard',
@@ -151,16 +150,21 @@ export default {
     PlanSummary
   },
   async fetch () {
-    await delay(1000) // temp delay to show loading
-    const data = makeFakePlansResponseData()
-    console.log(data)
+    const response = await this.$axios.$get('/api/my/plan')
+      .then((response) => {
+        return response
+      })
+      .catch((e) => {
+        this.$toast.error('Could not get your plan')
+        return null
+      })
     const pm = new PlanMaker()
-    const plans = pm.fromResponseData(data)
+    const plans = pm.fromResponseData(response)
     this.$store.commit('plan/SET_PLANS', plans)
   },
   data () {
     return {
-      selectedStrategy: 'Two Cents Plan',
+      selectedStrategy: 'linear-program',
       panel: [0, 1, 2, 3]
     }
   },

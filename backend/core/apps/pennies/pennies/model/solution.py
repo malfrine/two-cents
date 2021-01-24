@@ -1,13 +1,16 @@
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 from pydantic import BaseModel
 
 from pennies.model.portfolio import Portfolio
-from pennies.utilities.utilities import get_value_from_dict
+from pennies.utilities.dict import get_value_from_dict
+
+_ALMOST_ZERO_LOWER_BOUND = -1
+_ALMOST_ZERO_UPPER_BOUND = 1
 
 
 class MonthlyAllocation(BaseModel):
-    payments: Dict[str, float]
+    payments: Dict[str, float]  # TODO: key payments on UUID
     leftover: float = 0.0
 
     def __getitem__(self, item):
@@ -81,9 +84,40 @@ class FinancialPlan(BaseModel):
     def get_total_interest(self):
         return sum(ms.get_total_interest() for ms in self.monthly_solutions)
 
+    @property
+    def retirement_net_worth(self) -> float:
+        if len(self.monthly_solutions) == 0:
+            return 0
+        return round(self.monthly_solutions[-1].portfolio.net_worth)
+
+    @property
+    def retirement_month(self) -> int:
+        if len(self.monthly_solutions) == 0:
+            return 0
+        return len(self.monthly_solutions)
+
+    @property
+    def first_positive_net_worth_month(self) -> Optional[int]:
+        for month, ms in enumerate(self.monthly_solutions):
+            net_worth = ms.portfolio.net_worth
+            if net_worth <= _ALMOST_ZERO_LOWER_BOUND:
+                continue
+            return month + 1
+        return None
+
+    @property
+    def debt_free_month(self) -> Optional[int]:
+        for month, ms in enumerate(self.monthly_solutions):
+            debt = ms.portfolio.get_debt()
+            if debt >= _ALMOST_ZERO_UPPER_BOUND:
+                continue
+            return month + 1
+        return None
+
+
 
 class Solution(BaseModel):
     plans: Dict[str, FinancialPlan]
 
-    def __getitem__(self, item):
-        return self.financial_plans[item]
+    def __getitem__(self, item) -> FinancialPlan:
+        return self.plans[item]

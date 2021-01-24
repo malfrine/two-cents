@@ -26,11 +26,7 @@ DJANGO_APPS = [
     "django.contrib.admin",
 ]
 
-THIRD_PARTY_APPS = [
-    "rest_framework",
-    "django_extensions",
-    "whitenoise"
-]
+THIRD_PARTY_APPS = ["rest_framework", "django_extensions", "whitenoise"]
 
 LOCAL_APPS = [
     "core.apps.users",
@@ -50,7 +46,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
 
 # DEBUG
@@ -81,7 +77,11 @@ MANAGERS = ADMINS
 # DATABASE CONFIGURATION
 # ------------------------------------------------------------------------------
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#databases
-engine = "django.db.backends.postgresql_psycopg2" if DEBUG else "django.db.backends.postgresql"
+engine = (
+    "django.db.backends.postgresql_psycopg2"
+    if DEBUG
+    else "django.db.backends.postgresql"
+)
 
 DATABASES = {
     "default": {
@@ -134,7 +134,7 @@ STATICFILES_FINDERS = [
 ]
 
 # white noise compression spec
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # MEDIA CONFIGURATION
 # ------------------------------------------------------------------------------

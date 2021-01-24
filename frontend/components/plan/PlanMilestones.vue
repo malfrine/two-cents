@@ -8,7 +8,7 @@
       <template v-slot:opposite>
         <span
           class="headline font-weight-bold"
-          v-text="m.date.toDateString()"
+          v-text="new Date(m.date).toDateString()"
         />
       </template>
       <v-card elevation="2">
@@ -18,7 +18,7 @@
           <span
             v-if="!$vuetify.breakpoint.smAndUp"
             class="headline font-weight-bold"
-            v-text="m.date.toDateString()"
+            v-text=" new Date(m.date).toDateString()"
           />
         </v-card-text>
         <v-card-text class="mt-n3">
@@ -39,7 +39,7 @@ export default {
   },
   methods: {
     getHeader (m) {
-      return this.$vuetify.breakpoint.smAndUp ? m.header : `${m.date.toDateString()} - ${m.header}`
+      return this.$vuetify.breakpoint.smAndUp ? m.header : `${new Date(m.date).toDateString()} - ${m.header}`
     }
   }
 }
