@@ -5,6 +5,7 @@
       :mini-variant="miniVariant"
       :expand-on-hover="!$vuetify.breakpoint.mobile"
       app
+      dark
     >
       <v-list>
         <v-list-item
@@ -26,6 +27,7 @@
     <v-app-bar
       fixed
       app
+      dark
     >
       <v-app-bar-nav-icon v-if="!drawer" @click.stop="drawer = !drawer; miniVariant=false" />
       <v-spacer />
@@ -33,7 +35,7 @@
         <v-img
           max-width="150"
           max-height="75"
-          src="/logo-black.png"
+          src="/logo-white.png"
         />
       </div>
       <v-spacer />

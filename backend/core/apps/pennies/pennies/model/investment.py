@@ -5,8 +5,6 @@ from pennies.model.instrument import Instrument
 
 
 class Investment(Instrument):
-    ...
-
     @validator("current_balance")
     def validate_negative_balance(cls, v):
         if v < 0:

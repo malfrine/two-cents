@@ -36,7 +36,7 @@ def test_bad_loan():
             final_month=10,
         )
         assert False
-    except ValueError as e:
+    except Exception as e:
         if isinstance(e, ValidationError):
             assert True
         else:

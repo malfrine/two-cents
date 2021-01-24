@@ -1,14 +1,15 @@
 <template>
-  <v-app dark>
+  <v-app>
     <v-app-bar
       fixed
       app
+      dark
     >
       <div class="d-flex justify-center">
         <v-img
           max-width="150"
-          max-height="75"
-          src="/logo-black.png"
+          max-height="65"
+          src="/logo-white.png"
         />
       </div>
       <v-spacer />

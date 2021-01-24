@@ -9,20 +9,17 @@ from core.utilities import get_current_age, get_months_between
 
 
 class LoanSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Loan
         exclude = ("user",)
 
-class PenniesLoanSerializer(serializers.ModelSerializer):
 
+class PenniesLoanSerializer(serializers.ModelSerializer):
 
     current_balance = serializers.SerializerMethodField(source="get_current_balance")
 
     def get_current_balance(self, obj: Loan):
         return -obj.current_balance
-
-
 
     class Meta:
         model = Loan
@@ -36,7 +33,6 @@ class PenniesLoanSerializer(serializers.ModelSerializer):
 
 
 class InvestmentSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Investment
         exclude = ("user",)
@@ -62,7 +58,13 @@ class PenniesInvestmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Investment
-        fields = ("name", "current_balance", "apr", "final_month", "minimum_monthly_payment")
+        fields = (
+            "name",
+            "current_balance",
+            "apr",
+            "final_month",
+            "minimum_monthly_payment",
+        )
 
 
 class PenniesFinancialProfileSerializer(serializers.ModelSerializer):

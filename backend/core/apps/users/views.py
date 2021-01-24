@@ -19,7 +19,6 @@ from core.apps.users.serializers import UserWriteSerializer
 
 
 class SessionAPIView(views.APIView):
-
     def get(self, request, format=None):
         """Return session cookie in header if session exists"""
         user = get_user(request)
@@ -28,7 +27,6 @@ class SessionAPIView(views.APIView):
             return Response(status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
-
 
     def post(self, request, format=None):
         """Crete a new session by logging in"""

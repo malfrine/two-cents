@@ -2,15 +2,21 @@
   <div>
     <v-tabs color="primary" centered>
       <v-tab>
-        <v-icon class="mr-1">mdi-account</v-icon>
+        <v-icon class="mr-1">
+          mdi-account
+        </v-icon>
         Profile
       </v-tab>
       <v-tab>
-        <v-icon class="mr-1">mdi-credit-card-multiple</v-icon>
+        <v-icon class="mr-1">
+          mdi-credit-card-multiple
+        </v-icon>
         Loans
       </v-tab>
       <v-tab>
-        <v-icon class="mr-1">mdi-cash-multiple </v-icon>
+        <v-icon class="mr-1">
+          mdi-cash-multiple
+        </v-icon>
         Investments
       </v-tab>
 

@@ -15,35 +15,98 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Loan',
+            name="Loan",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=50)),
-                ('current_balance', models.FloatField(verbose_name='Current Balance')),
-                ('apr', models.FloatField(verbose_name='APR')),
-                ('minimum_monthly_payment', models.FloatField(verbose_name='Minimum Monthly Payment')),
-                ('end_date', models.DateField(verbose_name='Final Payment Month')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='loans', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=50)),
+                ("current_balance", models.FloatField(verbose_name="Current Balance")),
+                ("apr", models.FloatField(verbose_name="APR")),
+                (
+                    "minimum_monthly_payment",
+                    models.FloatField(verbose_name="Minimum Monthly Payment"),
+                ),
+                ("end_date", models.DateField(verbose_name="Final Payment Month")),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="loans",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Investment',
+            name="Investment",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=50)),
-                ('current_balance', models.FloatField(verbose_name='Current Balance')),
-                ('risk_level', models.CharField(choices=[('Low', 'Low Risk'), ('Medium', 'Medium Risk'), ('High', 'High Risk')], default='General', max_length=50, verbose_name='Risk Type')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='investments', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=50)),
+                ("current_balance", models.FloatField(verbose_name="Current Balance")),
+                (
+                    "risk_level",
+                    models.CharField(
+                        choices=[
+                            ("Low", "Low Risk"),
+                            ("Medium", "Medium Risk"),
+                            ("High", "High Risk"),
+                        ],
+                        default="General",
+                        max_length=50,
+                        verbose_name="Risk Type",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="investments",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='FinancialProfile',
+            name="FinancialProfile",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('birth_date', models.DateField(verbose_name='Birth Date')),
-                ('monthly_allowance', models.FloatField(verbose_name='Monthly Allowance')),
-                ('retirement_age', models.IntegerField(verbose_name='Retirement Age')),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='financial_profile', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("birth_date", models.DateField(verbose_name="Birth Date")),
+                (
+                    "monthly_allowance",
+                    models.FloatField(verbose_name="Monthly Allowance"),
+                ),
+                ("retirement_age", models.IntegerField(verbose_name="Retirement Age")),
+                (
+                    "user",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="financial_profile",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
     ]
