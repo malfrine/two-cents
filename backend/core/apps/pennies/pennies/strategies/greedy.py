@@ -24,37 +24,40 @@ def _pay_investment(
 
 
 class GreedyAllocationStrategy(AllocationStrategy):
-    def create_solution(self, problem_input: UserPersonalFinances) -> FinancialPlan:
+    def create_solution(self, user_finances: UserPersonalFinances) -> FinancialPlan:
         minimum_payment = sum(
-            loan.minimum_monthly_payment for loan in problem_input.portfolio.loans
+            loan.minimum_monthly_payment for loan in user_finances.portfolio.loans
         ) + sum(
             investment.minimum_monthly_payment
-            for investment in problem_input.portfolio.investments()
+            for investment in user_finances.portfolio.investments()
         )
-        if problem_input.financial_profile.monthly_allowance < minimum_payment:
+        if user_finances.financial_profile.monthly_allowance < minimum_payment:
             raise ValueError("Cannot pay minimum payment with given monthly spend")
-        cur_portfolio: Portfolio = problem_input.portfolio.copy(deep=True)
+        cur_portfolio: Portfolio = user_finances.portfolio.copy(deep=True)
         monthly_solutions = list()
-        for _ in range(problem_input.portfolio.get_final_month()):
-            ms = self.create_monthly_solution(
-                cur_portfolio, problem_input.financial_profile.monthly_allowance
+        for _ in range(user_finances.portfolio.get_final_month()):
+            allocation = self.create_monthly_allocation(
+                cur_portfolio, user_finances.financial_profile.monthly_allowance
             )
-            # print(ms.allocation.payments)
-            monthly_solutions.append(ms)
-            PortfolioManager.forward_on_month(cur_portfolio, ms.allocation.payments)
-            # print({name: instrument.current_balance for name, instrument in cur_portfolio.instruments.items()})
+            monthly_solutions.append(
+                MonthlySolution(portfolio=cur_portfolio, allocation=allocation)
+            )
+            cur_portfolio = PortfolioManager.forward_on_month(
+                cur_portfolio, payments=allocation.payments
+            )
+
         return FinancialPlan(monthly_solutions=monthly_solutions)
 
-    def create_monthly_solution(
+    def create_monthly_allocation(
         self, portfolio: Portfolio, allowance: float
-    ) -> MonthlySolution:
+    ) -> MonthlyAllocation:
         ...
 
 
 class GreedyHeuristicStrategy(GreedyAllocationStrategy):
-    def create_monthly_solution(
+    def create_monthly_allocation(
         self, portfolio: Portfolio, allowance: float
-    ) -> MonthlySolution:
+    ) -> MonthlyAllocation:
         payments_manager = PaymentsManager(portfolio, allowance)
         payments_manager.pay_minimum_amounts()
         while payments_manager.has_allowance():
@@ -75,8 +78,8 @@ class GreedyHeuristicStrategy(GreedyAllocationStrategy):
                         best_investment.name, payments_manager.get_allowance()
                     )
             else:
-                return payments_manager.make_monthly_solution()
-        return payments_manager.make_monthly_solution()
+                return payments_manager.make_monthly_allocation()
+        return payments_manager.make_monthly_allocation()
 
     @classmethod
     def get_best_investment(cls, investments: Iterable[Investment]) -> Investment:
@@ -96,7 +99,7 @@ class SnowballStrategy(GreedyHeuristicStrategy):
     def get_worst_loan(cls, loans: Iterable[Loan]) -> Loan:
         worst_loan: Optional[Loan] = None
         for loan in loans:
-            if worst_loan is None or loan.current_balance < worst_loan.current_balance:
+            if worst_loan is None or abs(loan.current_balance) < abs(worst_loan.current_balance):
                 worst_loan = loan
         return worst_loan
 
@@ -134,8 +137,14 @@ class PaymentsManager:
 
     def __init__(self, portfolio: Portfolio, allowance: float):
         self._cur_portfolio = portfolio.copy(deep=True)
+        self.incur_portfolio_interest(self._cur_portfolio)
         self._allowance = allowance
         self._payments = {i: 0 for i in self._cur_portfolio.instruments.keys()}
+
+    @classmethod
+    def incur_portfolio_interest(cls, portfolio: Portfolio):
+        for instrument in portfolio.instruments.values():
+            instrument.incur_monthly_interest()
 
     def _update_on_payment(self, instrument_name: str, payment_amount: float):
         self._payments[instrument_name] += payment_amount
@@ -184,10 +193,5 @@ class PaymentsManager:
     def remove_loan(self, loan_name: str) -> None:
         self._cur_portfolio.remove_instrument(loan_name)
 
-    def make_monthly_solution(self) -> MonthlySolution:
-        return MonthlySolution(
-            allocation=MonthlyAllocation(
-                payments=self._payments, leftover=self.get_allowance()
-            ),
-            portfolio=self._cur_portfolio.copy(deep=True),
-        )
+    def make_monthly_allocation(self) -> MonthlyAllocation:
+        return MonthlyAllocation(payments=self._payments, leftover=self.get_allowance())

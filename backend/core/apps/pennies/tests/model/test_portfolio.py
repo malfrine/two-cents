@@ -5,7 +5,7 @@ import pytest
 from pennies.model.portfolio import Portfolio
 from pennies.model.portfolio_manager import PortfolioManager
 from pennies.model.solution import MonthlyAllocation
-from tests.examples import (
+from pennies.utilities.examples import (
     simple_monthly_allocation,
     simple_problem,
     final_payment_example,
@@ -16,8 +16,7 @@ def _forward(
     portfolio: Portfolio, ma: MonthlyAllocation
 ) -> Tuple[Portfolio, Portfolio]:
     before = portfolio
-    after: Portfolio = portfolio.copy(deep=True)
-    PortfolioManager.forward_on_month(after, ma.payments)
+    after = PortfolioManager.forward_on_month(before, ma.payments)
     return before, after
 
 

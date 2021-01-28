@@ -7,10 +7,14 @@ class PortfolioManager:
     """In charge of implementing a payment plan on a portfolio and incurring the monthly interest"""
 
     @classmethod
-    def forward_on_month(cls, portfolio: Portfolio, payments: Dict[str, float]) -> None:
-        cls._incur_portfolio_interest(portfolio)
-        cls._implement_allocation_plan(portfolio, payments)
-        cls._remove_paid_off_loans(portfolio)
+    def forward_on_month(
+        cls, portfolio: Portfolio, payments: Dict[str, float]
+    ) -> Portfolio:
+        forward_portfolio = portfolio.copy(deep=True)
+        cls._incur_portfolio_interest(forward_portfolio)
+        cls._implement_allocation_plan(forward_portfolio, payments)
+        cls._remove_paid_off_loans(forward_portfolio)
+        return forward_portfolio
 
     @classmethod
     def _implement_allocation_plan(

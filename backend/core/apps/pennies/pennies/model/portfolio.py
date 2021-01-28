@@ -33,8 +33,12 @@ class Portfolio(BaseModel):
         return list(l for l in self.instruments.values() if isinstance(l, Loan))
 
     @property
-    def loans_as_dict(self) -> Dict[UUID, Loan]:
+    def loans_by_id(self) -> Dict[UUID, Loan]:
         return {loan.id_: loan for loan in self.loans}
+
+    @property
+    def instruments_by_id(self) -> Dict[UUID, Instrument]:
+        return {instrument.id_: instrument for instrument in self.instruments.values()}
 
     def investments(self) -> List[Investment]:
         return list(i for i in self.instruments.values() if isinstance(i, Investment))

@@ -9,7 +9,8 @@ from pennies.model.loan import Loan
 from pennies.model.solution import FinancialPlan
 from pennies.utilities.datetime import (
     get_first_date_of_next_month,
-    get_months_difference, get_date_plus_month,
+    get_months_difference,
+    get_date_plus_month,
 )
 from pennies.utilities.finance import get_interest_paid_on_loan
 
@@ -76,7 +77,7 @@ class MilestoneFactory:
             name="Retirement",
             date=retirement_date,
             header="You Finally Retire!",
-            text=f"You will retire on {retirement_date}. Your net worth at retirement will be {net_worth_str}!"
+            text=f"You will retire on {retirement_date}. Your net worth at retirement will be {net_worth_str}!",
         )
 
 
@@ -121,7 +122,7 @@ class PlanMilestonesFactory:
         cls, loan: Loan, plan: FinancialPlan, start_date: date
     ) -> Optional[date]:
         for month, ms in enumerate(plan.monthly_solutions):
-            loan_at_month = ms.portfolio.loans_as_dict.get(loan.id_, None)
+            loan_at_month = ms.portfolio.loans_by_id.get(loan.id_, None)
             if loan_at_month is None:
                 return get_date_plus_month(start_date, month + 1)
             elif loan_at_month.current_balance >= _ALMOST_ZERO_LOWER_BOUND:
@@ -142,7 +143,9 @@ class PlanMilestonesFactory:
         return MilestoneFactory.make_debt_free_milestone(debt_free_date)
 
     @classmethod
-    def get_positive_net_worth_milestone(cls, plan: FinancialPlan, start_date: date) -> Optional[Milestone]:
+    def get_positive_net_worth_milestone(
+        cls, plan: FinancialPlan, start_date: date
+    ) -> Optional[Milestone]:
         starting_portfolio = plan.monthly_solutions[0].portfolio
         if len(starting_portfolio.loans) == 0:
             return None  # if they don't have any loans they already have a positive net worth
@@ -151,4 +154,3 @@ class PlanMilestonesFactory:
             return None
         milestone_date = get_date_plus_month(start_date, month)
         return MilestoneFactory.make_positive_net_worth_milestone(milestone_date)
-

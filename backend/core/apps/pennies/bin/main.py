@@ -1,7 +1,8 @@
 from pennies.model.problem_input import ProblemInput
 from pennies.solver import solve
+from pennies.strategies import StrategyName
 from pennies.utilities.visualization import visualize_solution
-from tests.examples import simple_problem
+from pennies.utilities.examples import simple_problem
 
 
 def main():
@@ -9,7 +10,12 @@ def main():
     sp = simple_problem()
     mi = ProblemInput(
         problem=sp,
-        strategies=["snowball", "avalanche", "avalanche-ball", "linear-program"],
+        strategies=[
+            StrategyName.snowball.value,
+            StrategyName.avalanche.value,
+            StrategyName.avalanche_ball.value,
+            StrategyName.lp.value,
+        ],
     )
     solution = solve(mi)
     print(str(mi.problem))

@@ -29,7 +29,7 @@ class PlanSummariesFactory:
         return PlanSummaries(
             net_worth=plan.retirement_net_worth,
             priorities=cls.get_instrument_priorities(plan),
-            important_dates=cls.get_important_dates(plan)
+            important_dates=cls.get_important_dates(plan),
         )
 
     @classmethod
@@ -50,7 +50,9 @@ class PlanSummariesFactory:
         for ms in plan.monthly_solutions[:final_index]:
             for instrument, payment in ms.allocation.payments.items():
                 total_payments[instrument] += payment
-        sorted_payments = sorted(dict(total_payments).items(), key=lambda x: x[1], reverse=True)
+        sorted_payments = sorted(
+            dict(total_payments).items(), key=lambda x: x[1], reverse=True
+        )
         # TODO: once allocation is keyed on UUID, get instruments from portfolio
         return list(instrument for instrument, _ in sorted_payments)
 

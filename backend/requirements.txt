@@ -11,9 +11,11 @@ click==7.1.2
 cycler==0.10.0
 decorator==4.4.2
 Django==3.1.2
+django-cors-headers==3.6.0
 django-environ==0.4.5
 django-extensions==3.0.9
 django-redis==4.12.1
+django-slack==5.16.0
 djangorestframework==3.12.1
 flake8==3.8.4
 flake8-commas==2.0.0
@@ -76,6 +78,5 @@ urllib3==1.25.10
 wcwidth==0.2.5
 Werkzeug==1.0.1
 wrapt==1.12.1
-whitenoise==5.2.0 
 zope.event==4.5.0
 zope.interface==5.2.0

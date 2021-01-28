@@ -5,5 +5,5 @@ from pennies.model.solution import FinancialPlan
 
 
 class AllocationStrategy(ABC):
-    def create_solution(self, problem_input: UserPersonalFinances) -> FinancialPlan:
+    def create_solution(self, user_finances: UserPersonalFinances) -> FinancialPlan:
         ...

@@ -8,6 +8,7 @@ from pennies.model.portfolio import Portfolio
 from pennies.model.user_personal_finances import UserPersonalFinances
 from pennies.model.request import PenniesRequest
 from pennies.model.solution import MonthlyAllocation
+from pennies.strategies import StrategyName
 
 
 def financial_profile():
@@ -59,7 +60,12 @@ def simple_problem() -> UserPersonalFinances:
 def simple_model_input():
     return ProblemInput(
         problem=simple_problem(),
-        strategies=["snowball", "avalanche", "avalanche-ball", "linear-program"],
+        strategies=[
+            StrategyName.snowball.value,
+            StrategyName.avalanche.value,
+            StrategyName.avalanche_ball.value,
+            StrategyName.lp.value,
+        ],
     )
 
 

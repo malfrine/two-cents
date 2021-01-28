@@ -6,14 +6,14 @@ from pennies.strategies.greedy import (
     AvalancheBallStrategy,
     AvalancheStrategy,
 )
-from pennies.strategies.lp import LinearProgramStrategy
+from pennies.strategies.milp.strategy import MILPStrategy
 
 
 class StrategyName(Enum):
-    snowball = "snowball"
-    avalanche = "avalanche"
-    avalanche_ball = "avalanche-ball"
-    lp = "linear-program"
+    snowball = "Snowball Plan"
+    avalanche = "Avalanche Plan"
+    avalanche_ball = "Avalanche Ball Plan"
+    lp = "Two Cents Plan"
 
 
 def get_strategy(strategy_name: str) -> AllocationStrategy:
@@ -24,7 +24,7 @@ def get_strategy(strategy_name: str) -> AllocationStrategy:
     elif strategy_name == StrategyName.avalanche_ball.value:
         return AvalancheBallStrategy()
     elif strategy_name == StrategyName.lp.value:
-        return LinearProgramStrategy()
+        return MILPStrategy()
     else:
         raise NotImplementedError(
             f"Strategy {strategy_name} has not been implemented yet."
