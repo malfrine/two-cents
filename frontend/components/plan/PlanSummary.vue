@@ -53,52 +53,6 @@
 <script>
 export default {
   props: ['selectedStrategy'],
-  data () {
-    return {
-      summaryData: {
-        'linear-program': {
-          summaries: {
-            net_worth: 100000,
-            priorities: ['loan 1', 'loan 2', 'investment 1', 'investment 2'],
-            important_dates: [
-              {
-                name: 'Positive Net Worth',
-                date: new Date()
-              },
-              {
-                name: 'Debt Free',
-                date: new Date()
-              },
-              {
-                name: 'Retirement',
-                date: new Date()
-              }
-            ]
-          }
-        },
-        avalanche: {
-          summaries: {
-            net_worth: 100000,
-            priorities: ['loan 1', 'loan 2', 'investment 1', 'investment 2'],
-            important_dates: [
-              {
-                name: 'Positive Net Worth',
-                date: new Date()
-              },
-              {
-                name: 'Debt Free',
-                date: new Date()
-              },
-              {
-                name: 'Retirement',
-                date: new Date()
-              }
-            ]
-          }
-        }
-      }
-    }
-  },
   computed: {
     summaries () {
       // return this.summaryData[this.selectedStrategy].summaries

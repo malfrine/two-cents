@@ -164,7 +164,7 @@ export default {
   },
   data () {
     return {
-      selectedStrategy: 'linear-program',
+      selectedStrategy: 'Two Cents Plan',
       panel: [0, 1, 2, 3]
     }
   },

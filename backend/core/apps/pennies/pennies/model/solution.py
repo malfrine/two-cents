@@ -115,7 +115,6 @@ class FinancialPlan(BaseModel):
         return None
 
 
-
 class Solution(BaseModel):
     plans: Dict[str, FinancialPlan]
 

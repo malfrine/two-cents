@@ -17,13 +17,13 @@ pyutilib.subprocess.GlobalData.DEFINE_SIGNAL_HANDLERS_DEFAULT = False
 def solve_request(request: Dict) -> Dict:
     try:
         pennies_request = PenniesRequest.parse_obj(request)
-        # return pennies_request
         model_input = ProblemInput.create_from_pennies_request(pennies_request)
         solution = solve(model_input)
         processed_solution = SolutionProcessor.process(solution)
         return PenniesResponse(
             result=processed_solution, status=PenniesStatus.SUCCESS
         ).dict()
+
     except Exception as e:
         return PenniesResponse(
             result=traceback.format_exc(), status=PenniesStatus.FAILURE

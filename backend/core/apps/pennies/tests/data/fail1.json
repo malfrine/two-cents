@@ -1,0 +1,20 @@
+{
+   "loans": [
+       {
+           "name": "ATB Line of Credit",
+           "current_balance": -1000.0,
+           "apr": 4.0,
+           "minimum_monthly_payment": 1.0,
+           "final_month": 119
+       }
+   ],
+   "investments": [],
+   "financial_profile": {
+       "monthly_allowance": 2000.0,
+       "years_to_retirement": 29
+   },
+   "strategies": [
+       "Two Cents Plan",
+       "Avalanche Plan"
+   ]
+}

@@ -64,11 +64,12 @@ DOMAIN = env.str("DOMAIN")
 EMAIL_PORT = env.int("EMAIL_PORT", default="1025")
 EMAIL_HOST = env.str("EMAIL_HOST", default="mailhog")
 
+
 # MANAGER CONFIGURATION
 # ------------------------------------------------------------------------------
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#admins
 ADMINS = [
-    ("Two Cents", "malfrine@ualberta.ca"),
+    ("Malfrine Das", "malfrine@ualberta.ca"),
 ]
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#managers

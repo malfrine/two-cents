@@ -3,8 +3,6 @@ from uuid import UUID, uuid4
 from pydantic import Field
 from pydantic.main import BaseModel
 
-from pennies.model import problem_input
-
 
 class Instrument(BaseModel):
     id_: UUID = Field(default_factory=uuid4)

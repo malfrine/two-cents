@@ -1,13 +1,12 @@
-from django.shortcuts import render
-
-from datetime import datetime
-
 from rest_framework import viewsets, status
 from rest_framework.response import Response
+
 from core.apps.finances.serializers import PenniesRequestSerializer
 from core.apps.pennies.pennies.solver import solve_request
 
 # Create your views here.
+from core.apps.plan.slack import send_failed_request_data_to_slack
+from core.config.settings import DEBUG
 from pennies.model.status import PenniesStatus
 
 
@@ -19,6 +18,8 @@ class UserPlanViewSet(viewsets.GenericViewSet):
         if pennies_response["status"] == PenniesStatus.SUCCESS:
             return Response(status=status.HTTP_200_OK, data=pennies_response["result"])
         else:
+            if not DEBUG:
+                send_failed_request_data_to_slack(pennies_request)
             return Response(
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 data=pennies_response["result"],
