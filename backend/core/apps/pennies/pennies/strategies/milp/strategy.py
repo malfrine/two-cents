@@ -1,19 +1,14 @@
-import itertools
-import math
 from dataclasses import dataclass
-from pathlib import Path
 from typing import List, Dict
 
 import pyomo.environ as pe
 import pyutilib
 from pyomo.core import ConcreteModel
 
-from pennies.errors.strategy_errors import StrategyFailureException
-from pennies.model.loan import Loan
 from pennies.model.portfolio import Portfolio
 from pennies.model.portfolio_manager import PortfolioManager
-from pennies.model.user_personal_finances import UserPersonalFinances
 from pennies.model.solution import FinancialPlan, MonthlySolution, MonthlyAllocation
+from pennies.model.user_personal_finances import UserPersonalFinances
 from pennies.strategies.allocation_strategy import AllocationStrategy
 from pennies.strategies.milp.constraints import MILPConstraints
 from pennies.strategies.milp.objective import MILPObjective
