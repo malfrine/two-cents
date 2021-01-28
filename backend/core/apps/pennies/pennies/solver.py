@@ -11,9 +11,6 @@ from pennies.model.status import PenniesStatus
 from pennies.solution_processor import SolutionProcessor
 from pennies.strategies import get_strategy
 
-pyutilib.subprocess.GlobalData.DEFINE_SIGNAL_HANDLERS_DEFAULT = False
-
-
 def solve_request(request: Dict) -> Dict:
     try:
         pennies_request = PenniesRequest.parse_obj(request)
@@ -31,10 +28,12 @@ def solve_request(request: Dict) -> Dict:
 
 
 def solve(problem_input: ProblemInput) -> Solution:
-    plans = {
-        strategy_name: get_strategy(strategy_name).create_solution(
+    plans = dict()
+    for strategy_name in problem_input.strategies:
+        solution = get_strategy(strategy_name).create_solution(
             problem_input.problem
         )
-        for strategy_name in problem_input.strategies
-    }
+        if solution is None:
+            raise ValueError(f"{strategy_name} could not solve")
+        plans[strategy_name] = solution
     return Solution(plans=plans)

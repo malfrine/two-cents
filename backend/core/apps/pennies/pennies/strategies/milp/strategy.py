@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import List, Dict
 
 import pyomo.environ as pe
+import pyutilib
 from pyomo.core import ConcreteModel
 
 from pennies.errors.strategy_errors import StrategyFailureException
@@ -19,6 +20,8 @@ from pennies.strategies.milp.objective import MILPObjective
 from pennies.strategies.milp.parameters import MILPParameters
 from pennies.strategies.milp.sets import MILPSets
 from pennies.strategies.milp.variables import MILPVariables
+
+pyutilib.subprocess.GlobalData.DEFINE_SIGNAL_HANDLERS_DEFAULT = False
 
 
 def _make_solution(
@@ -111,9 +114,10 @@ class MILP:
     def solve(self):
         results = pe.SolverFactory("cbc").solve(self.pyomodel, tee=True)
         if not self._is_valid_solution(results):
+            print("It is not a valid solution")
             print(results.solver.status)
             print(results.solver.termination_condition)
-            raise StrategyFailureException("Linear program strategy could not solve")
+            return None
         monthly_payments = self._make_monthly_payments()
 
         return _make_solution(
