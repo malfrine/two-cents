@@ -50,7 +50,7 @@
       </v-row>
       <v-card-title>
         <div class="text-h2 primary--text" color="primary">
-          $ {{ loan.current_balance }}
+          {{ asDollar(loan.current_balance) }}
         </div>
       </v-card-title>
     </template>
@@ -60,7 +60,7 @@
           {{ loan.apr }}% <em>APR</em>
         </p>
         <p class="mt-n3">
-          <em>Minimum Payment:</em> ${{ loan.minimum_monthly_payment }}
+          <em>Minimum Payment:</em> {{ asDollar(loan.minimum_monthly_payment) }}
         </p>
         <p class="mt-n3">
           <em>Due:</em> {{ loan.end_date }}
@@ -73,6 +73,7 @@
 <script>
 import { mapActions } from 'vuex'
 import LoanDialog from '@/components/finances/LoanDialog.vue'
+import { asDollar } from '~/assets/utils.js'
 
 export default {
   components: {
@@ -86,9 +87,8 @@ export default {
       fab: false
     }
   },
-
   methods: {
-    ...mapActions('finances', ['deleteLoan'])
+    ...mapActions('finances', ['deleteLoan']), asDollar
   },
   computed: {
     loan () {

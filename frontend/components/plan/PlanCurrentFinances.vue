@@ -13,7 +13,7 @@
             </div>
             <v-spacer />
             <div class="text red--text">
-              $ {{ loan.current_balance }}
+              {{ asDollar(loan.current_balance) }}
             </div>
           </v-row>
           <v-divider />
@@ -23,7 +23,7 @@
             </div>
             <v-spacer class="my-2" />
             <div class="text red--text">
-              $ {{ totalLoans }}
+              {{ asDollar(totalLoans) }}
             </div>
           </v-row>
         </div>
@@ -49,7 +49,7 @@
             </div>
             <v-spacer />
             <div class="text primary--text">
-              $ {{ inv.current_balance }}
+              {{ asDollar(inv.current_balance) }}
             </div>
           </v-row>
           <v-divider />
@@ -59,7 +59,7 @@
             </div>
             <v-spacer class="my-2" />
             <div class="text primary--text">
-              $ {{ totalInvestments }}
+              {{ asDollar(totalInvestments) }}
             </div>
           </v-row>
         </div>
@@ -76,6 +76,8 @@
 </template>
 
 <script>
+import { asDollar } from '~/assets/utils.js'
+
 export default {
   computed: {
     userHasLoans () {
@@ -109,6 +111,9 @@ export default {
       const posession = firstName.slice(-1) === 's' ? "'" : "'s"
       return `${firstName}${posession}`
     }
+  },
+  methods: {
+    asDollar
   }
 }
 </script>

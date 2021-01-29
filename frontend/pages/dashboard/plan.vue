@@ -1,13 +1,31 @@
 <template>
   <div>
-    <v-overlay v-if="$fetchState.pending">
+    <v-overlay v-if="userFinancesValidationError" absolute opacity="0">
+      <v-alert
+        prominent
+        type="error"
+        style="max-width: 600px"
+      >
+        {{ userFinancesValidationError }}
+      </v-alert>
+    </v-overlay>
+    <v-overlay v-else-if="$fetchState.pending" absolute opacity="0">
       <v-progress-circular
         :size="150"
         color="primary"
         indeterminate
       />
     </v-overlay>
-    <template v-else class="stepper">
+    <v-overlay v-else-if="!planExists" absolute opacity="0">
+      <v-alert
+        prominent
+        type="error"
+        style="max-width: 600px"
+      >
+        Sorry, there was an error building your plan. We are working on fixing the problem.
+      </v-alert>
+    </v-overlay>
+    <template v-else>
       <v-card>
         <v-container fluid>
           <v-row align="center" align-content="center" justify="center" justify-md="space-between">
@@ -150,17 +168,22 @@ export default {
     PlanSummary
   },
   async fetch () {
+    if (this.userFinancesValidationError) {
+      return null
+    }
     const response = await this.$axios.$get('/api/my/plan')
       .then((response) => {
         return response
       })
       .catch((e) => {
-        this.$toast.error('Could not get your plan')
+        // this.$toast.error('Could not get your plan')
         return null
       })
-    const pm = new PlanMaker()
-    const plans = pm.fromResponseData(response)
-    this.$store.commit('plan/SET_PLANS', plans)
+    if (response) {
+      const pm = new PlanMaker()
+      const plans = pm.fromResponseData(response)
+      this.$store.commit('plan/SET_PLANS', plans)
+    }
   },
   data () {
     return {
@@ -169,6 +192,9 @@ export default {
     }
   },
   computed: {
+    planExists () {
+      return this.$store.getters['plan/getPlans'] != null
+    },
     netWorthData () {
       const refData = this.$store.getters['plan/getNetWorth'](this.selectedStrategy)
       return JSON.parse(JSON.stringify(refData))
@@ -196,6 +222,29 @@ export default {
         position: 'relative',
         height: `${this.chartHeight}px`
       }
+    },
+    userFinancesValidationError () {
+      const financialProfile = this.$store.getters['finances/getFinancialProfile']
+      if (Object.keys(financialProfile).length === 0) {
+        return 'Please add a monthly allowance and retirement age.'
+      }
+
+      const loans = this.$store.getters['finances/getLoans']
+      const investments = this.$store.getters['finances/getInvestments']
+      if (Object.keys(loans).length === 0 && Object.keys(investments).length === 0) {
+        return 'Please add at least one loan or investment.'
+      }
+
+      let totalMinimumMonthlyPayments = 0
+      for (const loanId in loans) {
+        totalMinimumMonthlyPayments += loans[loanId].minimum_monthly_payment
+      }
+      if (totalMinimumMonthlyPayments > financialProfile.monthly_allowance) {
+        return `Your plan cannot be created because your monthly allowance (${financialProfile.monthly_allowance}) 
+                is less than the required minimum monthly payments (${totalMinimumMonthlyPayments}). Please increase your monthly allowance.`
+      }
+
+      return ''
     }
   },
   head () {

@@ -11,7 +11,7 @@
         </div>
         <v-spacer />
         <div class="text-h6">
-          $ {{ payment.payment }}
+          {{ asDollar(payment.payment) }}
         </div>
       </v-row>
       <v-divider />
@@ -21,7 +21,7 @@
         </div>
         <v-spacer class="my-2" />
         <div class="text-h6">
-          $ {{ monthlyAllowance }}
+          {{ asDollar(monthlyAllowance) }}
         </div>
       </v-row>
     </v-card-subtitle>
@@ -29,6 +29,8 @@
 </template>
 
 <script>
+import { asDollar } from '~/assets/utils.js'
+
 export default {
   props: ['selectedStrategy'],
   computed: {
@@ -41,6 +43,9 @@ export default {
     monthlyAllowance () {
       return this.actionPlan.monthly_allowance
     }
+  },
+  methods: {
+    asDollar
   }
 }
 </script>
