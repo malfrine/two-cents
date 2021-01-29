@@ -7,7 +7,7 @@
           <v-divider class="mb-1" />
           <v-container fluid>
             <div class="text-center text-h3 primary--text">
-              ${{ finalNetWorth }}
+              {{ asDollar(finalNetWorth) }}
             </div>
           </v-container>
         </v-card>
@@ -31,7 +31,7 @@
     <v-col cols="12">
       <v-container class="my-n5">
         <v-card>
-          <v-card-title>Priorities</v-card-title>
+          <v-card-title>Important Dates</v-card-title>
           <v-divider class="mb-1" />
           <v-container class="mb-2">
             <v-row v-for="(importantDate, index) in importantDates" :key="index" class="px-2 my-2">
@@ -51,6 +51,8 @@
 </template>
 
 <script>
+import { asDollar } from '~/assets/utils.js'
+
 export default {
   props: ['selectedStrategy'],
   computed: {
@@ -67,6 +69,9 @@ export default {
     importantDates () {
       return this.summaries.important_dates
     }
+  },
+  methods: {
+    asDollar
   }
 }
 </script>

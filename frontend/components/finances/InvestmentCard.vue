@@ -50,7 +50,7 @@
       </v-row>
       <v-card-title>
         <div class="text-h2 primary--text" color="primary">
-          $ {{ investment.current_balance }}
+          {{ asDollar(investment.current_balance) }}
         </div>
       </v-card-title>
     </template>
@@ -67,6 +67,7 @@
 <script>
 import { mapActions } from 'vuex'
 import InvestmentDialog from '@/components/finances/InvestmentDialog.vue'
+import { asDollar } from '~/assets/utils.js'
 
 export default {
   components: {
@@ -80,9 +81,8 @@ export default {
       fab: false
     }
   },
-
   methods: {
-    ...mapActions('finances', ['deleteInvestment'])
+    ...mapActions('finances', ['deleteInvestment']), asDollar
   },
   computed: {
     investment () {

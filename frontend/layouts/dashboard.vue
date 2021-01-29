@@ -92,6 +92,7 @@ export default {
     onLogoutClick () {
       this.$store.dispatch('auth/postLogout')
       this.$store.dispatch('finances/resetUserFinances')
+      this.$store.dispatch('plan/resetPlans')
       this.$router.push('/')
     }
   }

@@ -1,4 +1,3 @@
-import { PlanMaker } from '~/assets/plans.js'
 
 const defaultState = function () {
   return {
@@ -11,8 +10,11 @@ const state = function () {
 }
 
 const getters = {
+  getPlans (state) {
+    return state.plans
+  },
   getStrategies (state) {
-    return state.plans.strategies || []
+    return state.plans.strategies
   },
   getNetWorth: state => (strategyName) => {
     return state.plans.data[strategyName].netWorthForecast
@@ -30,23 +32,16 @@ const getters = {
 
 const mutations = {
   SET_PLANS (state, payload) {
-    console.log(payload)
     state.plans = payload
+  },
+  RESET_PLANS (state) {
+    state.plans = defaultState()
   }
 }
 
 const actions = {
-  getPlan (context) {
-    this.$axios.$get('/api/my/plan/processed')
-      .then(
-        (response) => {
-          const plans = PlanMaker.fromResponseData(response.data)
-          context.commit('SET_PLAN', plans)
-        }
-      )
-      .catch(
-        e => this.$toast.error('Uh oh, something went wrong')
-      )
+  resetPlans (context) {
+    context.commit('RESET_PLANS')
   }
 }
 
