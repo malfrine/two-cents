@@ -16,8 +16,8 @@ const calculateMonthsBetween = function (startDate, endDate) {
 const calculateMinimumAmortizedLoanPayment = function (principal, apr, endDate) {
   const monthlyInterestRate = apr / 100 / 12
   const months = calculateMonthsBetween(getFirstDayOfNextMonth(new Date()), endDate)
-  const discountFactor = ((1 + monthlyInterestRate) ** months - 1) / monthlyInterestRate * (1 + monthlyInterestRate) ** months
-  return Math.round(principal / discountFactor)
+  const discountFactor = (monthlyInterestRate * (1 + monthlyInterestRate) ** months) / ((1 + monthlyInterestRate) ** months - 1)
+  return Math.round(principal * discountFactor)
 }
 
 const calculateMinimumRevolvingLoanPayment = function (principal, apr) {
