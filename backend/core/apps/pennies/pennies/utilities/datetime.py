@@ -4,6 +4,9 @@ from typing import Union
 from dateutil.relativedelta import relativedelta
 
 
+MONTHS_IN_YEAR = 12
+
+
 def get_first_date_of_next_month(dt: datetime) -> datetime:
     return (dt.replace(day=1) + timedelta(days=32)).replace(day=1)
 

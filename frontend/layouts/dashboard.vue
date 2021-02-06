@@ -88,6 +88,9 @@ export default {
       miniVariant: false
     }
   },
+  created () {
+    this.$store.dispatch('enums/getAllEnums')
+  },
   methods: {
     onLogoutClick () {
       this.$store.dispatch('auth/postLogout')

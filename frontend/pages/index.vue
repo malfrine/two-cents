@@ -31,5 +31,6 @@ export default {
       title: 'Welcome!'
     }
   }
+
 }
 </script>

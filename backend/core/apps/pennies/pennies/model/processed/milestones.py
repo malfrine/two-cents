@@ -12,7 +12,6 @@ from pennies.utilities.datetime import (
     get_months_difference,
     get_date_plus_month,
 )
-from pennies.utilities.finance import get_interest_paid_on_loan
 
 _ALMOST_ZERO_LOWER_BOUND = -1
 _ALMOST_ZERO_UPPER_BOUND = 1
@@ -35,10 +34,11 @@ PlanMilestones = NewType("PlanMilestones", Dict[str, Milestone])
 
 class MilestoneFactory:
     @classmethod
-    def make_loan_pay_off_milestone(cls, loan: Loan, payoff_date: date):
+    def make_loan_pay_off_milestone(
+        cls, loan: Loan, payoff_date: date, interest_paid: float
+    ):
         start_date = get_first_date_of_next_month(datetime.today())
         months = get_months_difference(payoff_date, start_date)
-        interest_paid = get_interest_paid_on_loan(loan, months)
 
         interest_paid_str = "${:,.2f}".format(interest_paid)
         text = (
@@ -112,8 +112,11 @@ class PlanMilestonesFactory:
             payoff_date = cls.get_loan_payoff_date(loan, plan, start_date)
             if payoff_date is None:
                 continue
+            interest_paid = plan.get_interest_paid_on_loan(loan.id_)
             milestones.append(
-                MilestoneFactory.make_loan_pay_off_milestone(loan, payoff_date)
+                MilestoneFactory.make_loan_pay_off_milestone(
+                    loan, payoff_date, interest_paid
+                )
             )
         return milestones
 

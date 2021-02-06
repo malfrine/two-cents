@@ -3,18 +3,20 @@ from uuid import UUID, uuid4
 from pydantic import Field
 from pydantic.main import BaseModel
 
+from pennies.model.interest_rate import InterestRate
+from pennies.utilities.datetime import MONTHS_IN_YEAR
+
 
 class Instrument(BaseModel):
     id_: UUID = Field(default_factory=uuid4)
     name: str
-    apr: float
+    interest_rate: InterestRate
     current_balance: float
     minimum_monthly_payment: float
-    final_month: int
+    final_month: int = None
 
-    @property
-    def monthly_interest_rate(self) -> float:
-        return self.apr / 12 / 100
+    def monthly_interest_rate(self, month: int) -> float:
+        return self.interest_rate.get_monthly_interest_rate(month)
 
     def _add_to_current_balance(self, amount: float) -> None:
         self.current_balance += amount
@@ -22,8 +24,10 @@ class Instrument(BaseModel):
     def _reduce_current_balance(self, amount) -> None:
         self.current_balance -= amount
 
-    def incur_monthly_interest(self) -> None:
-        self._add_to_current_balance(self.current_balance * self.monthly_interest_rate)
+    def incur_monthly_interest(self, month: int) -> None:
+        self._add_to_current_balance(
+            self.current_balance * self.monthly_interest_rate(month)
+        )
 
     def receive_payment(self, payment) -> float:
         ...
@@ -36,6 +40,6 @@ class Instrument(BaseModel):
             self.name,
             self.get_type(),
             self.current_balance,
-            self.apr / 100,
-            self.final_month,
+            self.interest_rate.get_monthly_interest_rate(0),  # TODO: more descriptive
+            "N/A" if self.final_month is None else self.final_month,
         )

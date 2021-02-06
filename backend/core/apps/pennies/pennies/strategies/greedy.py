@@ -35,34 +35,38 @@ class GreedyAllocationStrategy(AllocationStrategy):
             raise ValueError("Cannot pay minimum payment with given monthly spend")
         cur_portfolio: Portfolio = user_finances.portfolio.copy(deep=True)
         monthly_solutions = list()
-        for _ in range(user_finances.portfolio.get_final_month()):
+        for month in range(user_finances.final_month):
             allocation = self.create_monthly_allocation(
-                cur_portfolio, user_finances.financial_profile.monthly_allowance
+                cur_portfolio,
+                user_finances.financial_profile.monthly_allowance,
+                month=month,
             )
             monthly_solutions.append(
-                MonthlySolution(portfolio=cur_portfolio, allocation=allocation)
+                MonthlySolution(
+                    portfolio=cur_portfolio, allocation=allocation, month=month
+                )
             )
             cur_portfolio = PortfolioManager.forward_on_month(
-                cur_portfolio, payments=allocation.payments
+                cur_portfolio, payments=allocation.payments, month=month
             )
 
         return FinancialPlan(monthly_solutions=monthly_solutions)
 
     def create_monthly_allocation(
-        self, portfolio: Portfolio, allowance: float
+        self, portfolio: Portfolio, allowance: float, month: int
     ) -> MonthlyAllocation:
         ...
 
 
 class GreedyHeuristicStrategy(GreedyAllocationStrategy):
     def create_monthly_allocation(
-        self, portfolio: Portfolio, allowance: float
+        self, portfolio: Portfolio, allowance: float, month: int
     ) -> MonthlyAllocation:
-        payments_manager = PaymentsManager(portfolio, allowance)
+        payments_manager = PaymentsManager(portfolio, allowance, month)
         payments_manager.pay_minimum_amounts()
         while payments_manager.has_allowance():
             if payments_manager.has_loans():
-                worst_loan = self.get_worst_loan(payments_manager.get_loans())
+                worst_loan = self.get_worst_loan(payments_manager.get_loans(), month)
                 if worst_loan is not None:
                     payment_amount = min(
                         payments_manager.get_allowance(),
@@ -71,7 +75,7 @@ class GreedyHeuristicStrategy(GreedyAllocationStrategy):
                     payments_manager.pay_loan(worst_loan.name, payment_amount)
             elif payments_manager.has_investments():
                 best_investment = self.get_best_investment(
-                    payments_manager.get_investments()
+                    payments_manager.get_investments(), month
                 )
                 if best_investment is not None:
                     payments_manager.pay_investment(
@@ -82,48 +86,54 @@ class GreedyHeuristicStrategy(GreedyAllocationStrategy):
         return payments_manager.make_monthly_allocation()
 
     @classmethod
-    def get_best_investment(cls, investments: Iterable[Investment]) -> Investment:
+    def get_best_investment(
+        cls, investments: Iterable[Investment], month
+    ) -> Investment:
         best_investment: Optional[Investment] = None
         for investment in investments:
-            if best_investment is None or investment.apr > best_investment.apr:
+            if best_investment is None or investment.monthly_interest_rate(
+                month
+            ) > best_investment.monthly_interest_rate(month):
                 best_investment = investment
         return best_investment
 
     @classmethod
-    def get_worst_loan(cls, loans: Iterable[Loan]) -> Loan:
+    def get_worst_loan(cls, loans: Iterable[Loan], month: int) -> Loan:
         ...
 
 
 class SnowballStrategy(GreedyHeuristicStrategy):
     @classmethod
-    def get_worst_loan(cls, loans: Iterable[Loan]) -> Loan:
+    def get_worst_loan(cls, loans: Iterable[Loan], month: int) -> Loan:
         worst_loan: Optional[Loan] = None
         for loan in loans:
-            if worst_loan is None or abs(loan.current_balance) < abs(worst_loan.current_balance):
+            if worst_loan is None or abs(loan.current_balance) < abs(
+                worst_loan.current_balance
+            ):
                 worst_loan = loan
         return worst_loan
 
 
 class AvalancheStrategy(GreedyHeuristicStrategy):
     @classmethod
-    def get_worst_loan(self, loans: Iterable[Loan]) -> Loan:
+    def get_worst_loan(self, loans: Iterable[Loan], month: int) -> Loan:
         worst_loan: Optional[Loan] = None
         for loan in loans:
-            if worst_loan is None or loan.apr > worst_loan.apr:
+            if worst_loan is None or loan.monthly_interest_rate(
+                month
+            ) > worst_loan.monthly_interest_rate(month):
                 worst_loan = loan
         return worst_loan
 
 
 class AvalancheBallStrategy(GreedyHeuristicStrategy):
     @classmethod
-    def get_worst_loan(self, loans: Iterable[Loan]) -> Loan:
+    def get_worst_loan(self, loans: Iterable[Loan], month: int) -> Loan:
         worst_loan: Optional[Loan] = None
         for loan in loans:
-            if (
-                worst_loan is None
-                or loan.current_balance * loan.monthly_interest_rate
-                < worst_loan.current_balance * worst_loan.monthly_interest_rate
-            ):
+            if worst_loan is None or loan.current_balance * loan.monthly_interest_rate(
+                month
+            ) < worst_loan.current_balance * worst_loan.monthly_interest_rate(month):
                 worst_loan = loan
         return worst_loan
 
@@ -135,16 +145,16 @@ class PaymentsManager:
     _cur_portfolio: Portfolio
     _allowance: float
 
-    def __init__(self, portfolio: Portfolio, allowance: float):
+    def __init__(self, portfolio: Portfolio, allowance: float, cur_month: int):
         self._cur_portfolio = portfolio.copy(deep=True)
-        self.incur_portfolio_interest(self._cur_portfolio)
+        self.incur_portfolio_interest(self._cur_portfolio, cur_month)
         self._allowance = allowance
         self._payments = {i: 0 for i in self._cur_portfolio.instruments.keys()}
 
     @classmethod
-    def incur_portfolio_interest(cls, portfolio: Portfolio):
+    def incur_portfolio_interest(cls, portfolio: Portfolio, month: int):
         for instrument in portfolio.instruments.values():
-            instrument.incur_monthly_interest()
+            instrument.incur_monthly_interest(month)
 
     def _update_on_payment(self, instrument_name: str, payment_amount: float):
         self._payments[instrument_name] += payment_amount

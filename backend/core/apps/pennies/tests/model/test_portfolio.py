@@ -2,33 +2,57 @@ from typing import Tuple
 
 import pytest
 
+from pennies.model.interest_rate import FixedInterestRate
+from pennies.model.loan import PersonalLoan
 from pennies.model.portfolio import Portfolio
 from pennies.model.portfolio_manager import PortfolioManager
 from pennies.model.solution import MonthlyAllocation
 from pennies.utilities.examples import (
-    simple_monthly_allocation,
-    simple_problem,
-    final_payment_example,
+    simple_user_finances,
 )
+
+TEST_MONTH = 0
+
+
+def simple_monthly_allocation() -> MonthlyAllocation:
+    return MonthlyAllocation(
+        payments={"loan1": 500, "loan2": 500, "loan3": 600},
+    )
+
+
+def final_payment_example() -> Tuple[Portfolio, MonthlyAllocation]:
+    portfolio = Portfolio(
+        instruments=[
+            PersonalLoan(
+                name="loan",
+                interest_rate=FixedInterestRate(apr=5),
+                current_balance=-200,
+                minimum_monthly_payment=100,
+                final_month=10,
+            )
+        ]
+    )
+    ma = MonthlyAllocation(payments={"loan": 300})
+    return portfolio, ma
 
 
 def _forward(
     portfolio: Portfolio, ma: MonthlyAllocation
 ) -> Tuple[Portfolio, Portfolio]:
     before = portfolio
-    after = PortfolioManager.forward_on_month(before, ma.payments)
+    after = PortfolioManager.forward_on_month(before, ma.payments, TEST_MONTH)
     return before, after
 
 
 def test_forward_on_month():
     ma = simple_monthly_allocation()
-    before, after = _forward(simple_problem().portfolio, ma)
+    before, after = _forward(simple_user_finances().portfolio, ma)
     for after_loan in after.loans:
         pytest.approx(
             after_loan.current_balance,
             (
                 before.get_loan(after_loan.name).current_balance
-                * (1 + after_loan.monthly_interest_rate)
+                * (1 + after_loan.monthly_interest_rate(TEST_MONTH))
                 + ma[after_loan.name]
             ),
         )

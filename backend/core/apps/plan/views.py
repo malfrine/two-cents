@@ -20,6 +20,7 @@ class UserPlanViewSet(viewsets.GenericViewSet):
         else:
             if not DEBUG:
                 send_failed_request_data_to_slack(pennies_request)
+            # send_failed_request_data_to_slack(pennies_request)
             return Response(
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 data=pennies_response["result"],

@@ -1,12 +1,9 @@
-from django.contrib.auth import get_user
-from django.core.serializers import get_serializer
-from rest_framework import generics, mixins, permissions, request, status
-from django.shortcuts import render
-from rest_framework.decorators import action
-from rest_framework import views
+from rest_framework import status
 from rest_framework.response import Response
-from core.apps.finances import serializers
-from core.apps.finances.models import FinancialProfile, Investment, Loan
+
+from core.apps.finances.models.loans import LoanType, LoanInterestTypes, INSTALMENT_LOANS, REVOLVING_LOANS
+from core.apps.finances.models.models import FinancialProfile, Investment
+from core.apps.finances.models.models import Loan
 from rest_framework import viewsets
 
 from core.apps.finances.serializers import (
@@ -15,10 +12,11 @@ from core.apps.finances.serializers import (
     LoanSerializer,
     UserFinancesSerializer,
 )
-from core.apps.users.models import User
 
 
 # Create your views here.
+
+
 class LoanViewset(viewsets.ModelViewSet):
     queryset = Loan.objects.none()
     serializer_class = LoanSerializer
@@ -80,3 +78,22 @@ class UserFinancesViewset(viewsets.GenericViewSet):
 
     def list(self, request):
         return Response(self.get_serializer(request.user).data)
+
+
+class FinancesEnumsViewset(viewsets.GenericViewSet):
+
+
+
+    def list(self, request):
+
+        d = dict()
+        for name in REVOLVING_LOANS:
+            d[name.value] = "revolving"
+        for name in INSTALMENT_LOANS:
+            d[name.value] = "instalment"
+
+        data = {
+            "loan_types": d,
+            "interest_types": list(name for name in LoanInterestTypes)
+        }
+        return Response(data)

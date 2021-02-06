@@ -2,14 +2,14 @@ from pennies.model.problem_input import ProblemInput
 from pennies.solver import solve
 from pennies.strategies import StrategyName
 from pennies.utilities.visualization import visualize_solution
-from pennies.utilities.examples import simple_problem
+from pennies.utilities.examples import simple_user_finances
 
 
 def main():
 
-    sp = simple_problem()
+    sp = simple_user_finances()
     mi = ProblemInput(
-        problem=sp,
+        user_finances=sp,
         strategies=[
             StrategyName.snowball.value,
             StrategyName.avalanche.value,
@@ -18,7 +18,7 @@ def main():
         ],
     )
     solution = solve(mi)
-    print(str(mi.problem))
+    print(str(mi.user_finances))
     for strategy_name, plan in solution.plans.items():
         print(f"solution strategy: {strategy_name}")
         print(f"\t net worth: {plan.get_net_worth()}")

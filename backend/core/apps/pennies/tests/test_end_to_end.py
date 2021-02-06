@@ -13,7 +13,11 @@ from pennies.model.user_personal_finances import UserPersonalFinances
 from pennies.model.solution import Solution
 from pennies.solver import solve, solve_request
 from pennies.strategies import StrategyName
-from pennies.utilities.examples import simple_problem, pennies_request_as_dict
+from pennies.utilities.examples import (
+    simple_user_finances,
+    pennies_request_as_dict,
+    all_requests_as_dicts,
+)
 
 PATH_TO_DATA = Path("tests", "data")
 
@@ -24,33 +28,35 @@ class JSONDao:
 
     def read_base_model(self, base: ClassVar[BaseModel], filename: str):
         with open(str(Path(self.data_dir, filename))) as f:
-            return base.parse_obj(json.load(f))
+            j = json.load(f)
+            return base.parse_obj(j)
 
     def read_request(self, filename: str) -> PenniesRequest:
         return self.read_base_model(PenniesRequest, filename)
 
 
 def test_simple_solve():
-    sp = simple_problem()
+    sp = simple_user_finances()
     assert isinstance(sp, UserPersonalFinances)
     mi = ProblemInput(
-        problem=sp, strategies=[StrategyName.avalanche.value, StrategyName.lp.value]
+        user_finances=sp,
+        strategies=[StrategyName.avalanche.value, StrategyName.lp.value],
     )
     solution = solve(mi)
     assert isinstance(solution, Solution)
 
 
-def test_process_request():
-    request = pennies_request_as_dict()
-    response = solve_request(request)
-    if response["status"] == PenniesStatus.FAILURE:
-        print(response["result"])
-        assert False
-    assert isinstance(response["result"], dict)
-    assert len(response["result"]) == len(request["strategies"])
-    assert len(response["result"][StrategyName.lp.value]["milestones"]) >= len(
-        request["loans"]
-    )
+def test_process_all_example_requests():
+    for request in all_requests_as_dicts():
+        response = solve_request(request)
+        if response["status"] == PenniesStatus.FAILURE:
+            print(response["result"])
+            assert False
+        assert isinstance(response["result"], dict)
+        assert len(response["result"]) == len(request["strategies"])
+        assert len(response["result"][StrategyName.lp.value]["milestones"]) >= len(
+            request["loans"]
+        )
 
 
 def test_process_all_failed_requests():

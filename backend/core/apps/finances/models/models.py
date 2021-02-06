@@ -1,30 +1,13 @@
-from datetime import date
-from enum import Enum
 from django.db import models
 from core.apps.users.models import User as AuthUser
-from core.utilities import get_current_age, get_months_between
-
-
-class Loan(models.Model):
-    user = models.ForeignKey(AuthUser, on_delete=models.CASCADE, related_name="loans")
-    name = models.CharField(max_length=50)
-    current_balance = models.FloatField(verbose_name="Current Balance")
-    apr = models.FloatField(verbose_name="APR")
-    minimum_monthly_payment = models.FloatField(verbose_name="Minimum Monthly Payment")
-    end_date = models.DateField(null=False, verbose_name="Final Payment Month")
-
-    @property
-    def final_month(self):
-        return get_months_between(date.today(), self.end_date)
-
-    def __str__(self):
-        return " - ".join(("Loan", str(self.pk), str(self.name)))
+from core.apps.finances.models.loans import Loan
+from core.utilities import get_current_age
 
 
 class Investment(models.Model):
     class RiskChoices(models.TextChoices):
-        LOW = "Low", ("Low Risk")
-        MEDIUM = "Medium", ("Medium Risk")
+        LOW = "Low", "Low Risk"
+        MEDIUM = "Medium", "Medium Risk"
         HIGH = "High", "High Risk"
 
     _RISK_TO_APR = {

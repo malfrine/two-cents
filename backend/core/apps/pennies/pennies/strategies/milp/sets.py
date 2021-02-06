@@ -30,10 +30,7 @@ class MILPSets:
             for instrument in user_finances.portfolio.instruments.values()
             if isinstance(instrument, Loan)
         )
-        max_month = max(
-            i.final_month for i in user_finances.portfolio.instruments.values()
-        )
-        months = set(range(max_month))
+        months = set(range(user_finances.final_month))
         return MILPSets(
             instruments=instruments, investments=investments, loans=loans, months=months
         )
