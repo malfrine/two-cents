@@ -1,4 +1,5 @@
 from typing import List, Dict, Optional
+from uuid import UUID
 
 from pydantic import BaseModel
 
@@ -18,6 +19,7 @@ class MonthlyAllocation(BaseModel):
 
 
 class MonthlySolution(BaseModel):
+    month: int
     portfolio: Portfolio
     allocation: MonthlyAllocation
 
@@ -39,21 +41,29 @@ class MonthlySolution(BaseModel):
     def get_total_loan_payments(self):
         return sum(self.get_loan_payment(loan.name) for loan in self.portfolio.loans)
 
-    def get_total_loans_interest(self):
+    def get_total_loans_interest(self, month: int):
         return sum(
-            loan.current_balance * loan.monthly_interest_rate
+            loan.current_balance * loan.monthly_interest_rate(month=month)
             for loan in self.portfolio.loans
         )
 
-    def get_total_investments_interest(self):
+    def get_loan_interest_incurred(self, id_):
+        # TODO: determine if this is the best way? should we just keep paid of loans on the portfolio?
+        loan = self.portfolio.loans_by_id.get(id_, None)
+        if loan is None:
+            return 0
+        else:
+            return loan.current_balance * loan.monthly_interest_rate(self.month)
+
+    def get_total_investments_interest(self, month):
         return sum(
-            investment.current_balance * investment.monthly_interest_rate
+            investment.current_balance * investment.monthly_interest_rate(month=month)
             for investment in self.portfolio.investments()
         )
 
-    def get_total_interest(self):
+    def get_total_interest(self, month: int):
         return sum(
-            instrument.current_balance * instrument.monthly_interest_rate
+            instrument.current_balance * instrument.monthly_interest_rate(month)
             for instrument in self.portfolio.instruments.values()
         )
 
@@ -76,13 +86,20 @@ class FinancialPlan(BaseModel):
         return self.monthly_solutions[-1].get_value()
 
     def get_total_interest_paid_on_loans(self):
-        return sum(ms.get_total_loans_interest() for ms in self.monthly_solutions)
+        return sum(
+            ms.get_total_loans_interest(ms.month) for ms in self.monthly_solutions
+        )
 
     def get_total_interest_earned_on_investments(self):
-        return sum(ms.get_total_investments_interest() for ms in self.monthly_solutions)
+        return sum(
+            ms.get_total_investments_interest(ms.month) for ms in self.monthly_solutions
+        )
 
     def get_total_interest(self):
-        return sum(ms.get_total_interest() for ms in self.monthly_solutions)
+        return sum(ms.get_total_interest(ms.month) for ms in self.monthly_solutions)
+
+    def get_interest_paid_on_loan(self, id_: UUID):
+        return sum(ms.get_loan_interest_incurred(id_) for ms in self.monthly_solutions)
 
     @property
     def retirement_net_worth(self) -> float:

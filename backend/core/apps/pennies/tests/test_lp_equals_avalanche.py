@@ -1,10 +1,9 @@
 import math
 
+from pennies.model.factories.problem_input import ProblemInputFactory
 from pennies.model.financial_profile import FinancialProfile
-from pennies.model.loan import Loan
-from pennies.model.problem_input import ProblemInput
 from pennies.model.processed.plan import ProcessedFinancialPlan
-from pennies.model.request import PenniesRequest
+from pennies.model.request import PenniesRequest, RequestLoan, InterestType
 from pennies.model.response import PenniesResponse
 from pennies.model.status import PenniesStatus
 from pennies.solver import solve_request
@@ -15,13 +14,13 @@ def test_lp_equals_avalanche():
     request = get_request()
 
     # assert equality for unprocessed objects
-    problem_input = ProblemInput.create_from_pennies_request(request)
-    loan = problem_input.problem.portfolio.loans[0]
+    problem_input = ProblemInputFactory.from_request(request)
+    loan = problem_input.user_finances.portfolio.loans[0]
     avalanche_solution = get_strategy(StrategyName.avalanche.value).create_solution(
-        problem_input.problem
+        problem_input.user_finances
     )
     milp_solution = get_strategy(StrategyName.lp.value).create_solution(
-        problem_input.problem
+        problem_input.user_finances
     )
     assert len(milp_solution.monthly_solutions) == len(
         avalanche_solution.monthly_solutions
@@ -48,12 +47,13 @@ def get_request() -> PenniesRequest:
             monthly_allowance=2000, years_to_retirement=10
         ),
         loans=[
-            Loan(
+            RequestLoan(
                 name="loan1",
                 apr=1,
                 current_balance=-1000,
                 minimum_monthly_payment=50,
                 final_month=60,
+                interest_type=InterestType.FIXED,
             )
         ],
         investments=list(),

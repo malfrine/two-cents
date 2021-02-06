@@ -52,7 +52,7 @@ class _ConstraintMaker:
                 return self.vars.get_balance(i, t) == (
                     (
                         self.vars.get_balance(i, t - 1)
-                        * (1 + self.pars.get_monthly_interest_rate(i))
+                        * (1 + self.pars.get_monthly_interest_rate(i, t))
                     )
                     + self.vars.get_allocation(i, t - 1)
                 )

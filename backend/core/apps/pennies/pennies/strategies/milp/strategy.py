@@ -26,7 +26,7 @@ def _make_solution(
 ):
     monthly_solutions = []
     cur_portfolio = starting_portfolio.copy(deep=True)
-    for mp in monthly_payments:
+    for index, mp in enumerate(monthly_payments):
         monthly_solutions.append(
             MonthlySolution(
                 allocation=MonthlyAllocation(
@@ -34,10 +34,11 @@ def _make_solution(
                     leftover=monthly_allowance - sum(m for m in mp.values()),
                 ),
                 portfolio=cur_portfolio,
+                month=index,
             )
         )
         cur_portfolio = PortfolioManager.forward_on_month(
-            portfolio=cur_portfolio, payments=mp
+            portfolio=cur_portfolio, payments=mp, month=index
         )
 
     return FinancialPlan(monthly_solutions=monthly_solutions)

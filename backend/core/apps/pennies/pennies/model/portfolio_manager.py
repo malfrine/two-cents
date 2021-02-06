@@ -8,10 +8,10 @@ class PortfolioManager:
 
     @classmethod
     def forward_on_month(
-        cls, portfolio: Portfolio, payments: Dict[str, float]
+        cls, portfolio: Portfolio, payments: Dict[str, float], month: int
     ) -> Portfolio:
         forward_portfolio = portfolio.copy(deep=True)
-        cls._incur_portfolio_interest(forward_portfolio)
+        cls._incur_portfolio_interest(forward_portfolio, month)
         cls._implement_allocation_plan(forward_portfolio, payments)
         cls._remove_paid_off_loans(forward_portfolio)
         return forward_portfolio
@@ -32,6 +32,6 @@ class PortfolioManager:
             portfolio.remove_instrument(loan.name)
 
     @classmethod
-    def _incur_portfolio_interest(cls, portfolio: Portfolio):
+    def _incur_portfolio_interest(cls, portfolio: Portfolio, month: int):
         for instrument in portfolio.instruments.values():
-            instrument.incur_monthly_interest()
+            instrument.incur_monthly_interest(month)

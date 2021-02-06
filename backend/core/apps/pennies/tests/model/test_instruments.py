@@ -1,13 +1,14 @@
 from pydantic import ValidationError
 
 from pennies.model.instrument import Instrument
+from pennies.model.interest_rate import FixedInterestRate
 from pennies.model.loan import Loan
 
 
 def test_generic_instrument():
     instrument = Instrument(
         name="generic",
-        apr=0.05,
+        interest_rate=FixedInterestRate(apr=5),
         current_balance=200,
         minimum_monthly_payment=100,
         final_month=10,
@@ -18,7 +19,7 @@ def test_generic_instrument():
 def test_generic_loan():
     loan = Loan(
         name="generic",
-        apr=0.05,
+        interest_rate=FixedInterestRate(apr=5),
         current_balance=-200,
         minimum_monthly_payment=100,
         final_month=10,
@@ -30,7 +31,7 @@ def test_bad_loan():
     try:
         Loan(
             name="generic",
-            apr=0.05,
+            interest_rate=FixedInterestRate(apr=5),
             current_balance=200,
             minimum_monthly_payment=100,
             final_month=10,

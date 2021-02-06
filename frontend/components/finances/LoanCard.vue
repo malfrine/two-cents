@@ -56,13 +56,16 @@
     </template>
     <template v-slot:hidden>
       <v-card-text>
-        <p class="mt-n5">
+        <p v-if="isFixed" class="mt-n5">
           {{ loan.apr }}% <em>APR</em>
+        </p>
+        <p v-else class="mt-n5">
+          <em>Prime</em> + {{ loan.prime_modifier }}%
         </p>
         <p class="mt-n3">
           <em>Minimum Payment:</em> {{ asDollar(loan.minimum_monthly_payment) }}
         </p>
-        <p class="mt-n3">
+        <p v-if="!isRevolving" class="mt-n3">
           <em>Due:</em> {{ loan.end_date }}
         </p>
       </v-card-text>
@@ -93,6 +96,12 @@ export default {
   computed: {
     loan () {
       return this.$store.getters['finances/getLoanById'](this.loanId)
+    },
+    isFixed () {
+      return this.loan.interest_type.toUpperCase() === 'FIXED'
+    },
+    isRevolving () {
+      return this.$store.getters['enums/isRevolving'](this.loan.loan_type)
     }
   }
 }

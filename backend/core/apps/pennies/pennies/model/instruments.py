@@ -12,7 +12,7 @@
 
 
 # # revolving: open-ended up to a limit and difficult to calculate interest
-# # credit cards - if we can capture statement date it's a little easire to calculate interest rate
+# # credit cards - if we can capture statement date it's a little easier to calculate interest rate
 # # separate into revolving, non-revolving and mortgage
 
 
@@ -24,7 +24,7 @@
 
 
 # class NonRevolvingLoan:
-#     current_balanceg
+#     current_balance
 #     interest_rate
 #     minimum_monthly_payment
 #     end_date
