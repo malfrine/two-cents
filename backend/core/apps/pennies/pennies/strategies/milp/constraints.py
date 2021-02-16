@@ -36,7 +36,8 @@ class _ConstraintMaker:
             )
             loan_allocation = self.vars.get_allocation(l, t)
             if self.pars.get_is_revolving_loan(l):
-                mmp = -self.vars.get_balance(l, t) * self.pars.get_average_interest_rate(l, t)
+                # mmp = -self.vars.get_balance(l, t) * self.pars.get_average_interest_rate(l, t) # TODO: make faster
+                mmp = -self.pars.get_starting_balance(l) * self.pars.get_average_interest_rate(l, t)
                 return mmp <= loan_allocation + allocation_slack
             else:
                 return self.pars.get_minimum_monthly_payment(l, t) <= loan_allocation + allocation_slack
