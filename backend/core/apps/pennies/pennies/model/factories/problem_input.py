@@ -19,10 +19,7 @@ class ProblemInputFactory:
             )
         return ProblemInput(
             user_finances=UserPersonalFinances(
-                financial_profile=FinancialProfile(
-                    monthly_allowance=request.financial_profile.monthly_allowance,
-                    years_to_retirement=request.financial_profile.years_to_retirement,
-                ),
+                financial_profile=request.financial_profile,
                 portfolio=Portfolio(instruments=instruments),
             ),
             strategies=request.strategies,

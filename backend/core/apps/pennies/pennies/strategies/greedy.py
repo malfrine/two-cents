@@ -1,12 +1,23 @@
+from collections import defaultdict
 from typing import Dict, Optional, Iterable, List
+from uuid import UUID
 
+from pennies.model.financial_profile import FinancialProfile
 from pennies.model.investment import Investment
 from pennies.model.loan import Loan
+from pennies.model.parameters import Parameters
+from pennies.model.payment_horizons import PaymentHorizonsFactory, PaymentHorizon
 from pennies.model.portfolio import Portfolio
 from pennies.model.portfolio_manager import PortfolioManager
-from pennies.model.user_personal_finances import UserPersonalFinances
 from pennies.model.solution import FinancialPlan, MonthlySolution, MonthlyAllocation
+from pennies.model.user_personal_finances import UserPersonalFinances
 from pennies.strategies.allocation_strategy import AllocationStrategy
+from pennies.strategies.milp.strategy import MILPStrategy
+from pennies.utilities.finance import (
+    calculate_loan_ending_payment,
+    calculate_average_monthly_interest_rate,
+    calculate_balance_after_fixed_monthly_payments,
+)
 
 
 def _pay_loan(
@@ -24,66 +35,153 @@ def _pay_investment(
 
 
 class GreedyAllocationStrategy(AllocationStrategy):
-    def create_solution(self, user_finances: UserPersonalFinances) -> FinancialPlan:
-        minimum_payment = sum(
-            loan.minimum_monthly_payment for loan in user_finances.portfolio.loans
-        ) + sum(
-            investment.minimum_monthly_payment
-            for investment in user_finances.portfolio.investments()
-        )
-        if user_finances.financial_profile.monthly_allowance < minimum_payment:
-            raise ValueError("Cannot pay minimum payment with given monthly spend")
+    def create_solution(
+        self, user_finances: UserPersonalFinances, parameters: Parameters
+    ) -> FinancialPlan:
         cur_portfolio: Portfolio = user_finances.portfolio.copy(deep=True)
         monthly_solutions = list()
-        for month in range(user_finances.final_month):
-            allocation = self.create_monthly_allocation(
+        payment_horizons = PaymentHorizonsFactory(
+            max_months=parameters.max_months_in_payment_horizon,
+        ).from_num_months(
+            start_month=parameters.starting_month, final_month=user_finances.final_month
+        )
+
+        finish_with_milp = False
+        start_month = user_finances.final_month
+        for payment_horizon in payment_horizons.data:
+            if not cur_portfolio.loans and cur_portfolio.investments():
+                finish_with_milp = True
+                start_month = payment_horizon.months[0]
+                break
+            allocations = self.create_allocation_for_payment_horizon(
                 cur_portfolio,
                 user_finances.financial_profile.monthly_allowance,
-                month=month,
+                payment_horizon=payment_horizon,
             )
-            monthly_solutions.append(
-                MonthlySolution(
-                    portfolio=cur_portfolio, allocation=allocation, month=month
+            for month, allocation in zip(payment_horizon.months, allocations):
+                monthly_solutions.append(
+                    MonthlySolution(
+                        portfolio=cur_portfolio, allocation=allocation, month=month
+                    )
                 )
-            )
-            cur_portfolio = PortfolioManager.forward_on_month(
-                cur_portfolio, payments=allocation.payments, month=month
-            )
+                cur_portfolio = PortfolioManager.forward_on_month(
+                    cur_portfolio, payments=allocation.payments, month=month
+                )
 
+        if finish_with_milp:
+            milp_monthly_solutions = self.solve_with_milp(
+                start_month,
+                cur_portfolio,
+                user_finances.financial_profile,
+                parameters,
+            )
+            monthly_solutions.extend(milp_monthly_solutions)
         return FinancialPlan(monthly_solutions=monthly_solutions)
 
-    def create_monthly_allocation(
-        self, portfolio: Portfolio, allowance: float, month: int
-    ) -> MonthlyAllocation:
+    def solve_with_milp(
+        self,
+        start_month: int,
+        portfolio: Portfolio,
+        financial_profile: FinancialProfile,
+        parameters: Parameters,
+    ) -> List[MonthlySolution]:
+        milp_parameters = Parameters.parse_obj(
+            dict(parameters.dict(), starting_month=start_month)
+        )
+        user_finances = UserPersonalFinances(
+            portfolio=portfolio, financial_profile=financial_profile
+        )
+        financial_plan = MILPStrategy().create_solution(
+            user_finances=user_finances, parameters=milp_parameters
+        )
+        return financial_plan.monthly_solutions
+
+    def create_allocation_for_payment_horizon(
+        self, portfolio: Portfolio, allowance: float, payment_horizon: PaymentHorizon
+    ) -> List[MonthlyAllocation]:
         ...
 
 
 class GreedyHeuristicStrategy(GreedyAllocationStrategy):
-    def create_monthly_allocation(
-        self, portfolio: Portfolio, allowance: float, month: int
-    ) -> MonthlyAllocation:
-        payments_manager = PaymentsManager(portfolio, allowance, month)
-        payments_manager.pay_minimum_amounts()
-        while payments_manager.has_allowance():
-            if payments_manager.has_loans():
-                worst_loan = self.get_worst_loan(payments_manager.get_loans(), month)
-                if worst_loan is not None:
-                    payment_amount = min(
-                        payments_manager.get_allowance(),
-                        abs(worst_loan.current_balance),
-                    )
-                    payments_manager.pay_loan(worst_loan.name, payment_amount)
-            elif payments_manager.has_investments():
-                best_investment = self.get_best_investment(
-                    payments_manager.get_investments(), month
-                )
-                if best_investment is not None:
-                    payments_manager.pay_investment(
-                        best_investment.name, payments_manager.get_allowance()
-                    )
-            else:
-                return payments_manager.make_monthly_allocation()
-        return payments_manager.make_monthly_allocation()
+    def create_allocation_for_payment_horizon(
+        self, portfolio: Portfolio, allowance: float, payment_horizon: PaymentHorizon
+    ) -> List[MonthlyAllocation]:
+        payments = defaultdict(float)
+        min_payments = self.calculate_min_payments(portfolio, payment_horizon.months)
+        for key, value in min_payments.items():
+            payments[key] = value
+        allowance -= sum(payment for payment in payments.values())
+        remaining_loans = portfolio.loans
+        while remaining_loans and allowance:
+            worst_loan = self.get_worst_loan(remaining_loans, payment_horizon.months)
+            max_additional_payment = self.calculate_max_possible_loan_payment(
+                worst_loan, allowance, payment_horizon.months, payments[worst_loan.id_]
+            )
+            payments[worst_loan.id_] += max_additional_payment
+            allowance -= max_additional_payment
+            remaining_loans = list(
+                loan for loan in remaining_loans if loan.id_ != worst_loan.id_
+            )
+        if allowance and portfolio.investments():
+            best_investment = self.get_best_investment(
+                portfolio.investments(), payment_horizon.months
+            )
+            payments[best_investment.id_] += allowance
+            allowance = 0
+        return self.make_monthly_allocations(
+            dict(payments), portfolio, payment_horizon.months, allowance
+        )
+
+    @classmethod
+    def calculate_min_payments(
+        cls, portfolio: Portfolio, months: List[int]
+    ) -> Dict[UUID, float]:
+        min_payments = dict()
+        for instrument in portfolio.instruments.values():
+            avg_interest_rate = calculate_average_monthly_interest_rate(
+                instrument, months
+            )
+            loan_ending_payment = calculate_loan_ending_payment(
+                abs(instrument.current_balance), avg_interest_rate, len(months)
+            )
+            max_min_payment = max(
+                instrument.get_minimum_monthly_payment(month)
+                for month in months
+            )
+            min_payments[instrument.id_] = min(
+                max_min_payment, loan_ending_payment
+            )
+        return min_payments
+
+    @classmethod
+    def calculate_max_possible_loan_payment(
+        cls, loan: Loan, allowance: float, months: List[int], cur_payment: float
+    ) -> float:
+        interest_rate = calculate_average_monthly_interest_rate(loan, months)
+        loan_ending_payment = (
+            calculate_loan_ending_payment(
+                abs(loan.current_balance), interest_rate, len(months)
+            )
+            - cur_payment
+        )
+        return min(loan_ending_payment, allowance)
+
+    @classmethod
+    def make_monthly_allocations(
+        cls,
+        payments: Dict[UUID, float],
+        portfolio: Portfolio,
+        months: List[int],
+        leftover: float,
+    ) -> List[MonthlyAllocation]:
+        payments_by_name = {
+            portfolio.instruments_by_id[key].name: value
+            for key, value in payments.items()
+        }
+        return [
+            MonthlyAllocation(payments=payments_by_name, leftover=leftover)
+            for _ in months
+        ]
 
     @classmethod
     def get_best_investment(
@@ -93,18 +191,18 @@ class GreedyHeuristicStrategy(GreedyAllocationStrategy):
         for investment in investments:
             if best_investment is None or investment.monthly_interest_rate(
                 month
-            ) > best_investment.monthly_interest_rate(month):
+            ) < best_investment.monthly_interest_rate(month):
                 best_investment = investment
         return best_investment
 
     @classmethod
-    def get_worst_loan(cls, loans: Iterable[Loan], month: int) -> Loan:
+    def get_worst_loan(cls, loans: Iterable[Loan], months: List[int]) -> Loan:
         ...
 
 
 class SnowballStrategy(GreedyHeuristicStrategy):
     @classmethod
-    def get_worst_loan(cls, loans: Iterable[Loan], month: int) -> Loan:
+    def get_worst_loan(cls, loans: Iterable[Loan], months: List[int]) -> Loan:
         worst_loan: Optional[Loan] = None
         for loan in loans:
             if worst_loan is None or abs(loan.current_balance) < abs(
@@ -116,92 +214,25 @@ class SnowballStrategy(GreedyHeuristicStrategy):
 
 class AvalancheStrategy(GreedyHeuristicStrategy):
     @classmethod
-    def get_worst_loan(self, loans: Iterable[Loan], month: int) -> Loan:
+    def get_worst_loan(self, loans: Iterable[Loan], months: List[int]) -> Loan:
         worst_loan: Optional[Loan] = None
         for loan in loans:
             if worst_loan is None or loan.monthly_interest_rate(
-                month
-            ) > worst_loan.monthly_interest_rate(month):
+                months[0]
+            ) > worst_loan.monthly_interest_rate(months[0]):
                 worst_loan = loan
         return worst_loan
 
 
 class AvalancheBallStrategy(GreedyHeuristicStrategy):
     @classmethod
-    def get_worst_loan(self, loans: Iterable[Loan], month: int) -> Loan:
+    def get_worst_loan(self, loans: Iterable[Loan], months: List[int]) -> Loan:
         worst_loan: Optional[Loan] = None
         for loan in loans:
             if worst_loan is None or loan.current_balance * loan.monthly_interest_rate(
-                month
-            ) < worst_loan.current_balance * worst_loan.monthly_interest_rate(month):
+                months[0]
+            ) < worst_loan.current_balance * worst_loan.monthly_interest_rate(
+                months[0]
+            ):
                 worst_loan = loan
         return worst_loan
-
-
-class PaymentsManager:
-    """Utility class to assist with calculating payments for greedy strategies"""
-
-    _payments: Dict[str, float]
-    _cur_portfolio: Portfolio
-    _allowance: float
-
-    def __init__(self, portfolio: Portfolio, allowance: float, cur_month: int):
-        self._cur_portfolio = portfolio.copy(deep=True)
-        self.incur_portfolio_interest(self._cur_portfolio, cur_month)
-        self._allowance = allowance
-        self._payments = {i: 0 for i in self._cur_portfolio.instruments.keys()}
-
-    @classmethod
-    def incur_portfolio_interest(cls, portfolio: Portfolio, month: int):
-        for instrument in portfolio.instruments.values():
-            instrument.incur_monthly_interest(month)
-
-    def _update_on_payment(self, instrument_name: str, payment_amount: float):
-        self._payments[instrument_name] += payment_amount
-        self._allowance -= payment_amount
-
-    def pay_loan(self, loan_name: str, max_payment_amount: float) -> None:
-        actual_payment = self._cur_portfolio.get_loan(loan_name).receive_payment(
-            max_payment_amount
-        )
-        self._update_on_payment(loan_name, actual_payment)
-        if self._cur_portfolio.get_loan(loan_name).is_paid_off():
-            self._cur_portfolio.remove_instrument(loan_name)
-
-    def pay_investment(self, investment_name: str, max_payment_amount: float) -> None:
-        actual_payment = self._cur_portfolio.get_investment(
-            investment_name
-        ).receive_payment(max_payment_amount)
-        self._update_on_payment(investment_name, actual_payment)
-
-    def pay_minimum_amounts(self):
-        for loan in self.get_loans():
-            self.pay_loan(
-                loan.name, min(abs(loan.current_balance), loan.minimum_monthly_payment)
-            )
-        for investment in self.get_investments():
-            self.pay_investment(investment.name, investment.minimum_monthly_payment)
-
-    def has_allowance(self) -> bool:
-        return self._allowance > 0
-
-    def has_loans(self) -> bool:
-        return bool(self.get_loans())
-
-    def get_loans(self) -> List[Loan]:
-        return list(self._cur_portfolio.loans)
-
-    def has_investments(self) -> bool:
-        return bool(self.get_investments())
-
-    def get_investments(self) -> List[Investment]:
-        return list(self._cur_portfolio.investments())
-
-    def get_allowance(self) -> float:
-        return self._allowance
-
-    def remove_loan(self, loan_name: str) -> None:
-        self._cur_portfolio.remove_instrument(loan_name)
-
-    def make_monthly_allocation(self) -> MonthlyAllocation:
-        return MonthlyAllocation(payments=self._payments, leftover=self.get_allowance())

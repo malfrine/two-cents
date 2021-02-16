@@ -1,9 +1,11 @@
 from rest_framework import status
 from rest_framework.response import Response
 
-from core.apps.finances.models.loans import LoanType, LoanInterestTypes, INSTALMENT_LOANS, REVOLVING_LOANS
-from core.apps.finances.models.models import FinancialProfile, Investment
-from core.apps.finances.models.models import Loan
+from core.apps.finances.models.loans import LoanType, INSTALMENT_LOANS, REVOLVING_LOANS
+from core.apps.finances.models.constants import InterestTypes
+from core.apps.finances.models.financial_profile import FinancialProfile
+from core.apps.finances.models.investments import Investment
+from core.apps.finances.models.financial_profile import Loan
 from rest_framework import viewsets
 
 from core.apps.finances.serializers import (
@@ -81,9 +83,6 @@ class UserFinancesViewset(viewsets.GenericViewSet):
 
 
 class FinancesEnumsViewset(viewsets.GenericViewSet):
-
-
-
     def list(self, request):
 
         d = dict()
@@ -92,8 +91,5 @@ class FinancesEnumsViewset(viewsets.GenericViewSet):
         for name in INSTALMENT_LOANS:
             d[name.value] = "instalment"
 
-        data = {
-            "loan_types": d,
-            "interest_types": list(name for name in LoanInterestTypes)
-        }
+        data = {"loan_types": d, "interest_types": list(name for name in InterestTypes)}
         return Response(data)

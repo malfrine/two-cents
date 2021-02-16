@@ -1,0 +1,59 @@
+{
+   "loans": [
+       {
+           "name": "LOC 2",
+           "current_balance": -250000.0,
+           "apr": null,
+           "prime_modifier": 1.0,
+           "minimum_monthly_payment": 719.0,
+           "final_month": null,
+           "loan_type": "Line of Credit",
+           "interest_type": "Variable"
+       },
+       {
+           "name": "LOC",
+           "current_balance": -50000.0,
+           "apr": 2.5,
+           "prime_modifier": null,
+           "minimum_monthly_payment": 522.0,
+           "final_month": 108,
+           "loan_type": "Personal Loan",
+           "interest_type": "Fixed"
+       }
+   ],
+   "investments": [
+       {
+           "name": "High Risk",
+           "current_balance": 0.0,
+           "apr": 7.0,
+           "final_month": 468,
+           "minimum_monthly_payment": 0.0,
+           "volatility": 7.5
+       },
+       {
+           "name": "Medium Risk",
+           "current_balance": 0.0,
+           "apr": 5.0,
+           "final_month": 468,
+           "minimum_monthly_payment": 0.0,
+           "volatility": 3.5
+       },
+       {
+           "name": "Low Risk",
+           "current_balance": 0.0,
+           "apr": 3.5,
+           "final_month": 468,
+           "minimum_monthly_payment": 0.0,
+           "volatility": 1.5
+       }
+   ],
+   "financial_profile": {
+       "monthly_allowance": 2000.0,
+       "years_to_retirement": 39
+   },
+   "strategies": [
+       "Two Cents Plan",
+       "Avalanche Plan",
+       "Snowball Plan"
+   ]
+}

@@ -6,23 +6,29 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('finances', '0009_auto_20210202_0628'),
+        ("finances", "0009_auto_20210202_0628"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='loan',
-            name='apr',
-            field=models.FloatField(blank=True, default=None, null=True, verbose_name='APR'),
+            model_name="loan",
+            name="apr",
+            field=models.FloatField(
+                blank=True, default=None, null=True, verbose_name="APR"
+            ),
         ),
         migrations.AlterField(
-            model_name='loan',
-            name='end_date',
-            field=models.DateField(blank=True, default=None, null=True, verbose_name='Final Payment Month'),
+            model_name="loan",
+            name="end_date",
+            field=models.DateField(
+                blank=True, default=None, null=True, verbose_name="Final Payment Month"
+            ),
         ),
         migrations.AlterField(
-            model_name='loan',
-            name='prime_modifier',
-            field=models.FloatField(blank=True, default=None, null=True, verbose_name='Prime Modifier'),
+            model_name="loan",
+            name="prime_modifier",
+            field=models.FloatField(
+                blank=True, default=None, null=True, verbose_name="Prime Modifier"
+            ),
         ),
     ]

@@ -24,5 +24,7 @@ class VariableInterestRate(InterestRate):
 
     def get_monthly_interest_rate(self, month: int) -> float:
         return (
-            self._prime_forecast.get_prime(month) + self.prime_modifier
-        ) / MONTHS_IN_YEAR / 100
+            (self._prime_forecast.get_prime(month) + self.prime_modifier)
+            / MONTHS_IN_YEAR
+            / 100
+        )

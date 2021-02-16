@@ -6,9 +6,7 @@ from pennies.model.interest_rate import (
 )
 from pennies.model.prime import CURRENT_PRIME
 from pennies.model.request import RequestLoanType, RequestLoan, InterestType
-from pennies.utilities.loan_minimum_payment_calculator import (
-    LoanMinimumPaymentCalculator,
-)
+from pennies.utilities.finance import LoanMinimumPaymentCalculator
 
 
 class RequestLoanFactory:
@@ -42,6 +40,7 @@ class RequestLoanFactory:
             if interest_type == InterestType.VARIABLE
             else apr
         )
+        mmp = None
         if loan_type in cls.INSTALMENT_LOANS:
             if final_month is None:
                 raise ValueError(
@@ -49,18 +48,6 @@ class RequestLoanFactory:
                 )
             mmp = LoanMinimumPaymentCalculator.calculate_for_instalment_loan(
                 abs(current_balance), interest_rate, final_month
-            )
-        elif loan_type in cls.REVOLVING_LOANS:
-            if final_month is not None:
-                raise ValueError(
-                    f"{loan_type} is a revolving loan and does not require a final_month -- remove it."
-                )
-            mmp = LoanMinimumPaymentCalculator.calculate_for_revolving_loan(
-                abs(current_balance), interest_rate
-            )
-        else:
-            raise ValueError(
-                f"Given loan type {loan_type} is not recognized as revolving or instalment loan"
             )
         return RequestLoan(
             name=name,

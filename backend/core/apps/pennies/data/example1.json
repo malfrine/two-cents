@@ -1,0 +1,59 @@
+{
+   "loans": [
+       {
+           "name": "ATB Student LOC",
+           "current_balance": -20000.0,
+           "apr": null,
+           "prime_modifier": 2.5,
+           "minimum_monthly_payment": 83.0,
+           "final_month": null,
+           "loan_type": "Student Line of Credit",
+           "interest_type": "Variable"
+       },
+       {
+           "name": "Student Loan",
+           "current_balance": -30000.0,
+           "apr": 3.5,
+           "prime_modifier": null,
+           "minimum_monthly_payment": 329.0,
+           "final_month": 108,
+           "loan_type": "Student Loan",
+           "interest_type": "Fixed"
+       }
+   ],
+   "investments": [
+       {
+           "name": "High Risk",
+           "current_balance": 0.0,
+           "apr": 7.0,
+           "final_month": 468,
+           "minimum_monthly_payment": 0.0,
+           "volatility": 7.5
+       },
+       {
+           "name": "Medium Risk",
+           "current_balance": 0.0,
+           "apr": 5.0,
+           "final_month": 468,
+           "minimum_monthly_payment": 0.0,
+           "volatility": 3.5
+       },
+       {
+           "name": "Low Risk",
+           "current_balance": 0.0,
+           "apr": 3.5,
+           "final_month": 468,
+           "minimum_monthly_payment": 0.0,
+           "volatility": 1.5
+       }
+   ],
+   "financial_profile": {
+       "monthly_allowance": 1000.0,
+       "years_to_retirement": 39
+   },
+   "strategies": [
+       "Two Cents Plan",
+       "Avalanche Plan",
+       "Snowball Plan"
+   ]
+}

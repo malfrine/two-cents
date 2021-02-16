@@ -1,19 +1,24 @@
 from rest_framework import serializers
 
-from core.apps.finances.models.loans import LoanInterestTypes
+from core.apps.finances.models.constants import InterestTypes
 from core.apps.users.models import User
-from core.apps.finances.models.models import FinancialProfile, Investment
-from core.apps.finances.models.models import Loan
+from core.apps.finances.models.financial_profile import FinancialProfile
+from core.apps.finances.models.investments import Investment
+from core.apps.finances.models.financial_profile import Loan
 from core.config import base
 
 
 class LoanSerializer(serializers.ModelSerializer):
-
     def validate(self, data):
-        if data['interest_type'] == LoanInterestTypes.FIXED and not data['apr']:
+        if data["interest_type"] == InterestTypes.FIXED and not data["apr"]:
             raise serializers.ValidationError("Fixed interest loans must have an APR")
-        elif data['interest_type'] == LoanInterestTypes.VARIABLE and not data['prime_modifier']:
-            raise serializers.ValidationError("Variable interest loans must have a Prime Modifier")
+        elif (
+            data["interest_type"] == InterestTypes.VARIABLE
+            and not data["prime_modifier"]
+        ):
+            raise serializers.ValidationError(
+                "Variable interest loans must have a Prime Modifier"
+            )
         return data
 
     class Meta:
@@ -49,6 +54,10 @@ class InvestmentSerializer(serializers.ModelSerializer):
 
 
 class FinancialProfileSerializer(serializers.ModelSerializer):
+
+    # def validate(self, data):
+    #     raise ValueError()
+
     class Meta:
         model = FinancialProfile
         fields = (
@@ -57,6 +66,7 @@ class FinancialProfileSerializer(serializers.ModelSerializer):
             "retirement_age",
             "current_age",
             "years_to_retirement",
+            "risk_tolerance",
         )
 
 
@@ -74,13 +84,18 @@ class PenniesInvestmentSerializer(serializers.ModelSerializer):
             "apr",
             "final_month",
             "minimum_monthly_payment",
+            "volatility",
         )
 
 
 class PenniesFinancialProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = FinancialProfile
-        fields = ("monthly_allowance", "years_to_retirement")
+        fields = (
+            "monthly_allowance",
+            "years_to_retirement",
+            "risk_tolerance"
+        )
 
 
 class UserFinancesSerializer(serializers.ModelSerializer):

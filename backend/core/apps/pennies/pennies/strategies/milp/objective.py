@@ -20,8 +20,10 @@ class MILPObjective:
         return MILPObjective(
             obj=pe.Objective(
                 expr=sum(
-                    vars_.get_balance(i, t) * pars.get_monthly_interest_rate(i, t)
-                    for i, t in itertools.product(sets.instruments, sets.months)
+                    vars_.get_balance(i, t) * pars.get_average_interest_rate(i, t)
+                    for i, t in itertools.product(
+                        sets.instruments, sets.payment_horizons_as_set
+                    )
                 ),
                 sense=pe.maximize,
             )

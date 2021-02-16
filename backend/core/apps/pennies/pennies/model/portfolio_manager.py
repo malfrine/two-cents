@@ -1,3 +1,4 @@
+import math
 from typing import Dict
 
 from pennies.model.portfolio import Portfolio
@@ -11,19 +12,29 @@ class PortfolioManager:
         cls, portfolio: Portfolio, payments: Dict[str, float], month: int
     ) -> Portfolio:
         forward_portfolio = portfolio.copy(deep=True)
+        # if (month % 3 == 0):
+        #     print(month / 3)
+        #     print(forward_portfolio)
+        #     print(payments)
         cls._incur_portfolio_interest(forward_portfolio, month)
-        cls._implement_allocation_plan(forward_portfolio, payments)
+        cls._implement_allocation_plan(forward_portfolio, payments, month)
         cls._remove_paid_off_loans(forward_portfolio)
         return forward_portfolio
 
     @classmethod
     def _implement_allocation_plan(
-        cls, portfolio: Portfolio, payments: Dict[str, float]
+        cls, portfolio: Portfolio, payments: Dict[str, float], month: int
     ) -> None:
         for instrument_name, payment in payments.items():
             if payment == 0:
                 continue
-            portfolio.get_instrument(instrument_name).receive_payment(payment)
+            instrument = portfolio.get_instrument(instrument_name)
+            mmp = instrument.get_minimum_monthly_payment(month)
+            if math.isclose(instrument.current_balance, 0) and not math.isclose(payment, 0) and (payment < mmp):
+                print(
+                    f"Payment of {payment} for {instrument_name} less than minimum monthly payment of {mmp}"
+                )
+            instrument.receive_payment(payment)
 
     @classmethod
     def _remove_paid_off_loans(cls, portfolio: Portfolio) -> None:

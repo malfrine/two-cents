@@ -40,6 +40,11 @@ class Portfolio(BaseModel):
     def instruments_by_id(self) -> Dict[UUID, Instrument]:
         return {instrument.id_: instrument for instrument in self.instruments.values()}
 
+    @property
+    def investments_by_name(self) -> Dict[str, Investment]:
+        # TODO: delete this and use id instead
+        return {investment.name: investment for investment in self.investments()}
+
     def investments(self) -> List[Investment]:
         return list(i for i in self.instruments.values() if isinstance(i, Investment))
 
@@ -51,11 +56,7 @@ class Portfolio(BaseModel):
 
     @property
     def final_month(self):
-        return max(
-            i.final_month
-            for i in self.instruments.values()
-            if i.final_month is not None
-        )
+        return max((i.final_month or 0 for i in self.instruments.values()), default=0)
 
     def get_instrument(self, instrument_name: str) -> Instrument:
         return get_value_from_dict(instrument_name, self.instruments)
