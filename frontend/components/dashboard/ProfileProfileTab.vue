@@ -84,6 +84,20 @@
               />
             </v-col>
           </v-row>
+          <v-divider />
+          <v-card-title>
+            Risk Tolerance: {{ financial_profile.risk_tolerance }}%
+          </v-card-title>
+          <v-row class="mt-n3" align="center" align-content="center" justify="center">
+            <v-slider v-model="financial_profile.risk_tolerance" style="max-width: 500px" :disabled="!editMode">
+              <template #append>
+                100%
+              </template>
+              <template #prepend>
+                0%
+              </template>
+            </v-slider>
+          </v-row>
         </v-container>
       </v-card>
     </div>
@@ -98,13 +112,11 @@ export default {
       editMode: false,
       defaultBirthDate: new Date(),
       defaultMonthlyAllowance: 1000,
-      defaultRetirementAge: 65
+      defaultRetirementAge: 65,
+      financial_profile: { ...this.$store.getters['finances/getFinancialProfile'] }
     }
   },
   computed: {
-    financial_profile () {
-      return { ...this.$store.getters['finances/getFinancialProfile'] }
-    },
     first_name () {
       return this.$store.getters['finances/getFirstName']
     },
@@ -118,13 +130,25 @@ export default {
   methods: {
     toggleEditMode () {
       if (this.editMode) {
-        // TODO: clean this up
         const fp = {
-          birth_date: this.financial_profile.birth_date == null ? this.defaultBirthDate : this.financial_profile.birth_date,
-          monthly_allowance: this.financial_profile.monthly_allowance == null ? this.defaultMonthlyAllowance : this.financial_profile.monthly_allowance,
-          retirement_age: this.financial_profile.retirement_age == null ? this.defaultRetirementAge : this.financial_profile.retirement_age
+          birth_date: this.financial_profile.birth_date || this.defaultBirthDate,
+          monthly_allowance: this.financial_profile.monthly_allowance || this.defaultMonthlyAllowance,
+          retirement_age: this.financial_profile.retirement_age || this.defaultRetirementAge,
+          risk_tolerance: this.financial_profile.risk_tolerance
         }
-        this.$store.dispatch('finances/updateFinancialProfile', fp)
+        this.$axios.$post('/api/my/finances/profile', fp)
+          .then(
+            (response) => {
+              this.$store.commit('finances/SET_FINANCIAL_PROFILE', response)
+              this.financial_profile = { ...this.$store.getters['finances/getFinancialProfile'] }
+            }
+          )
+          .catch(
+            (e) => {
+              this.$toast.error('Could not update your information')
+              this.financial_profile = { ...this.$store.getters['finances/getFinancialProfile'] }
+            }
+          )
       }
       this.editMode = !this.editMode
     }

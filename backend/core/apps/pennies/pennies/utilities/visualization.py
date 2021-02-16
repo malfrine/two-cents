@@ -11,7 +11,7 @@ def _visualize_portfolios(portfolio_balances: List[Dict[str, float]]) -> None:
         kind="bar", stacked=True, width=1.0, figsize=(10, 10)
     )
     ax.set_xticks(range(0, 360, 10))
-    plt.show()
+    plt.savefig("portfolio.png")
 
 
 def _visualize_payments(payments: List[Dict[str, float]]):
@@ -19,7 +19,7 @@ def _visualize_payments(payments: List[Dict[str, float]]):
         kind="bar", stacked=True, width=1.0, figsize=(10, 10)
     )
     ax.set_xticks(range(0, 360, 10))
-    plt.show()
+    plt.savefig("payments.png")
 
 
 def visualize_solution(plan: FinancialPlan) -> None:

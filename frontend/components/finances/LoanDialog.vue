@@ -65,6 +65,7 @@
               :rules="endDateRules"
             />
             <v-text-field
+              v-if="!isRevolving"
               v-model="minimum_monthly_payment"
               label="Minimum Monthly Payment"
               prefix="$"
@@ -85,7 +86,7 @@
 </template>
 
 <script>
-import { calculateMinimumRevolvingLoanPayment, calculateMinimumAmortizedLoanPayment, asDollar } from '~/assets/utils.js'
+import { calculateMinimumAmortizedLoanPayment, asDollar } from '~/assets/utils.js'
 
 export default {
   props: ['visible', 'modalName', 'loanId'],
@@ -151,12 +152,9 @@ export default {
     },
     minimumMonthlyPaymentErrorMessage () {
       let minPayment = 0
-      const interestRate = this.isFixed ? this.apr : 2.45 + Number(this.prime_modifier) // TODO: move current prime to a constants
+      const interestRate = this.isFixed ? this.apr : 2.5 + Number(this.prime_modifier) // TODO: move current prime to a constants
       if (this.isRevolving) {
-        minPayment = calculateMinimumRevolvingLoanPayment(
-          this.current_balance,
-          interestRate
-        )
+        return null
       } else {
         const endDate = new Date(this.end_date)
         if (!this.end_date || endDate <= new Date()) {

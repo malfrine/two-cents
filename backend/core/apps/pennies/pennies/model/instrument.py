@@ -12,8 +12,10 @@ class Instrument(BaseModel):
     name: str
     interest_rate: InterestRate
     current_balance: float
-    minimum_monthly_payment: float
     final_month: int = None
+
+    def get_minimum_monthly_payment(self, month: int):
+        raise NotImplementedError()
 
     def monthly_interest_rate(self, month: int) -> float:
         return self.interest_rate.get_monthly_interest_rate(month)

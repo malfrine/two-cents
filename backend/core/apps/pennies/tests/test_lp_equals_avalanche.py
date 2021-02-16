@@ -2,6 +2,7 @@ import math
 
 from pennies.model.factories.problem_input import ProblemInputFactory
 from pennies.model.financial_profile import FinancialProfile
+from pennies.model.parameters import Parameters
 from pennies.model.processed.plan import ProcessedFinancialPlan
 from pennies.model.request import PenniesRequest, RequestLoan, InterestType
 from pennies.model.response import PenniesResponse
@@ -17,10 +18,10 @@ def test_lp_equals_avalanche():
     problem_input = ProblemInputFactory.from_request(request)
     loan = problem_input.user_finances.portfolio.loans[0]
     avalanche_solution = get_strategy(StrategyName.avalanche.value).create_solution(
-        problem_input.user_finances
+        problem_input.user_finances, Parameters()
     )
     milp_solution = get_strategy(StrategyName.lp.value).create_solution(
-        problem_input.user_finances
+        problem_input.user_finances, Parameters()
     )
     assert len(milp_solution.monthly_solutions) == len(
         avalanche_solution.monthly_solutions
@@ -50,8 +51,8 @@ def get_request() -> PenniesRequest:
             RequestLoan(
                 name="loan1",
                 apr=1,
-                current_balance=-1000,
-                minimum_monthly_payment=50,
+                current_balance=-50000,
+                minimum_monthly_payment=854,
                 final_month=60,
                 interest_type=InterestType.FIXED,
             )

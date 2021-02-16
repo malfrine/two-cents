@@ -3,7 +3,8 @@ from core.apps.finances.views import (
     FinancialProfileView,
     InvestmentViewset,
     LoanViewset,
-    UserFinancesViewset, FinancesEnumsViewset,
+    UserFinancesViewset,
+    FinancesEnumsViewset,
 )
 from core.apps.plan.views import UserPlanViewSet
 from core.apps.users.views import AccountViewSet, SessionAPIView

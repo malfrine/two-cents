@@ -16,6 +16,9 @@ const getters = {
   getFinancialProfile (state) {
     return state.user_finances.financial_profile
   },
+  getMonthlyAllowance (state) {
+    return state.user_finances.financial_profile.monthly_allowance
+  },
   getFirstName (state) {
     return state.user_finances.first_name
   },
@@ -152,17 +155,6 @@ const actions = {
         (e) => {
           this.$toast.error('Could not delete investment')
         }
-      )
-  },
-  updateFinancialProfile (context, payload) {
-    this.$axios.$post('/api/my/finances/profile', payload)
-      .then(
-        (response) => {
-          context.commit('SET_FINANCIAL_PROFILE', response)
-        }
-      )
-      .catch(
-        (e) => { this.$toast.error('Could not update your information') }
       )
   },
   setIsLoading (context, payload) {

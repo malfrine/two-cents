@@ -167,3 +167,6 @@ sw.*
 
 # Vim swap files
 *.swp
+
+# ignore pennies png
+backend/core/apps/pennies/*.png

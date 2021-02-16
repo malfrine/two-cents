@@ -1,3 +1,4 @@
+import itertools
 from dataclasses import dataclass
 from typing import List, Dict
 
@@ -5,6 +6,7 @@ import pyomo.environ as pe
 import pyutilib
 from pyomo.core import ConcreteModel
 
+from pennies.model.parameters import Parameters
 from pennies.model.portfolio import Portfolio
 from pennies.model.portfolio_manager import PortfolioManager
 from pennies.model.solution import FinancialPlan, MonthlySolution, MonthlyAllocation
@@ -56,21 +58,28 @@ class MILP:
     objective: MILPObjective
 
     @classmethod
-    def from_user_finances(cls, user_finances: UserPersonalFinances) -> "MILP":
+    def create(
+        cls, user_finances: UserPersonalFinances, parameters: Parameters
+    ) -> "MILP":
         m = ConcreteModel()
 
-        sets = MILPSets.from_user_finances(user_finances)
+        sets = MILPSets.create(
+            user_finances,
+            parameters.max_months_in_payment_horizon,
+            parameters.starting_month,
+        )
         m.instruments = sets.instruments
-        m.months = sets.months
+        m.months = sets.payment_horizons_as_set
         m.loans = sets.loans
         m.investments = sets.investments
 
-        parameters = MILPParameters(user_finances)
+        parameters = MILPParameters(user_finances, sets)
 
         variables = MILPVariables.create(user_finances, sets)
         m.balances = variables.balances
         m.allocations = variables.allocations
-        m.paid_off_indicators = variables.paid_off_indicators
+        m.paid_off_indicators = variables.not_paid_off_indicators
+        m.debt_free_indicators = variables.in_debt_indicators
 
         constraints = MILPConstraints.create(sets, parameters, variables)
         m.c1 = constraints.define_loan_paid_off_indicator
@@ -79,6 +88,9 @@ class MILP:
         m.c4 = constraints.total_payments_limit
         m.c5 = constraints.loans_are_non_positive
         m.c6 = constraints.pay_off_loans_by_end_date
+        m.c7 = constraints.limit_total_risk
+        m.c8 = constraints.define_in_debt_indicator
+        m.c9 = constraints.limit_investment_risk
 
         objective = MILPObjective.create(sets, parameters, variables)
         m.obj = objective.obj
@@ -99,12 +111,18 @@ class MILP:
         )
 
     def _make_monthly_payments(self) -> List[Dict[str, float]]:
+        # for t in sorted(self.sets.payment_horizons_as_set):
+        #     print(t)
+        #     print(pe.value(self.variables.get_allocation("LOC 2", t)))
+        #     print(pe.value(self.variables.get_balance("LOC 2", t)))
+
         return [
             {
                 i.name: pe.value(self.variables.get_allocation(i.name, t))
                 for i in self.user_finances.portfolio.instruments.values()
             }
-            for t in sorted(self.sets.months)
+            for t in sorted(self.sets.payment_horizons_as_set)
+            for _ in range(self.sets.get_num_months_in_horizon(t))
         ]
 
     def solve(self):
@@ -124,7 +142,9 @@ class MILP:
 
 
 class MILPStrategy(AllocationStrategy):
-    def create_solution(self, user_finances: UserPersonalFinances) -> FinancialPlan:
-        milp = MILP.from_user_finances(user_finances=user_finances)
+    def create_solution(
+        self, user_finances: UserPersonalFinances, parameters: Parameters
+    ) -> FinancialPlan:
+        milp = MILP.create(user_finances=user_finances, parameters=parameters)
         new_solution = milp.solve()
         return new_solution

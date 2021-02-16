@@ -25,7 +25,7 @@ class InterestType(Enum):
 class RequestLoan(BaseModel):
     name: str
     current_balance: float
-    minimum_monthly_payment: float
+    minimum_monthly_payment: Optional[float] = None
     apr: Optional[float] = None
     prime_modifier: Optional[float] = None
     final_month: int = None
@@ -48,7 +48,8 @@ class RequestInvestment(BaseModel):
     name: str
     apr: float
     current_balance: float
-    minimum_monthly_payment: float
+    minimum_monthly_payment: float = 0
+    volatility: float
     final_month: int = None
 
 
@@ -63,17 +64,3 @@ class PenniesRequest(BaseModel):
         if not (values["loans"] or values["investments"]):
             raise ValueError("No loans or investments exist")
         return values
-
-    @root_validator
-    def validate_enough_monthly_allowance(cls, values):
-        loans: List[Loan] = values["loans"]
-        total_min_payments = sum(l.minimum_monthly_payment for l in loans)
-        financial_profile: FinancialProfile = values["financial_profile"]
-        if total_min_payments >= financial_profile.monthly_allowance:
-            raise ValueError(
-                f"Total minimum loan payments ({total_min_payments} "
-                f"is greater than or equal to monthly allowance {financial_profile.monthly_allowance}"
-            )
-        return values
-
-

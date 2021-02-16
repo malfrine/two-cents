@@ -31,11 +31,19 @@ def solve_request(request: Dict) -> Dict:
 
 def solve(problem_input: ProblemInput) -> Solution:
     plans = dict()
+    print(str(problem_input.user_finances))
     for strategy_name in problem_input.strategies:
-        solution = get_strategy(strategy_name).create_solution(
-            problem_input.user_finances
+        plan = get_strategy(strategy_name).create_solution(
+            problem_input.user_finances, problem_input.parameters
         )
-        if solution is None:
+        if plan is None:
             raise ValueError(f"{strategy_name} could not solve")
-        plans[strategy_name] = solution
+        plans[strategy_name] = plan
+    for strategy_name, plan in plans.items():
+        print(f"solution strategy: {strategy_name}")
+        print(f"\t net worth: {plan.get_net_worth()}")
+        print(f"\t interest paid on loans: {plan.get_total_interest_paid_on_loans()}")
+        print(
+            f"\t interest earned on investments: {plan.get_total_interest_earned_on_investments()}"
+        )
     return Solution(plans=plans)

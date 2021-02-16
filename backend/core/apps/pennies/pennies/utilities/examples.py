@@ -12,7 +12,8 @@ from pennies.model.request import (
     PenniesRequest,
     RequestLoan,
     RequestLoanType,
-    RequestInvestment, InterestType,
+    RequestInvestment,
+    InterestType,
 )
 from pennies.model.solution import MonthlyAllocation
 from pennies.model.user_personal_finances import UserPersonalFinances
@@ -21,8 +22,8 @@ from pennies.strategies import StrategyName
 
 def financial_profile():
     return FinancialProfile(
-        monthly_allowance=2200,
-        years_to_retirement=25,
+        monthly_allowance=2500,
+        years_to_retirement=35,
     )
 
 
@@ -33,7 +34,7 @@ def simple_request_loans() -> List[RequestLoan]:
             apr=5,
             current_balance=-20000,
             loan_type=RequestLoanType.PERSONAL_LOAN,
-            final_month=12 * 30,
+            final_month=12 * 10,
             interest_type=InterestType.FIXED,
         ),
         RequestLoanFactory.create(
@@ -45,7 +46,7 @@ def simple_request_loans() -> List[RequestLoan]:
         ),
         RequestLoanFactory.create(
             name="loan3",
-            apr=4,
+            apr=3.5,
             current_balance=-200000,
             loan_type=RequestLoanType.STUDENT_LINE_OF_CREDIT,
             interest_type=InterestType.FIXED,
@@ -80,18 +81,25 @@ def all_possible_loans() -> List[RequestLoan]:
 def simple_investments() -> List[RequestInvestment]:
     return [
         RequestInvestment(
-            name="inv1",
-            apr=5,
+            name="high risk",
+            apr=7,
             current_balance=0,
             minimum_monthly_payment=0,
-            final_month=12 * 30,
+            volatility=10,
         ),
         RequestInvestment(
-            name="inv2",
-            apr=3,
+            name="low risk",
+            apr=4,
             current_balance=0,
             minimum_monthly_payment=0,
-            final_month=12 * 30,
+            volatility=2.5,
+        ),
+        RequestInvestment(
+            name="medium risk",
+            apr=5.5,
+            current_balance=0,
+            minimum_monthly_payment=0,
+            volatility=5.5,
         ),
     ]
 
@@ -118,6 +126,15 @@ def all_instrument_types_request() -> PenniesRequest:
     return PenniesRequest(
         financial_profile=financial_profile(),
         loans=all_possible_loans(),
+        investments=simple_investments(),
+        strategies=all_strategies(),
+    )
+
+
+def only_investments_request() -> PenniesRequest:
+    return PenniesRequest(
+        financial_profile=financial_profile(),
+        loans=[],
         investments=simple_investments(),
         strategies=all_strategies(),
     )
@@ -160,7 +177,11 @@ def pennies_request_as_dict() -> Dict:
 
 
 def all_requests() -> List[PenniesRequest]:
-    return [simple_request(), all_instrument_types_request()]
+    return [
+        simple_request(),
+        all_instrument_types_request(),
+        only_investments_request(),
+    ]
 
 
 def all_requests_as_dicts() -> List[Dict]:

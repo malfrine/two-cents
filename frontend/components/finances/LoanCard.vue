@@ -62,7 +62,7 @@
         <p v-else class="mt-n5">
           <em>Prime</em> + {{ loan.prime_modifier }}%
         </p>
-        <p class="mt-n3">
+        <p v-if="!isRevolving" class="mt-n3">
           <em>Minimum Payment:</em> {{ asDollar(loan.minimum_monthly_payment) }}
         </p>
         <p v-if="!isRevolving" class="mt-n3">

@@ -1,19 +1,25 @@
+from pathlib import Path
+
+from pennies.dao.json_dao import JsonDao
+from pennies.model.factories.problem_input import ProblemInputFactory
 from pennies.model.problem_input import ProblemInput
 from pennies.solver import solve
 from pennies.strategies import StrategyName
+from pennies.utilities.examples import only_investments_request
 from pennies.utilities.visualization import visualize_solution
-from pennies.utilities.examples import simple_user_finances
 
 
 def main():
-
-    sp = simple_user_finances()
+    json_dao = JsonDao(data_dir=Path("data"))
+    request = json_dao.read_request("fail.json")
+    # request = only_investments_request()
+    sp = ProblemInputFactory.from_request(request).user_finances
     mi = ProblemInput(
         user_finances=sp,
         strategies=[
-            StrategyName.snowball.value,
+            # StrategyName.snowball.value,
             StrategyName.avalanche.value,
-            StrategyName.avalanche_ball.value,
+            # StrategyName.avalanche_ball.value,
             StrategyName.lp.value,
         ],
     )
@@ -26,6 +32,7 @@ def main():
         print(
             f"\t interest earned on investments: {plan.get_total_interest_earned_on_investments()}"
         )
+    for strategy_name, plan in solution.plans.items():
         visualize_solution(plan)
 
 
