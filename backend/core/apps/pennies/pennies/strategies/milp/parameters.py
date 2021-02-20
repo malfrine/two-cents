@@ -40,13 +40,17 @@ class MILPParameters:
 
     def get_max_volatility(self):
         return max(
-            list(i.volatility for i in self.user_finances.portfolio.investments()),
+            list(
+                i.volatility for i in self.user_finances.portfolio.non_cash_investments
+            ),
             default=0,
         )
 
-    def get_min_volatility(self):
+    def get_min_investment_volatility(self):
         return min(
-            list(i.volatility for i in self.user_finances.portfolio.investments()),
+            list(
+                i.volatility for i in self.user_finances.portfolio.non_cash_investments
+            ),
             default=0,
         )
 
@@ -59,12 +63,40 @@ class MILPParameters:
     def get_monthly_allowance(self):
         return self.user_finances.financial_profile.monthly_allowance
 
-    def get_minimum_monthly_payment(self, loan_id: UUID, payment_horizon_order: int):
-        loan = self._get_loan(loan_id)
-        return max(loan.get_minimum_monthly_payment(m) for m in self.sets.get_months_in_horizon(payment_horizon_order))
+    def get_minimum_monthly_payment(
+        self, instrument_id: UUID, payment_horizon_order: int
+    ):
+        instrument = self._get_instrument(instrument_id)
+        return max(
+            instrument.get_minimum_monthly_payment(m)
+            for m in self.sets.get_months_in_horizon(payment_horizon_order)
+        )
+
+    def get_fixed_volatility(self, payment_horizon_order: int):
+        """Users have a fixed volatility based on their pre-authorized monthly contributions"""
+        total_min_monthly_payment = sum(
+            self.get_minimum_monthly_payment(i, payment_horizon_order)
+            for i in self.sets.investments
+        )
+        return (
+            100
+            * sum(
+                self.get_minimum_monthly_payment(i, payment_horizon_order)
+                * self.get_volatility(i)
+                for i in self.sets.investments
+            )
+            / (self.get_max_volatility() * total_min_monthly_payment)
+        )
 
     def get_is_revolving_loan(self, id_) -> bool:
-        return isinstance(self.user_finances.portfolio.get_instrument(id_), RevolvingLoan)
+        return isinstance(
+            self.user_finances.portfolio.get_instrument(id_), RevolvingLoan
+        )
+
+    def get_is_investment(self, id_):
+        return (
+            self.user_finances.portfolio.investments_by_name.get(id_, None) is not None
+        )
 
     def has_loans(self) -> bool:
         return len(self.user_finances.portfolio.loans) > 0
@@ -95,3 +127,11 @@ class MILPParameters:
                 * (1 + max_monthly_interest_rate) ** self.get_final_month(id_)
             )
         return self._instrument_bounds[id_]
+
+    def get_constraint_violation_penalty(self):
+        final_month = self.user_finances.final_month
+        monthly_allowance = self.get_monthly_allowance()
+        starting_investment_worth = sum(
+            self.get_starting_balance(i) for i in self.sets.investments
+        )
+        return starting_investment_worth + monthly_allowance * final_month

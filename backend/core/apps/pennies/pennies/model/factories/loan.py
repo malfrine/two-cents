@@ -1,6 +1,6 @@
 from pennies.model.interest_rate import (
-    FixedInterestRate,
-    VariableInterestRate,
+    FixedLoanInterestRate,
+    VariableLoanInterestRate,
 )
 from pennies.model.loan import (
     Loan,
@@ -26,8 +26,8 @@ class LoanFactory:
     }
 
     _INTEREST_RATE_MAP = {
-        InterestType.FIXED: FixedInterestRate,
-        InterestType.VARIABLE: VariableInterestRate,
+        InterestType.FIXED: FixedLoanInterestRate,
+        InterestType.VARIABLE: VariableLoanInterestRate,
     }
 
     @classmethod

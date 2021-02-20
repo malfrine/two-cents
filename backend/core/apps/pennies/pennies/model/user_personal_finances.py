@@ -24,7 +24,8 @@ class UserPersonalFinances(BaseModel):
         fp: FinancialProfile = values["financial_profile"]
         p: Portfolio = values["portfolio"]
         total_min_payments = sum(
-            instrument.get_minimum_monthly_payment(0) for instrument in p.instruments.values()
+            instrument.get_minimum_monthly_payment(0)
+            for instrument in p.instruments.values()
         )
         assert total_min_payments <= fp.monthly_allowance
         return values

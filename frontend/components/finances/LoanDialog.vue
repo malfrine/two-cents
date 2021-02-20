@@ -23,8 +23,9 @@
             item-color="primary"
             :items="interestTypes"
           />
-          <v-divider class="my-5" />
           <div v-show="showDetails">
+            <v-divider class="mb-6" />
+
             <v-text-field
               v-model="name"
               label="Loan Name"
@@ -55,7 +56,6 @@
               outlined
               :rules="primeModifierRules"
             />
-
             <v-text-field
               v-if="!isRevolving"
               v-model="end_date"

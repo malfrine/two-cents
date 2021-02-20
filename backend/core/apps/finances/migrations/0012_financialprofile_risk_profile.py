@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('finances', '0011_auto_20210207_0632'),
+        ("finances", "0011_auto_20210207_0632"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='financialprofile',
-            name='risk_profile',
-            field=models.FloatField(default=0.7, verbose_name='Risk Profile'),
+            model_name="financialprofile",
+            name="risk_profile",
+            field=models.FloatField(default=0.7, verbose_name="Risk Profile"),
         ),
     ]

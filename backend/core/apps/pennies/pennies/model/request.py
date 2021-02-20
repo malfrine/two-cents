@@ -44,13 +44,28 @@ class RequestLoan(BaseModel):
         return values
 
 
+class RequestInvestmentType(Enum):
+    MUTUAL_FUND = "Mutual Fund"
+    ETF = "ETF"
+    GIC = "GIC"
+    TERM_DEPOSIT = "Term Deposit"
+    STOCK = "Stock"
+    # BOND = "Bond"
+    CASH = "Cash"
+
+
 class RequestInvestment(BaseModel):
     name: str
-    apr: float
-    current_balance: float
-    minimum_monthly_payment: float = 0
-    volatility: float
-    final_month: int = None
+    investment_type: RequestInvestmentType = RequestInvestmentType.MUTUAL_FUND
+    roi: Optional[float] = None
+    volatility: Optional[float] = None
+    current_balance: Optional[float] = None
+    prime_modifier: Optional[float] = None
+    pre_authorized_monthly_contribution: float = 0
+    principal_investment_amount: Optional[float] = None
+    start_month: Optional[int] = None
+    final_month: Optional[int] = None
+    interest_type: Optional[InterestType] = None
 
 
 class PenniesRequest(BaseModel):

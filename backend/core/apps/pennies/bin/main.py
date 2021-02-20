@@ -5,14 +5,18 @@ from pennies.model.factories.problem_input import ProblemInputFactory
 from pennies.model.problem_input import ProblemInput
 from pennies.solver import solve
 from pennies.strategies import StrategyName
-from pennies.utilities.examples import only_investments_request
+from pennies.utilities.examples import (
+    only_investments_request,
+    all_instrument_types_request,
+    simple_request,
+)
 from pennies.utilities.visualization import visualize_solution
 
 
 def main():
     json_dao = JsonDao(data_dir=Path("data"))
     request = json_dao.read_request("fail.json")
-    # request = only_investments_request()
+    request = simple_request()
     sp = ProblemInputFactory.from_request(request).user_finances
     mi = ProblemInput(
         user_finances=sp,

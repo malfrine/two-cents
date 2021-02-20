@@ -3,7 +3,7 @@ from typing import Tuple, Dict, List
 from pennies.model.factories.problem_input import ProblemInputFactory
 from pennies.model.factories.request_loan import RequestLoanFactory
 from pennies.model.financial_profile import FinancialProfile
-from pennies.model.interest_rate import FixedInterestRate
+from pennies.model.interest_rate import FixedLoanInterestRate
 from pennies.model.investment import Investment
 from pennies.model.loan import Loan
 from pennies.model.portfolio import Portfolio
@@ -14,6 +14,7 @@ from pennies.model.request import (
     RequestLoanType,
     RequestInvestment,
     InterestType,
+    RequestInvestmentType,
 )
 from pennies.model.solution import MonthlyAllocation
 from pennies.model.user_personal_finances import UserPersonalFinances
@@ -82,24 +83,92 @@ def simple_investments() -> List[RequestInvestment]:
     return [
         RequestInvestment(
             name="high risk",
-            apr=7,
+            roi=7,
             current_balance=0,
             minimum_monthly_payment=0,
             volatility=10,
+            investment_type=RequestInvestmentType.MUTUAL_FUND,
         ),
         RequestInvestment(
             name="low risk",
-            apr=4,
+            roi=4,
             current_balance=0,
             minimum_monthly_payment=0,
             volatility=2.5,
+            investment_type=RequestInvestmentType.MUTUAL_FUND,
         ),
         RequestInvestment(
             name="medium risk",
-            apr=5.5,
+            roi=5.5,
             current_balance=0,
             minimum_monthly_payment=0,
             volatility=5.5,
+            investment_type=RequestInvestmentType.MUTUAL_FUND,
+        ),
+        RequestInvestment(
+            name="term deposit",
+            investment_type=RequestInvestmentType.TERM_DEPOSIT,
+            final_month=36,
+            principal_investment_amount=100000,
+            start_month=-36,
+            interest_type=InterestType.VARIABLE,
+            prime_modifier=0,
+            volatility=0,
+        ),
+    ]
+
+
+def all_possible_investments() -> List[RequestInvestment]:
+    return [
+        RequestInvestment(
+            name="mutual fund",
+            current_balance=0,
+            investment_type=RequestInvestmentType.MUTUAL_FUND,
+            roi=5,
+            volatility=5,
+            pre_authorized_monthly_contribution=0,
+        ),
+        RequestInvestment(
+            name="etf",
+            current_balance=0,
+            investment_type=RequestInvestmentType.ETF,
+            roi=5,
+            volatility=5,
+            pre_authorized_monthly_contribution=0,
+        ),
+        RequestInvestment(
+            name="stock",
+            current_balance=0,
+            investment_type=RequestInvestmentType.STOCK,
+            roi=5,
+            volatility=5,
+            pre_authorized_monthly_contribution=0,
+        ),
+        RequestInvestment(
+            name="cash",
+            current_balance=0,
+            investment_type=RequestInvestmentType.CASH,
+            pre_authorized_monthly_contribution=10,
+        ),
+        RequestInvestment(
+            name="gic",
+            investment_type=RequestInvestmentType.GIC,
+            roi=2,
+            final_month=36,
+            principal_investment_amount=1000,
+            start_month=-36,
+            interest_type=InterestType.FIXED,
+            volatility=0,
+        ),
+        RequestInvestment(
+            name="term deposit",
+            investment_type=RequestInvestmentType.TERM_DEPOSIT,
+            final_month=36,
+            principal_investment_amount=1000,
+            start_month=-36,
+            interest_type=InterestType.VARIABLE,
+            prime_modifier=0,
+            volatility=0,
         ),
     ]
 
@@ -126,7 +195,7 @@ def all_instrument_types_request() -> PenniesRequest:
     return PenniesRequest(
         financial_profile=financial_profile(),
         loans=all_possible_loans(),
-        investments=simple_investments(),
+        investments=all_possible_investments(),
         strategies=all_strategies(),
     )
 

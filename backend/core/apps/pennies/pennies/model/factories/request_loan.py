@@ -1,8 +1,8 @@
 from typing import Optional
 
 from pennies.model.interest_rate import (
-    FixedInterestRate,
-    VariableInterestRate,
+    FixedLoanInterestRate,
+    VariableLoanInterestRate,
 )
 from pennies.model.prime import CURRENT_PRIME
 from pennies.model.request import RequestLoanType, RequestLoan, InterestType

@@ -28,22 +28,33 @@ class _ConstraintMaker:
         )
 
     def make_allocate_minimum_payments(self) -> pe.Constraint:
-        def rule(_, l, t):
+        def rule(_, i, t):
+
+            if t == max(self.sets.payment_horizons_as_set):
+                return pe.Constraint.Skip
+
+            allocation = self.vars.get_allocation(i, t)
+            if self.pars.get_is_investment(i):
+                return self.pars.get_minimum_monthly_payment(i, t) <= allocation
+
             final_payment_order = self.pars.get_last_payment_horizon_order()
-            allocation_slack = (
-                self.pars.get_monthly_allowance()
-                * (1 - self.vars.get_is_unpaid(l, min(t + 1, final_payment_order)))
+            allocation_slack = self.pars.get_monthly_allowance() * (
+                1 - self.vars.get_is_unpaid(i, min(t + 1, final_payment_order))
             )
-            loan_allocation = self.vars.get_allocation(l, t)
-            if self.pars.get_is_revolving_loan(l):
+            if self.pars.get_is_revolving_loan(i):
                 # mmp = -self.vars.get_balance(l, t) * self.pars.get_average_interest_rate(l, t) # TODO: make faster
-                mmp = -self.pars.get_starting_balance(l) * self.pars.get_average_interest_rate(l, t)
-                return mmp <= loan_allocation + allocation_slack
-            else:
-                return self.pars.get_minimum_monthly_payment(l, t) <= loan_allocation + allocation_slack
+                mmp = -self.pars.get_starting_balance(
+                    i
+                ) * self.pars.get_average_interest_rate(i, t)
+                return mmp <= allocation + allocation_slack
+            else:  # is instalment loan
+                return (
+                    self.pars.get_minimum_monthly_payment(i, t)
+                    <= allocation + allocation_slack
+                )
 
         return pe.Constraint(
-            itertools.product(self.sets.loans, self.sets.payment_horizons_as_set),
+            itertools.product(self.sets.instruments, self.sets.payment_horizons_as_set),
             rule=rule,
         )
 
@@ -51,8 +62,15 @@ class _ConstraintMaker:
         def rule(_, i, t):
             if t == 0:
                 return self.vars.get_balance(i, t) == self.pars.get_starting_balance(i)
-            elif t >= self.pars.get_instrument_final_payment_horizon(i).order:
-                return self.vars.get_balance(i, t) == self.vars.get_balance(i, t - 1)
+            # elif t >= self.pars.get_instrument_final_payment_horizon(i).order:
+            #     return self.vars.get_balance(i, t) == self.vars.get_balance(i, t - 1)
+            elif self.pars.get_average_interest_rate(i, t - 1) == 0:
+                n = self.sets.get_num_months_in_horizon(t)
+                return (
+                    self.vars.get_balance(i, t)
+                    == self.vars.get_balance(i, t - 1)
+                    + self.vars.get_allocation(i, t - 1) * n
+                )
             else:
                 r = 1 + self.pars.get_average_interest_rate(i, t - 1)
                 n = self.sets.get_num_months_in_horizon(t)
@@ -72,7 +90,8 @@ class _ConstraintMaker:
         def rule(_, t):
             return (
                 sum(self.vars.get_allocation(i, t) for i in self.sets.instruments)
-                <= self.pars.get_monthly_allowance()
+                + self.vars.get_allocation_slack(t)
+                == self.pars.get_monthly_allowance()
             )
 
         return pe.Constraint(self.sets.payment_horizons_as_set, rule=rule)
@@ -91,7 +110,9 @@ class _ConstraintMaker:
             if t < self.pars.get_instrument_final_payment_horizon(l).order - 1:
                 return pe.Constraint.Skip
             else:
-                return self.vars.get_balance(l, t) == 0
+                return self.vars.get_loan_due_date_violation(
+                    l, t
+                ) >= -self.vars.get_balance(l, t)
 
         return pe.Constraint(
             itertools.product(self.sets.loans, self.sets.payment_horizons_as_set),
@@ -123,21 +144,27 @@ class _ConstraintMaker:
         def rule(_, t):
 
             final_payment_order = self.pars.get_last_payment_horizon_order()
+            min_const_volatility = self.pars.get_min_investment_volatility()
+            # fixed_volatility = self.pars.get_fixed_volatility(t)
 
             if self.pars.has_loans():
-                min_volatility = self.pars.get_min_volatility() * (
+                min_volatility = min_const_volatility * (
                     1 - self.vars.get_is_in_debt(min(t + 1, final_payment_order))
                 )
             else:
-                min_volatility = self.pars.get_min_volatility()
+                min_volatility = min_const_volatility
 
-            volatility_limit = min_volatility + self.pars.get_user_risk_profile_as_fraction() * (
-                self.pars.get_max_volatility() - min_volatility
+            volatility_limit = (
+                min_volatility
+                + self.pars.get_user_risk_profile_as_fraction()
+                * (self.pars.get_max_volatility() - min_volatility)
             )
-            normalized_allocation_volatility = self._get_allocation_volatility(t)
+            allocation_volatility = self._get_allocation_volatility(t)
+            violation = self.vars.get_total_risk_violation(t)
             return (
-                normalized_allocation_volatility
-                <= volatility_limit * self.pars.get_monthly_allowance()
+                violation
+                >= allocation_volatility
+                - volatility_limit * self.pars.get_monthly_allowance()
             )
 
         if self.pars.has_investments() and self.pars.has_loans():
@@ -149,10 +176,12 @@ class _ConstraintMaker:
 
     def make_limit_investment_risk(self) -> pe.Constraint:
         def rule(_, t):
+            min_volatility = self.pars.get_min_investment_volatility()
+
             volatility_limit = (
-                self.pars.get_min_volatility()
+                min_volatility
                 + self.pars.get_user_risk_profile_as_fraction()
-                * (self.pars.get_max_volatility() - self.pars.get_min_volatility())
+                * (self.pars.get_max_volatility() - min_volatility)
             )
 
             total_investment_allocations = sum(
@@ -163,8 +192,12 @@ class _ConstraintMaker:
                 self.vars.get_allocation(i, t) * self.pars.get_volatility(i)
                 for i in self.sets.investments
             )
+
+            violation = self.vars.get_investment_risk_violation(t)
             return (
-                allocation_volatility <= volatility_limit * total_investment_allocations
+                violation
+                >= allocation_volatility
+                - volatility_limit * total_investment_allocations
             )
 
         if self.pars.has_investments():

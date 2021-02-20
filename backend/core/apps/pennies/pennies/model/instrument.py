@@ -1,3 +1,4 @@
+from typing import Optional
 from uuid import UUID, uuid4
 
 from pydantic import Field
@@ -11,28 +12,22 @@ class Instrument(BaseModel):
     id_: UUID = Field(default_factory=uuid4)
     name: str
     interest_rate: InterestRate
-    current_balance: float
+    current_balance: Optional[float]
     final_month: int = None
+
+    @property
+    def volatility(self):
+        return self.interest_rate.get_volatility()
+
+    @property
+    def volatility_fraction(self):
+        return self.volatility / 100 / MONTHS_IN_YEAR
 
     def get_minimum_monthly_payment(self, month: int):
         raise NotImplementedError()
 
     def monthly_interest_rate(self, month: int) -> float:
         return self.interest_rate.get_monthly_interest_rate(month)
-
-    def _add_to_current_balance(self, amount: float) -> None:
-        self.current_balance += amount
-
-    def _reduce_current_balance(self, amount) -> None:
-        self.current_balance -= amount
-
-    def incur_monthly_interest(self, month: int) -> None:
-        self._add_to_current_balance(
-            self.current_balance * self.monthly_interest_rate(month)
-        )
-
-    def receive_payment(self, payment) -> float:
-        ...
 
     def get_type(self) -> str:
         ...

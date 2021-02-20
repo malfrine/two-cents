@@ -4,12 +4,10 @@ from uuid import UUID
 from pydantic import BaseModel, validator, ValidationError
 
 from pennies.model.instrument import Instrument
-from pennies.model.investment import Investment
+from pennies.model.investment import Investment, Cash
 from pennies.model.loan import Loan
 from pennies.utilities.dict import (
     get_value_from_dict,
-    remove_from_dict,
-    add_to_dict,
 )
 
 
@@ -24,9 +22,6 @@ class Portfolio(BaseModel):
             return v
         else:
             raise ValidationError()
-
-    def add_instrument(self, instrument: Instrument) -> None:
-        add_to_dict(instrument.name, self.instruments, instrument)
 
     @property
     def loans(self) -> List[Loan]:
@@ -48,6 +43,10 @@ class Portfolio(BaseModel):
     def investments(self) -> List[Investment]:
         return list(i for i in self.instruments.values() if isinstance(i, Investment))
 
+    @property
+    def non_cash_investments(self) -> List[Investment]:
+        return list(i for i in self.investments() if not isinstance(i, Cash))
+
     def get_loan(self, loan_name: str) -> Loan:
         return get_value_from_dict(loan_name, self.instruments)
 
@@ -60,9 +59,6 @@ class Portfolio(BaseModel):
 
     def get_instrument(self, instrument_name: str) -> Instrument:
         return get_value_from_dict(instrument_name, self.instruments)
-
-    def remove_instrument(self, instrument_name: str):
-        remove_from_dict(instrument_name, self.instruments)
 
     def get_debt(self) -> float:
         return abs(sum(loan.current_balance for loan in self.loans))

@@ -9,27 +9,20 @@ from pennies.utilities.finance import LoanMinimumPaymentCalculator
 
 
 class Loan(Instrument):
-
     @validator("current_balance")
     def validate_non_positive_float(cls, v):
         if v > 0:
             raise BadDomainException("Loan balance must be negative")
         return v
 
-    def receive_payment(self, payment: float) -> float:
-        payment = min(payment, abs(self.current_balance))  # balance <= 0
-        self._add_to_current_balance(payment)
-        return payment
-
     def is_paid_off(self) -> bool:
-        return math.isclose(self.current_balance, 0)
+        return math.isclose(self.current_balance, 0, abs_tol=0.1)
 
     def get_type(self) -> str:
         return "loan"
 
 
 class RevolvingLoan(Loan):
-
     def get_minimum_monthly_payment(self, month: int):
         return abs(self.current_balance) * self.monthly_interest_rate(month)
 

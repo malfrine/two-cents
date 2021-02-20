@@ -137,19 +137,18 @@ class GreedyHeuristicStrategy(GreedyAllocationStrategy):
         cls, portfolio: Portfolio, months: List[int]
     ) -> Dict[UUID, float]:
         min_payments = dict()
-        for instrument in portfolio.instruments.values():
-            avg_interest_rate = calculate_average_monthly_interest_rate(
-                instrument, months
-            )
+        for loan in portfolio.loans:
+            avg_interest_rate = calculate_average_monthly_interest_rate(loan, months)
             loan_ending_payment = calculate_loan_ending_payment(
-                abs(instrument.current_balance), avg_interest_rate, len(months)
+                abs(loan.current_balance), avg_interest_rate, len(months)
             )
             max_min_payment = max(
-                instrument.get_minimum_monthly_payment(month)
-                for month in months
+                loan.get_minimum_monthly_payment(month) for month in months
             )
-            min_payments[instrument.id_] = min(
-                max_min_payment, loan_ending_payment
+            min_payments[loan.id_] = min(max_min_payment, loan_ending_payment)
+        for investment in portfolio.investments():
+            min_payments[investment.id_] = max(
+                investment.get_minimum_monthly_payment(month) for month in months
             )
         return min_payments
 

@@ -41,7 +41,7 @@
        {
            "name": "TFSA",
            "current_balance": 1000.0,
-           "apr": 7.0,
+           "roi": 7.0,
            "final_month": 468,
            "minimum_monthly_payment": 0,
            "volatility": 2
