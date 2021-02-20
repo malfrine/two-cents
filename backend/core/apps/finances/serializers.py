@@ -81,21 +81,22 @@ class PenniesInvestmentSerializer(serializers.ModelSerializer):
         fields = (
             "name",
             "current_balance",
-            "apr",
+            "roi",
             "final_month",
-            "minimum_monthly_payment",
             "volatility",
+            "investment_type",
+            "pre_authorized_monthly_contribution",
+            "principal_investment_amount",
+            "start_month",
+            "prime_modifier",
+            "interest_type",
         )
 
 
 class PenniesFinancialProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = FinancialProfile
-        fields = (
-            "monthly_allowance",
-            "years_to_retirement",
-            "risk_tolerance"
-        )
+        fields = ("monthly_allowance", "years_to_retirement", "risk_tolerance")
 
 
 class UserFinancesSerializer(serializers.ModelSerializer):

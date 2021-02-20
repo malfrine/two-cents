@@ -2,7 +2,8 @@ from typing import Tuple
 
 import pytest
 
-from pennies.model.interest_rate import FixedInterestRate
+from pennies.model.interest_rate import FixedLoanInterestRate
+from pennies.model.investment import GuaranteedInvestment
 from pennies.model.loan import PersonalLoan
 from pennies.model.portfolio import Portfolio
 from pennies.model.portfolio_manager import PortfolioManager
@@ -25,7 +26,7 @@ def final_payment_example() -> Tuple[Portfolio, MonthlyAllocation]:
         instruments=[
             PersonalLoan(
                 name="loan",
-                interest_rate=FixedInterestRate(apr=5),
+                interest_rate=FixedLoanInterestRate(apr=5),
                 current_balance=-200,
                 minimum_monthly_payment=100,
                 final_month=10,
@@ -63,3 +64,27 @@ def test_final_payment():
     before, after = _forward(portfolio, ma)
     loan_name = "loan"
     assert loan_name not in after.loans
+
+
+def test_forward_on_guaranteed_investment():
+    principal = 100
+    apr = 12
+    gi = GuaranteedInvestment(
+        name="generic",
+        principal_investment_amount=principal,
+        start_month=-1,
+        final_month=1,
+        interest_rate=FixedLoanInterestRate(apr=apr),
+        current_balance=None,
+    )
+    p = Portfolio(instruments={gi.name: gi})
+    p = PortfolioManager.forward_on_month(portfolio=p, payments=dict(), month=0)
+    nb = gi.current_balance * (1 + gi.monthly_interest_rate(0))
+    assert p.instruments["generic"].current_balance == nb
+    p = PortfolioManager.forward_on_month(portfolio=p, payments=dict(), month=1)
+    nb = nb * (1 + gi.monthly_interest_rate(1))
+    assert p.instruments["generic"].current_balance == nb
+    p = PortfolioManager.forward_on_month(portfolio=p, payments=dict(), month=2)
+    assert p.instruments["generic"].current_balance == nb
+    p = PortfolioManager.forward_on_month(portfolio=p, payments=dict(), month=3)
+    assert p.instruments["generic"].current_balance == nb

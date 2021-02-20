@@ -99,7 +99,9 @@ class FinancialPlan(BaseModel):
         return sum(ms.get_total_interest(ms.month) for ms in self.monthly_solutions)
 
     def get_interest_paid_on_loan(self, id_: UUID):
-        return sum(abs(ms.get_loan_interest_incurred(id_)) for ms in self.monthly_solutions)
+        return sum(
+            abs(ms.get_loan_interest_incurred(id_)) for ms in self.monthly_solutions
+        )
 
     @property
     def retirement_net_worth(self) -> float:

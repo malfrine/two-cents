@@ -32,7 +32,9 @@ class Loan(models.Model):
     prime_modifier = models.FloatField(
         default=None, blank=True, null=True, verbose_name="Prime Modifier"
     )
-    minimum_monthly_payment = models.FloatField(default=None, blank=True, null=True, verbose_name="Minimum Monthly Payment")
+    minimum_monthly_payment = models.FloatField(
+        default=None, blank=True, null=True, verbose_name="Minimum Monthly Payment"
+    )
     end_date = models.DateField(
         default=None, blank=True, null=True, verbose_name="Final Payment Month"
     )

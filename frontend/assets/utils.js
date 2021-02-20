@@ -21,8 +21,6 @@ const calculateMinimumAmortizedLoanPayment = function (principal, apr, endDate) 
 }
 
 const calculateMinimumRevolvingLoanPayment = function (principal, apr) {
-  console.log(principal)
-  console.log(apr)
   return principal * apr / 12 / 100
 }
 

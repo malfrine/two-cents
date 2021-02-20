@@ -56,10 +56,13 @@
     </template>
     <template v-slot:hidden>
       <v-card-text>
-        <p v-if="isFixed" class="mt-n5">
+        <p class="mt-n5">
+          <em>Loan Type:</em> {{ loan.loan_type }}
+        </p>
+        <p v-if="isFixed" class="mt-n3">
           {{ loan.apr }}% <em>APR</em>
         </p>
-        <p v-else class="mt-n5">
+        <p v-else class="mt-n3">
           <em>Prime</em> + {{ loan.prime_modifier }}%
         </p>
         <p v-if="!isRevolving" class="mt-n3">

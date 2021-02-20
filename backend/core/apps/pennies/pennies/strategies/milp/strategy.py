@@ -80,6 +80,12 @@ class MILP:
         m.allocations = variables.allocations
         m.paid_off_indicators = variables.not_paid_off_indicators
         m.debt_free_indicators = variables.in_debt_indicators
+        m.investment_risk_violations = variables.investment_risk_violations
+        m.total_risk_violations = variables.total_risk_violations
+        m.allocation_slacks = variables.allocation_slacks
+        m.loan_due_date_violations = variables.loan_due_date_violations
+
+        cls._fix_final_allocation_to_zero(sets, variables)
 
         constraints = MILPConstraints.create(sets, parameters, variables)
         m.c1 = constraints.define_loan_paid_off_indicator
@@ -105,23 +111,24 @@ class MILP:
             objective=objective,
         )
 
+    @classmethod
+    def _fix_final_allocation_to_zero(cls, sets: MILPSets, variables: MILPVariables):
+        final_payment_horizon_index = max(sets.payment_horizons_as_set)
+        for i in sets.instruments:
+            variables.get_allocation(i, final_payment_horizon_index).fix(0)
+
     def _is_valid_solution(self, results) -> bool:
         return (results.solver.status == pe.SolverStatus.ok) and (
             results.solver.termination_condition == pe.TerminationCondition.optimal
         )
 
     def _make_monthly_payments(self) -> List[Dict[str, float]]:
-        # for t in sorted(self.sets.payment_horizons_as_set):
-        #     print(t)
-        #     print(pe.value(self.variables.get_allocation("LOC 2", t)))
-        #     print(pe.value(self.variables.get_balance("LOC 2", t)))
+        def get_allocation(i_, t_):
+            return pe.value(self.variables.get_allocation(i_, t_))
 
         return [
-            {
-                i.name: pe.value(self.variables.get_allocation(i.name, t))
-                for i in self.user_finances.portfolio.instruments.values()
-            }
-            for t in sorted(self.sets.payment_horizons_as_set)
+            {i: get_allocation(i, t) for i in self.sets.instruments}
+            for t in list(sorted(self.sets.payment_horizons_as_set))
             for _ in range(self.sets.get_num_months_in_horizon(t))
         ]
 
