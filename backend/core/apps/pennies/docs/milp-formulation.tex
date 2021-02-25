@@ -1,0 +1,115 @@
+%! Author = mdas
+%! Date = 12/7/2020
+
+% Preamble
+\documentclass[11pt]{article}
+
+% Packages
+\usepackage{amsmath,amsfonts}
+\usepackage{bbm}
+
+\title{Two Cents - Pennies Formulation}
+\begin{document}
+\maketitle
+\section{Variables and Parameters}
+\subsection{Sets}
+\begin{itemize}
+    \item $m \in m$: set of months in the planning horizon = \{0, 1, 2, ...\}
+    \item $t \in T_w$: set of decision periods when user is working = \{0, 1, 2, ... N \}
+    \item $t \in T_r$: set of spending periods when user is retired = \{N + 1, N + 2, ... N + M \}
+    \item $i \in I$: set of instruments = \{student loan, mutual fund rrsp, line of credit, ...\}
+    \item $l \in L$: set of loans = \{student loan, line of credit, ...\}
+    \item $l \in RL$: set of revolving loans = \{line of credit, ...\}
+    \item $j \in INV$: set of investments = \{mutual fund rrsp, gic, ...\}
+    \item $e \in E$: set of entities that tax people on income = \{federal, provincial \}
+    \item $b \in B_{e}$: set of tax brackets associated with a given taxing entity = \{federal: \{bracket 1, bracket 2, ...\}, provincial: \{bracket 1, bracket 2, ... \}\}
+\end{itemize}
+
+
+\subsection{Parameters}
+\begin{itemize}
+    \item $r_{i, t}$: average interest/growth rate of instrument $i$ in decision period $t$, $i \in I, t \in T_w$
+    \item $v^{0}_{i}$: starting balance of instrument $i$, $i \in I$
+    \item $\alpha$: user risk tolerance fraction $\in$ [0, 1]
+    \item $A$: monthly allowance
+    \item $a^{min}_{i, t}$: min allocation of instrument $i$ in decision period $t$, $i \in I, t \in T_w$
+    \item $t^{f}_{i}$: final decision period of instrument $i$, $i \in I$
+    \item ${U}_{l}$: upper bound value of loan $l$, $l \in L$
+    \item $c^{v}$: constraint violation penalty cost
+    \item $t^{f}$: final pament horizon
+    \item $n_{t}$: number of months in payment horizon $t$, $t \in T_w$
+    \item $\gamma^{min}$: minimum investment volatility of portfolio
+    \item $\gamma^{max}$: maximum investment volatility of portfolio
+    \item $s_{t}$: monthly salary for user during decision period $t$, $t \in T_w \cup T_r$
+    \item $m^{tax}_{e, b}$: marginal tax rate for entity $e$ in tax bracket $b$, $b \in B_e, e \in E$
+    \item $s^{cut}_{e, b}$: cutoff salary corresponding to tax for entity $e$ in tax bracket $b$, $b \in B_e, e \in E$
+\end{itemize}
+
+\subsection{Decision Variables}
+\begin{itemize}
+    \item $x_{i, t}$: allocation towards instrument $i$ in decision period $t$, $i \in I, t \in T_w$
+    \item $w_{i, t}$: withdrawal from investment $i$ in spending period $t$, $i \in INV, t \in T_r$
+    \item $s_{t}$ allocation slack during decision period $t$, $t \in T_w$
+\end{itemize}
+
+\subsection{Auxilliary Variables}
+\begin{itemize}
+    \item $v_{i, t}$: balance of instrument $i$ at the start of decision period $t$, $i \in I, t \in T_w$
+    \item $b^{unpaid}_{l, t}$: 1 if loan $l$ is not paid off in pament period $t$, $l \in L, t \in T_w$
+    \item $b^{debt}_{t}$: 1 if user is in debt during pament period $t$, $t \in T_w$
+    \item $y^{r_i}_{t}$ investment risk violation during decision period $t$, $t \in T_w$
+    \item $y^{r}_{t}$ total risk violation during decision period $t$, $t \in T_w$
+    \item $y^{l}_{l, t}$ loan due date violation during decision period $t$, $l \in L, t \in T_w$
+    \item $\gamma^{lim}_t$ volatility limit during decision period $t$, $t \in T_w$
+    \item $s^{tax}_{t}$ taxable salary during decision period $t$, $t \in T_w \cup T_r$
+    \item $p^{tax}_{t, e, b}$ amount of payable taxes accrued during decision period $t$ to entity $e$ under income bracket $b$. $t \in T_w \cup T_r, e \in E, b \in B_e$
+\end{itemize}
+
+
+\section{Workload Variance Minimization Model}
+\subsection{Objective Function}
+\begin{equation}
+    \max \sum_{i \in I} v_{i, t^f}
+          + \sum_{i \in I, t \in T} v_{i, t} r_{i, t}
+          - 0.01 c^v \sum_{t \in T} y^{r_i}_{t} + y^{r}_{t}
+          - 0.1 c^v \sum_{l \in L, t \in T} b^{l}_{l, t}
+          - \sum_{t \in T_w \cup T_r, e \in E, b \in B_e} p^{tax}_{t, e, b}
+\end{equation}
+
+\subsection{Constraints}
+\begin{align}
+    v_{l, t} \geq U_{l} b^{unpaid}_{l, t} & \qquad \forall l \in L , t < t^f \in T_w \\
+    -v^{0}_{l} r_{l, t} \leq x_{l, t} + A (1 - b^{unpaid}_{l, t+1}) & \qquad \forall l \in RL , t < t^f \in T_w \\
+    a^{min}_{l, t} \leq x_{l, t} + A (1 - b^{unpaid}_{l, t+1}) & \qquad \forall l \in L | l \notin RL  , t < t^f \in T_w \\
+    a^{min}_{i, t} \leq x_{i, t} & \qquad \forall i \in INV, t \in T_w \\
+    v^{0}{i} = v_{i, 0} & \qquad \forall i \in I \\
+    v_{i, t} = v_{i, t-1} (1 + r_{i, t-1})^{n_t} + x_{i, t} \frac{(1 + r_{i, t-1})^{n_t-1}} {r_{i, t-1}} & \qquad \forall i \in I, t \in T_w| t > 0  \\
+    \sum_{i \in I} x_{i, t} + s_t = A & \qquad \forall t \in T_w \\
+    v_{l, t} \leq 0 & \qquad \forall l \in L, t \in T_w \\
+    y^{l}_{l, t} \geq -v_{l, t} & \qquad \forall t \in T_w| t > t^f_l - 1, l \in L  \\
+    b^{debt}_{t} \geq \frac{ \sum_{l \in L} b^{unpaid}_{l, t} } { |L| } & \qquad \forall t \in T_w \\
+    \gamma^{lim}_t = \gamma^{min} (1 - b^{debt}_t) + \alpha (\gamma^{max} - \gamma^{min} (1 - b^{debt}_t)) & \qquad \forall t \in T_w \\
+    y^{r}_{t} \geq \sum_{i \in I} x_{i, t} v_{i} - A \gamma^{lim}_t & \qquad \forall t \in T_w \\
+    y^{r_i}_{t} \geq \sum_{i \in INV} x_{i, t} v_{i} - \gamma^{lim}_t \sum_{i \in INV} x_{i, t} & \qquad \forall t \in T
+\end{align}
+
+\begin{enumerate}
+\setcounter{enumi}{0}
+    \item The objective is to maximize final net worth and interest earned while minimizing risk and load due date violation costs
+    \item The definition for the loan unpaid indicator
+    \item Pay the minimum monthly payment for revolving loans if the loan is not paid off
+    \item Pay the minimum monthly payment for instalment loans if the loan is not paid off
+    \item Pay the pre-authorized monthly contribution for investments always
+    \item Define the starting balance of all instruments
+    \item Define the interest gained for an instrument over the decision period. This constraint is actually different for instruments (e.g. cash) where the interest rate is 0
+    \item Sum of all allocations must equal the allocation limit
+    \item Loans cannot have a positive balance
+    \item The loan due date violation must be greater than absolute value of the loan balance
+    \item Define an indicator to determine if the user is in debt for a given decision period
+    \item Define the volatility limit as a linear interpolation between the max and min volatilities. If the user is in debt, the minimum volatility is 0.
+    \item Define the total risk violation
+    \item Define the investment risk violation
+\end{enumerate}
+
+
+\end{document}

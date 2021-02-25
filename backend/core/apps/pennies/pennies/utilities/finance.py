@@ -1,7 +1,10 @@
 import math
 from typing import List
 
+from pennies.model import taxes
+from pennies.model.constants import Province
 from pennies.model.instrument import Instrument
+from pennies.model.taxes import PROVINCIAL_TAX_MAP, IncomeTaxBrackets, FEDERAL
 from pennies.utilities.datetime import MONTHS_IN_YEAR
 
 
@@ -47,3 +50,39 @@ def calculate_balance_after_fixed_monthly_payments(
         instrument.current_balance * (1 + r) ** n
         + monthly_payment * ((1 + r) ** n - 1) / r
     )
+
+
+def calculate_annual_income_tax_from_brackets(income: float, brackets: IncomeTaxBrackets):
+    tax = 0
+    rem_income = income
+    for bracket in brackets.data:
+        taxable_income_in_bracket = min(rem_income, bracket.marginal_upper_bound)
+        tax += taxable_income_in_bracket * bracket.marginal_tax_rate_as_fraction
+        rem_income -= taxable_income_in_bracket
+        if rem_income == 0:
+            return tax
+    raise ValueError(f"Could not calculate income taxes for {income} using {brackets}")
+
+
+def calculate_monthly_income_tax_from_brackets(income: float, brackets: IncomeTaxBrackets):
+    tax = 0
+    rem_income = income
+    for bracket in brackets.data:
+        taxable_income_in_bracket = min(rem_income, bracket.monthly_marginal_upper_bound)
+        tax += taxable_income_in_bracket * bracket.marginal_tax_rate_as_fraction
+        rem_income -= taxable_income_in_bracket
+        if rem_income == 0:
+            return tax
+    raise ValueError(f"Could not calculate income taxes for {income} using {brackets}")
+
+
+def calculate_annual_income_tax(income: float, province: Province):
+    prov_tax = calculate_annual_income_tax_from_brackets(income, PROVINCIAL_TAX_MAP[province])
+    fed_tax = calculate_annual_income_tax_from_brackets(income, taxes.FEDERAL)
+    return prov_tax + fed_tax
+
+
+def calculate_monthly_income_tax(income: float, province: Province):
+    prov_tax = calculate_monthly_income_tax_from_brackets(income, PROVINCIAL_TAX_MAP[province])
+    fed_tax = calculate_monthly_income_tax_from_brackets(income, taxes.FEDERAL)
+    return prov_tax + fed_tax

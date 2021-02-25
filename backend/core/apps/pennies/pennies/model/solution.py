@@ -22,6 +22,7 @@ class MonthlySolution(BaseModel):
     month: int
     portfolio: Portfolio
     allocation: MonthlyAllocation
+    taxes_paid: float
 
     def get_loan_payment(self, loan_name: str) -> float:
         return get_value_from_dict(loan_name, self.allocation.payments)

@@ -16,7 +16,7 @@ from pennies.strategies.milp.strategy import MILPStrategy
 from pennies.utilities.finance import (
     calculate_loan_ending_payment,
     calculate_average_monthly_interest_rate,
-    calculate_balance_after_fixed_monthly_payments,
+    calculate_balance_after_fixed_monthly_payments, calculate_monthly_income_tax,
 )
 
 
@@ -59,9 +59,13 @@ class GreedyAllocationStrategy(AllocationStrategy):
                 payment_horizon=payment_horizon,
             )
             for month, allocation in zip(payment_horizon.months, allocations):
+                taxes_paid = calculate_monthly_income_tax(
+                    income=user_finances.financial_profile.monthly_income,
+                    province=user_finances.financial_profile.province_of_residence
+                )
                 monthly_solutions.append(
                     MonthlySolution(
-                        portfolio=cur_portfolio, allocation=allocation, month=month
+                        portfolio=cur_portfolio, allocation=allocation, month=month, taxes_paid=taxes_paid
                     )
                 )
                 cur_portfolio = PortfolioManager.forward_on_month(

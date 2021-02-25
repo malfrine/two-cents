@@ -1,9 +1,11 @@
 from dataclasses import dataclass
-from typing import List, Set
+from typing import List, Set, Dict
 
+from pennies.model import taxes
 from pennies.model.investment import Investment, Cash, GuaranteedInvestment
 from pennies.model.loan import Loan, InstalmentLoan
 from pennies.model.payment_horizons import PaymentHorizons, PaymentHorizonsFactory
+from pennies.model.taxes import IncomeTaxBrackets
 from pennies.model.user_personal_finances import UserPersonalFinances
 
 
@@ -13,11 +15,26 @@ class MILPSets:
     payment_horizons: PaymentHorizons
     investments: Set
     loans: Set
+    income_tax_brackets: Dict[str, IncomeTaxBrackets]
     _user_finances: UserPersonalFinances
 
     @property
     def payment_horizons_as_set(self) -> Set[int]:
         return set(ph.order for ph in self.payment_horizons.data)
+
+    @property
+    def taxing_entities(self):
+        return set(self.income_tax_brackets.keys())
+
+    def get_tax_brackets_as_set(self, taxing_entity: str) -> Set[int]:
+        return set(range(self.income_tax_brackets[taxing_entity].num_brackets))
+
+    @property
+    def taxing_entities_and_brackets(self):
+        return (
+
+            (e, b) for e in self.taxing_entities for b in self.get_tax_brackets_as_set(e)
+        )
 
     @property
     def non_cash_investments(self) -> Set[str]:
@@ -60,10 +77,17 @@ class MILPSets:
         ).from_num_months(
             start_month=start_month, final_month=user_finances.final_month
         )
+        province = user_finances.financial_profile.province_of_residence
+        income_tax_brackets = {
+            "federal": taxes.FEDERAL,
+            "provincial": taxes.PROVINCIAL_TAX_MAP[province]
+        }
+
         return MILPSets(
             _user_finances=user_finances,
             instruments=instruments,
             investments=investments,
             loans=loans,
             payment_horizons=payment_horizons,
+            income_tax_brackets=income_tax_brackets
         )

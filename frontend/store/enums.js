@@ -1,5 +1,6 @@
 const defaultState = function () {
   return {
+    exists: false,
     enums: {
       loan_types: [''],
       interest_types: [''],
@@ -36,21 +37,26 @@ const getters = {
   },
   getRequiredFields: state => (investmentType) => {
     return state.enums.investment_fields[investmentType] || []
+  },
+  getStateExists (state) {
+    return state.exists
   }
 }
 
 const mutations = {
   SET_ENUMS (state, payload) {
     state.enums = payload
+    state.exists = true
   }
 }
 
 const actions = {
   getAllEnums (context) {
-    console.log('getting all enums')
+    if (context.getters.getStateExists) {
+      return
+    }
     return this.$axios.$get('/api/finances/enums') // TODO: change this to all enums down the line
       .then((response) => {
-        console.log(response)
         context.commit('SET_ENUMS', response)
       })
       .catch((e) => { })

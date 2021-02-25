@@ -207,6 +207,44 @@ class _ConstraintMaker:
         else:
             return pe.Constraint.NoConstraint
 
+    def make_define_taxable_income_in_bracket(self):
+        def rule(_, t, e, b):
+            pos = self.vars.get_pos_overflow_in_bracket(t, e, b)
+            neg = self.vars.get_neg_overflow_in_bracket(t, e, b)
+            rem = self.vars.get_remaining_marginal_income_in_bracket(t, e, b)
+            # taxable_income = self.vars.get_taxable_monthly_income(t)
+            taxable_income = self.pars.get_before_tax_monthly_income()
+            bracket_cumulative_income = self.pars.get_bracket_cumulative_income(e, b)
+            return pos - rem - neg == taxable_income - bracket_cumulative_income
+
+        return pe.Constraint(
+            itertools.product(self.sets.payment_horizons_as_set, self.sets.taxing_entities_and_brackets),
+            rule=rule
+        )
+
+    def make_limit_remaining_marginal_income_in_bracket(self):
+        def rule(_, t, e, b):
+            rem = self.vars.get_remaining_marginal_income_in_bracket(t, e, b)
+            ub = self.pars.get_bracket_marginal_income(e, b)
+            return rem <= ub
+
+        return pe.Constraint(
+            itertools.product(self.sets.payment_horizons_as_set, self.sets.taxing_entities_and_brackets),
+            rule=rule
+        )
+
+    def make_define_taxes_accrued_in_bracket(self):
+        def rule(_, t, e, b):
+            tax = self.vars.get_taxes_accrued_in_bracket(t, e, b)
+            rem = self.vars.get_remaining_marginal_income_in_bracket(t, e, b)
+            rate = self.pars.get_bracket_marginal_tax_rate(e, b)
+            ub = self.pars.get_bracket_marginal_income(e, b)
+            return tax == (ub - rem) * rate
+
+        return pe.Constraint(
+            itertools.product(self.sets.payment_horizons_as_set, self.sets.taxing_entities_and_brackets),
+            rule=rule
+        )
 
 @dataclass
 class MILPConstraints:
@@ -220,6 +258,9 @@ class MILPConstraints:
     define_in_debt_indicator: pe.Constraint
     limit_total_risk: pe.Constraint
     limit_investment_risk: pe.Constraint
+    define_taxable_income_in_bracket: pe.Constraint
+    limit_remaining_marginal_income_in_bracket: pe.Constraint
+    define_taxes_accrued_in_bracket: pe.Constraint
 
     @classmethod
     def create(
@@ -236,4 +277,7 @@ class MILPConstraints:
             define_in_debt_indicator=cm.make_define_in_debt_indicator(),
             limit_total_risk=cm.make_limit_total_risk(),
             limit_investment_risk=cm.make_limit_investment_risk(),
+            define_taxable_income_in_bracket=cm.make_define_taxable_income_in_bracket(),
+            limit_remaining_marginal_income_in_bracket=cm.make_limit_remaining_marginal_income_in_bracket(),
+            define_taxes_accrued_in_bracket=cm.make_define_taxes_accrued_in_bracket()
         )

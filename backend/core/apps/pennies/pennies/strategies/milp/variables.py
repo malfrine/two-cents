@@ -18,6 +18,11 @@ class MILPVariables:
     total_risk_violations: pe.Var
     allocation_slacks: pe.Var
     loan_due_date_violations: pe.Var
+    taxable_monthly_incomes: pe.Var
+    pos_overflow_in_brackets: pe.Var
+    neg_overflow_in_brackets: pe.Var
+    remaining_marginal_income_in_brackets: pe.Var
+    taxes_accrued_in_brackets: pe.Var
 
     @classmethod
     def create(
@@ -56,6 +61,21 @@ class MILPVariables:
             domain=pe.NonNegativeReals,
             initialize=0,
         )
+        taxable_monthly_incomes = pe.Var(
+            sets.payment_horizons_as_set
+        )
+        pos_overflow_in_brackets = pe.Var(
+            sets.payment_horizons_as_set, sets.taxing_entities_and_brackets, domain=pe.NonNegativeReals
+        )
+        neg_overflow_in_brackets = pe.Var(
+            sets.payment_horizons_as_set, sets.taxing_entities_and_brackets, domain=pe.NonNegativeReals
+        )
+        remaining_marginal_income_in_brackets = pe.Var(
+            sets.payment_horizons_as_set, sets.taxing_entities_and_brackets, domain=pe.NonNegativeReals
+        )
+        taxes_accrued_in_brackets = pe.Var(
+            sets.payment_horizons_as_set, sets.taxing_entities_and_brackets, domain=pe.NonNegativeReals
+        )
 
         return MILPVariables(
             allocations=allocations,
@@ -66,6 +86,11 @@ class MILPVariables:
             total_risk_violations=total_risk_violations,
             allocation_slacks=allocation_slacks,
             loan_due_date_violations=loan_due_date_violations,
+            taxable_monthly_incomes=taxable_monthly_incomes,
+            pos_overflow_in_brackets=pos_overflow_in_brackets,
+            neg_overflow_in_brackets=neg_overflow_in_brackets,
+            remaining_marginal_income_in_brackets=remaining_marginal_income_in_brackets,
+            taxes_accrued_in_brackets=taxes_accrued_in_brackets
         )
 
     def get_allocation(self, instrument: UUID, month: int):
@@ -91,3 +116,18 @@ class MILPVariables:
 
     def get_loan_due_date_violation(self, loan: str, payment_horizon_order: int):
         return self.loan_due_date_violations[loan, payment_horizon_order]
+
+    def get_taxable_monthly_income(self, payment_horizon_order: int):
+        return self.taxable_monthly_incomes[payment_horizon_order]
+
+    def get_pos_overflow_in_bracket(self, payment_horizon_order: int, entity: str, bracket_index: int):
+        return self.pos_overflow_in_brackets[payment_horizon_order, (entity, bracket_index)]
+
+    def get_remaining_marginal_income_in_bracket(self, payment_horizon_order: int, entity: str, bracket_index: int):
+        return self.remaining_marginal_income_in_brackets[payment_horizon_order, (entity, bracket_index)]
+
+    def get_neg_overflow_in_bracket(self, payment_horizon_order: int, entity: str, bracket_index: int):
+        return self.neg_overflow_in_brackets[payment_horizon_order, (entity, bracket_index)]
+
+    def get_taxes_accrued_in_bracket(self, payment_horizon_order: int, entity: str, bracket_index: int):
+        return self.taxes_accrued_in_brackets[payment_horizon_order, (entity, bracket_index)]

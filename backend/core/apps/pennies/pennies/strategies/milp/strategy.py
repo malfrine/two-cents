@@ -6,6 +6,7 @@ import pyomo.environ as pe
 import pyutilib
 from pyomo.core import ConcreteModel
 
+from pennies.model.constants import Province
 from pennies.model.parameters import Parameters
 from pennies.model.portfolio import Portfolio
 from pennies.model.portfolio_manager import PortfolioManager
@@ -17,6 +18,7 @@ from pennies.strategies.milp.objective import MILPObjective
 from pennies.strategies.milp.parameters import MILPParameters
 from pennies.strategies.milp.sets import MILPSets
 from pennies.strategies.milp.variables import MILPVariables
+from pennies.utilities.finance import calculate_monthly_income_tax
 
 pyutilib.subprocess.GlobalData.DEFINE_SIGNAL_HANDLERS_DEFAULT = False
 
@@ -25,10 +27,13 @@ def _make_solution(
     starting_portfolio: Portfolio,
     monthly_payments: List[Dict[str, float]],
     monthly_allowance: float,
+    income: float,
+    province: Province
 ):
     monthly_solutions = []
     cur_portfolio = starting_portfolio.copy(deep=True)
     for index, mp in enumerate(monthly_payments):
+        taxes_paid = calculate_monthly_income_tax(income=income, province=province)
         monthly_solutions.append(
             MonthlySolution(
                 allocation=MonthlyAllocation(
@@ -37,6 +42,7 @@ def _make_solution(
                 ),
                 portfolio=cur_portfolio,
                 month=index,
+                taxes_paid=taxes_paid
             )
         )
         cur_portfolio = PortfolioManager.forward_on_month(
@@ -84,6 +90,11 @@ class MILP:
         m.total_risk_violations = variables.total_risk_violations
         m.allocation_slacks = variables.allocation_slacks
         m.loan_due_date_violations = variables.loan_due_date_violations
+        m.taxable_monthly_incomes = variables.taxable_monthly_incomes
+        m.pos_overflow_in_brackets = variables.pos_overflow_in_brackets
+        m.neg_overflow_in_brackets = variables.neg_overflow_in_brackets
+        m.remaining_marginal_income_in_brackets = variables.remaining_marginal_income_in_brackets
+        m.taxes_accrued_in_brackets = variables.taxes_accrued_in_brackets
 
         cls._fix_final_allocation_to_zero(sets, variables)
 
@@ -97,6 +108,9 @@ class MILP:
         m.c7 = constraints.limit_total_risk
         m.c8 = constraints.define_in_debt_indicator
         m.c9 = constraints.limit_investment_risk
+        m.c10 = constraints.define_taxable_income_in_bracket
+        m.c11 = constraints.limit_remaining_marginal_income_in_bracket
+        m.c12 = constraints.define_taxes_accrued_in_bracket
 
         objective = MILPObjective.create(sets, parameters, variables)
         m.obj = objective.obj
@@ -145,6 +159,8 @@ class MILP:
             self.user_finances.portfolio,
             monthly_payments,
             self.user_finances.financial_profile.monthly_allowance,
+            self.user_finances.financial_profile.monthly_income,
+            self.user_finances.financial_profile.province_of_residence
         )
 
 

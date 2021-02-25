@@ -16,7 +16,7 @@ from pennies.utilities.visualization import visualize_solution
 def main():
     json_dao = JsonDao(data_dir=Path("data"))
     request = json_dao.read_request("fail.json")
-    request = simple_request()
+    # request = simple_request()
     sp = ProblemInputFactory.from_request(request).user_finances
     mi = ProblemInput(
         user_finances=sp,
@@ -24,7 +24,7 @@ def main():
             # StrategyName.snowball.value,
             StrategyName.avalanche.value,
             # StrategyName.avalanche_ball.value,
-            StrategyName.lp.value,
+            # StrategyName.lp.value,
         ],
     )
     solution = solve(mi)

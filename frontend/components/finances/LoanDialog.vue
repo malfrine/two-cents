@@ -86,7 +86,7 @@
 </template>
 
 <script>
-import { calculateMinimumAmortizedLoanPayment, asDollar } from '~/assets/utils.js'
+import { calculateMinimumAmortizedLoanPayment, calculateMinimumRevolvingLoanPayment, asDollar } from '~/assets/utils.js'
 
 export default {
   props: ['visible', 'modalName', 'loanId'],
@@ -151,22 +151,11 @@ export default {
       }
     },
     minimumMonthlyPaymentErrorMessage () {
-      let minPayment = 0
-      const interestRate = this.isFixed ? this.apr : 2.5 + Number(this.prime_modifier) // TODO: move current prime to a constants
       if (this.isRevolving) {
         return null
-      } else {
-        const endDate = new Date(this.end_date)
-        if (!this.end_date || endDate <= new Date()) {
-          return null
-        }
-        minPayment = calculateMinimumAmortizedLoanPayment(
-          this.current_balance,
-          interestRate,
-          endDate
-        )
       }
-      if (minPayment < 10 || this.minimum_monthly_payment >= minPayment) {
+      const minPayment = this.minimumMonthlyPaymentLowerBound
+      if (!minPayment || minPayment < 10 || this.minimum_monthly_payment >= minPayment) {
         return null
       }
       return `Minimum payment amount must be at least ${asDollar(minPayment)}`
@@ -183,6 +172,24 @@ export default {
         return [v => !!v || 'Must provide prime + rate']
       } else {
         return []
+      }
+    },
+    effectiveInterestRate () {
+      return this.isFixed ? this.apr : 2.5 + Number(this.prime_modifier) // TODO: move current prime to a constants
+    },
+    minimumMonthlyPaymentLowerBound () {
+      if (this.isRevolving) {
+        return calculateMinimumRevolvingLoanPayment(this.current_balance, this.effectiveInterestRate)
+      } else {
+        const endDate = new Date(this.end_date)
+        if (!this.end_date || endDate <= new Date()) {
+          return null
+        }
+        return calculateMinimumAmortizedLoanPayment(
+          this.current_balance,
+          this.effectiveInterestRate,
+          endDate
+        )
       }
     },
 
@@ -218,7 +225,7 @@ export default {
         current_balance: this.current_balance,
         loan_type: this.loan_type,
         interest_type: this.interest_type,
-        minimum_monthly_payment: this.minimum_monthly_payment,
+        minimum_monthly_payment: this.isRevolving ? this.minimumMonthlyPaymentLowerBound : this.minimum_monthly_payment,
         apr: this.isFixed ? this.apr : null,
         end_date: this.isRevolving ? null : this.end_date,
         prime_modifier: this.isFixed ? null : this.prime_modifier
