@@ -4,7 +4,7 @@ from pennies.utilities.datetime import MONTHS_IN_YEAR
 
 CURRENT_PRIME = 2.5
 FUTURE_PRIME_START_YEAR = 3
-FUTURE_EXPECTED_PRIME = 3
+FUTURE_EXPECTED_PRIME = 2.5
 
 
 class PrimeInterestRateForecast(BaseModel):

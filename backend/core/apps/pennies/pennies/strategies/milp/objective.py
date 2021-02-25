@@ -18,18 +18,6 @@ class MILPObjective:
         cls, sets: MILPSets, pars: MILPParameters, vars_: MILPVariables
     ) -> "MILPObjective":
 
-        final_net_worth = sum(
-            vars_.get_balance(i, pars.get_last_payment_horizon_order())
-            for i in itertools.product(sets.instruments)
-        )
-
-        interest_earned = sum(
-            vars_.get_balance(i, t) * (1 + pars.get_average_interest_rate(i, t))
-            for i, t in itertools.product(
-                sets.instruments, sets.payment_horizons_as_set
-            )
-        )
-
         risk_violation_costs = (
             sum(
                 vars_.get_total_risk_violation(t)
@@ -49,12 +37,39 @@ class MILPObjective:
             / 10
         )
 
+        taxes_paid = (
+            sum(
+                vars_.get_taxes_accrued_in_bracket(t, e, b)
+                for t, (e, b) in itertools.product(sets.payment_horizons_as_set, sets.taxing_entities_and_brackets)
+            )
+        )
+
+        taxes_overflow_cost = (
+            sum(
+                vars_.get_pos_overflow_in_bracket(t, e, b) + vars_.get_neg_overflow_in_bracket(t, e, b)
+                for t, (e, b) in itertools.product(sets.payment_horizons_as_set, sets.taxing_entities_and_brackets)
+            ) * pars.get_constraint_violation_penalty() / 100
+        )
+
+        obj = -risk_violation_costs - loan_due_date_violation_cost - taxes_paid - taxes_overflow_cost
+        if pars.has_investments():
+            final_net_worth = sum(
+                vars_.get_balance(i, pars.get_last_payment_horizon_order())
+                for i in itertools.product(sets.instruments)
+            )
+            obj += final_net_worth
+        else:
+            interest_earned = sum(
+                vars_.get_balance(i, t) * (1 + pars.get_average_interest_rate(i, t))
+                for i, t in itertools.product(
+                    sets.instruments, sets.payment_horizons_as_set
+                )
+            )
+            obj += interest_earned
+
         return MILPObjective(
             obj=pe.Objective(
-                expr=final_net_worth
-                + interest_earned
-                - risk_violation_costs
-                - loan_due_date_violation_cost,
+                expr=obj,
                 sense=pe.maximize,
             )
         )

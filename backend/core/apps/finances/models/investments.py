@@ -27,7 +27,7 @@ def get_required_fields_map():
         "maturity_date",
         "interest_type",
         "expected_roi",
-        "prime_modifier"
+        "prime_modifier",
     ]
     return {
         InvestmentType.MUTUAL_FUND: all_non_guaranteed_inv_fields
@@ -123,10 +123,7 @@ class Investment(models.Model):
     )
     name = models.CharField(max_length=50)
     current_balance = models.FloatField(
-        default=0,
-        blank=True,
-        null=True,
-        verbose_name="Current Balance"
+        default=0, blank=True, null=True, verbose_name="Current Balance"
     )
     investment_type = models.CharField(
         max_length=50,
@@ -136,7 +133,10 @@ class Investment(models.Model):
     )
 
     pre_authorized_monthly_contribution = models.FloatField(
-        default=0, blank=True, null=True, verbose_name="Pre-Authorized Monthly Contribution"
+        default=0,
+        blank=True,
+        null=True,
+        verbose_name="Pre-Authorized Monthly Contribution",
     )
 
     # mutual funds and etfs

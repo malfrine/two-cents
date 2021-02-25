@@ -2,8 +2,7 @@ import Vue from 'vue'
 
 const defaultState = function () {
   return {
-    is_loading: true,
-    no_finances: true,
+    finances_updated_since_plan_built: true,
     user_finances: null
   }
 }
@@ -42,34 +41,43 @@ const getters = {
   },
   getUserFinancesExists (state) {
     return state.user_finances != null
+  },
+  getFinancesUpdateSinceLastPlanBuilt (state) {
+    return state.finances_updated_since_plan_built
   }
 }
 
 const mutations = {
   SET_USER_FINANCES (state, payload) {
     state.user_finances = payload
-    state.no_finances = false
+    state.finances_updated_since_plan_built = true
   },
   RESET_USER_FINANCES (state) {
     Object.assign(state, defaultState())
+    state.finances_updated_since_plan_built = true
   },
   SET_LOAN: (state, payload) => {
     Vue.set(state.user_finances.loans, payload.id, payload)
+    state.finances_updated_since_plan_built = true
   },
   DELETE_LOAN: (state, payload) => {
     Vue.delete(state.user_finances.loans, payload.id)
+    state.finances_updated_since_plan_built = true
   },
   SET_INVESTMENT: (state, payload) => {
     Vue.set(state.user_finances.investments, payload.id, payload)
+    state.finances_updated_since_plan_built = true
   },
   DELETE_INVESTMENT: (state, payload) => {
     Vue.delete(state.user_finances.investments, payload.id)
+    state.finances_updated_since_plan_built = true
   },
   SET_FINANCIAL_PROFILE: (state, payload) => {
     state.user_finances.financial_profile = payload
+    state.finances_updated_since_plan_built = true
   },
-  SET_IS_LOADING: (state, payload) => {
-    state.is_loading = payload
+  REGISTER_PLAN_UPDATED: (state) => {
+    state.finances_updated_since_plan_built = false
   }
 }
 
@@ -156,9 +164,6 @@ const actions = {
           this.$toast.error('Could not delete investment')
         }
       )
-  },
-  setIsLoading (context, payload) {
-    context.commit('SET_IS_LOADING', payload)
   }
 }
 

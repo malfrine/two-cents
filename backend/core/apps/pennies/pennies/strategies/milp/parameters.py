@@ -7,6 +7,7 @@ import pyomo.environ as pe
 from pennies.model.instrument import Instrument
 from pennies.model.investment import Investment
 from pennies.model.loan import Loan, RevolvingLoan
+from pennies.model.taxes import IncomeTaxBrackets
 from pennies.model.user_personal_finances import UserPersonalFinances
 from pennies.strategies.milp.sets import MILPSets
 
@@ -72,21 +73,8 @@ class MILPParameters:
             for m in self.sets.get_months_in_horizon(payment_horizon_order)
         )
 
-    def get_fixed_volatility(self, payment_horizon_order: int):
-        """Users have a fixed volatility based on their pre-authorized monthly contributions"""
-        total_min_monthly_payment = sum(
-            self.get_minimum_monthly_payment(i, payment_horizon_order)
-            for i in self.sets.investments
-        )
-        return (
-            100
-            * sum(
-                self.get_minimum_monthly_payment(i, payment_horizon_order)
-                * self.get_volatility(i)
-                for i in self.sets.investments
-            )
-            / (self.get_max_volatility() * total_min_monthly_payment)
-        )
+    def get_before_tax_monthly_income(self):
+        return self.user_finances.financial_profile.monthly_income
 
     def get_is_revolving_loan(self, id_) -> bool:
         return isinstance(
@@ -135,3 +123,12 @@ class MILPParameters:
             self.get_starting_balance(i) for i in self.sets.investments
         )
         return starting_investment_worth + monthly_allowance * final_month
+
+    def get_bracket_marginal_tax_rate(self, e: str, b: int):
+        return self.sets.income_tax_brackets[e].data[b].marginal_tax_rate_as_fraction
+
+    def get_bracket_marginal_income(self, e: str, b: int):
+        return self.sets.income_tax_brackets[e].data[b].monthly_marginal_upper_bound
+
+    def get_bracket_cumulative_income(self, e: str, b: int):
+        return self.sets.income_tax_brackets[e].get_bracket_cumulative_income(b) / 12

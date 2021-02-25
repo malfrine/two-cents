@@ -157,6 +157,7 @@ import PlanMilestones from '@/components/plan/PlanMilestones.vue'
 import PlanCurrentFinances from '@/components/plan/PlanCurrentFinances.vue'
 import PlanSummary from '@/components/plan/PlanSummary.vue'
 import { PlanMaker } from '~/assets/plans.js'
+import { asDollar } from '~/assets/utils.js'
 
 export default {
   layout: 'dashboard',
@@ -171,6 +172,12 @@ export default {
     if (this.userFinancesValidationError) {
       return null
     }
+    const financesUpdated = this.$store.getters['finances/getFinancesUpdateSinceLastPlanBuilt']
+    if (this.planExists & !financesUpdated) {
+      console.log('A plan exists and the finances were not updated - not getting a new plan')
+      return null
+    }
+    this.$store.commit('plan/RESET_PLANS')
     const response = await this.$axios.$get('/api/my/plan')
       .then((response) => {
         return response
@@ -179,10 +186,12 @@ export default {
         // this.$toast.error('Could not get your plan')
         return null
       })
+    console.log(this.$store.getters['plan/getIsPlansAvailable'])
     if (response) {
       const pm = new PlanMaker()
       const plans = pm.fromResponseData(response)
       this.$store.commit('plan/SET_PLANS', plans)
+      this.$store.commit('finances/REGISTER_PLAN_UPDATED')
     }
   },
   data () {
@@ -193,7 +202,7 @@ export default {
   },
   computed: {
     planExists () {
-      return this.$store.getters['plan/getPlans'] != null
+      return this.$store.getters['plan/getIsPlansAvailable']
     },
     netWorthData () {
       const refData = this.$store.getters['plan/getNetWorth'](this.selectedStrategy)
@@ -237,11 +246,18 @@ export default {
 
       let totalMinimumMonthlyPayments = 0
       for (const loanId in loans) {
-        totalMinimumMonthlyPayments += loans[loanId].minimum_monthly_payment
+        console.log(loans[loanId].minimum_monthly_payment || 0)
+        totalMinimumMonthlyPayments += loans[loanId].minimum_monthly_payment || 0
       }
+      for (const investmentId in investments) {
+        console.log(investments[investmentId].pre_authorized_monthly_contribution || 0)
+        totalMinimumMonthlyPayments += investments[investmentId].pre_authorized_monthly_contribution || 0
+      }
+      console.log(totalMinimumMonthlyPayments)
+      console.log(financialProfile.monthly_allowance)
       if (totalMinimumMonthlyPayments > financialProfile.monthly_allowance) {
-        return `Your plan cannot be created because your monthly allowance (${financialProfile.monthly_allowance}) 
-                is less than the required minimum monthly payments (${totalMinimumMonthlyPayments}). Please increase your monthly allowance.`
+        return `Your plan cannot be created because your monthly allowance (${asDollar(financialProfile.monthly_allowance)}) 
+                is less than the required minimum monthly payment (${asDollar(totalMinimumMonthlyPayments)}). Please increase your monthly allowance.`
       }
 
       return ''

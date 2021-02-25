@@ -34,7 +34,6 @@ export default {
           return null
         })
       this.$store.commit('finances/SET_USER_FINANCES', response)
-      this.$store.commit('finances/SET_IS_LOADING', false)
       this.isLoading = false
     }
   },

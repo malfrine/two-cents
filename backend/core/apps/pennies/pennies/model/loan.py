@@ -46,25 +46,6 @@ class InstalmentLoan(Loan):
             raise ValueError("Instalment Loans must have a final month")
         return v
 
-    @root_validator
-    def validate_minimum_monthly_payment(cls, values):
-        principal: float = abs(values["current_balance"])
-        interest_rate: InterestRate = values["interest_rate"]
-        effective_apr = interest_rate.get_monthly_interest_rate(0) * 12 * 100
-        final_month: int = values[
-            "final_month"
-        ]  # have already validated that final_month is not None
-        mmp_lb = LoanMinimumPaymentCalculator.calculate_for_instalment_loan(
-            principal, effective_apr, final_month
-        )
-        mmp = values["minimum_monthly_payment"]
-        if mmp_lb > 10 and mmp < mmp_lb:
-            raise ValueError(
-                f"Loan minimum monthly payment ({mmp}) must be greater than {mmp_lb}"
-            )
-        else:
-            return values
-
 
 class CarLoan(InstalmentLoan):
     pass

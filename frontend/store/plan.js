@@ -27,6 +27,9 @@ const getters = {
   },
   getMilestones: state => (strategyName) => {
     return state.plans.data[strategyName].milestones
+  },
+  getIsPlansAvailable (state) {
+    return state.plans != null
   }
 }
 
@@ -35,7 +38,7 @@ const mutations = {
     state.plans = payload
   },
   RESET_PLANS (state) {
-    state.plans = defaultState()
+    state.plans = null
   }
 }
 
