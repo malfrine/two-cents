@@ -2,25 +2,35 @@ from dataclasses import dataclass
 from typing import List, Set, Dict
 
 from pennies.model import taxes
+from pennies.model.instrument import Instrument
 from pennies.model.investment import Investment, Cash, GuaranteedInvestment
 from pennies.model.loan import Loan, InstalmentLoan
-from pennies.model.payment_horizons import PaymentHorizons, PaymentHorizonsFactory
+from pennies.model.decision_periods import DecisionPeriods, DecisionPeriodsFactory
 from pennies.model.taxes import IncomeTaxBrackets
 from pennies.model.user_personal_finances import UserPersonalFinances
 
 
 @dataclass
 class MILPSets:
-    instruments: Set
-    payment_horizons: PaymentHorizons
-    investments: Set
-    loans: Set
+    _instruments: List[Instrument]
+    # instruments: Set
+    decision_periods: DecisionPeriods
+    # investments: Set
+    # loans: Set
     income_tax_brackets: Dict[str, IncomeTaxBrackets]
     _user_finances: UserPersonalFinances
 
     @property
-    def payment_horizons_as_set(self) -> Set[int]:
-        return set(ph.order for ph in self.payment_horizons.data)
+    def working_periods_as_set(self) -> Set[int]:
+        return set(wp.index for wp in self.decision_periods.working_periods)
+
+    @property
+    def retirement_periods_as_set(self) -> Set[int]:
+        return set(rp.index for rp in self.decision_periods.retirement_periods)
+
+    @property
+    def all_decision_periods_as_set(self) -> Set[int]:
+        return set(dp.index for dp in self.decision_periods.all_periods)
 
     @property
     def taxing_entities(self):
@@ -30,11 +40,26 @@ class MILPSets:
         return set(range(self.income_tax_brackets[taxing_entity].num_brackets))
 
     @property
+    def instruments(self):
+        return list(i.name for i in self._instruments)
+
+    @property
+    def loans(self):
+        return list(i.name for i in self._instruments if isinstance(i, Loan))
+
+    @property
+    def investments(self):
+        return list(i.name for i in self._instruments if isinstance(i, Investment))
+
+    @property
     def taxing_entities_and_brackets(self):
         return (
-
             (e, b) for e in self.taxing_entities for b in self.get_tax_brackets_as_set(e)
         )
+
+    @property
+    def investments_and_guaranteed_investments(self):
+        return list(i.name for i in self._instruments if isinstance(i, (Investment, GuaranteedInvestment)))
 
     @property
     def non_cash_investments(self) -> Set[str]:
@@ -45,7 +70,7 @@ class MILPSets:
         )
 
     def get_months_in_horizon(self, order: int) -> List[int]:
-        return self.payment_horizons.data[order].months
+        return self.decision_periods.data[order].months
 
     def get_num_months_in_horizon(self, order: int) -> int:
         return len(self.get_months_in_horizon(order))
@@ -57,25 +82,27 @@ class MILPSets:
         max_months_in_payment_horizon: int,
         start_month: int,
     ) -> "MILPSets":
-        instruments = set(
-            i.name
-            for i in user_finances.portfolio.instruments.values()
-            if not isinstance(i, GuaranteedInvestment)
-        )
-        investments = set(
-            instrument.name
-            for instrument in user_finances.portfolio.instruments.values()
-            if isinstance(instrument, Investment)
-        )
-        loans = set(
-            instrument.name
-            for instrument in user_finances.portfolio.instruments.values()
-            if isinstance(instrument, Loan)
-        )
-        payment_horizons = PaymentHorizonsFactory(
+        # instruments = set(
+        #     i.name
+        #     for i in user_finances.portfolio.instruments.values()
+        #     # if not isinstance(i, GuaranteedInvestment)
+        # )
+        # investments = set(
+        #     instrument.name
+        #     for instrument in user_finances.portfolio.instruments.values()
+        #     if isinstance(instrument, Investment)
+        # )
+        # loans = set(
+        #     instrument.name
+        #     for instrument in user_finances.portfolio.instruments.values()
+        #     if isinstance(instrument, Loan)
+        # )
+        decision_periods = DecisionPeriodsFactory(
             max_months=max_months_in_payment_horizon
         ).from_num_months(
-            start_month=start_month, final_month=user_finances.final_month
+            start_month=start_month,
+            retirement_month=user_finances.financial_profile.retirement_month,
+            final_month=user_finances.financial_profile.death_month
         )
         province = user_finances.financial_profile.province_of_residence
         income_tax_brackets = {
@@ -84,10 +111,11 @@ class MILPSets:
         }
 
         return MILPSets(
+            _instruments=list(user_finances.portfolio.instruments.values()),
             _user_finances=user_finances,
-            instruments=instruments,
-            investments=investments,
-            loans=loans,
-            payment_horizons=payment_horizons,
+            # instruments=instruments,
+            # investments=investments,
+            # loans=loans,
+            decision_periods=decision_periods,
             income_tax_brackets=income_tax_brackets
         )

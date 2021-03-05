@@ -87,3 +87,17 @@ class InvestmentReturnRate(InterestRate):
 
     def get_volatility(self):
         return self.volatility
+
+
+class GuaranteedInvestmentReturnRate(InterestRate):
+    interest_rate: InterestRate
+    final_month: int
+
+    def get_monthly_interest_rate(self, month: int) -> float:
+        if month <= self.final_month:
+            return self.interest_rate.get_monthly_interest_rate(month)
+        else:
+            return 0
+
+    def get_volatility(self):
+        return self.interest_rate.get_volatility()

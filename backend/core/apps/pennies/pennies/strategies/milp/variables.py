@@ -23,6 +23,8 @@ class MILPVariables:
     neg_overflow_in_brackets: pe.Var
     remaining_marginal_income_in_brackets: pe.Var
     taxes_accrued_in_brackets: pe.Var
+    withdrawals: pe.Var
+    retirement_spending_violations: pe.Var
 
     @classmethod
     def create(
@@ -32,49 +34,55 @@ class MILPVariables:
         num_instruments = len(user_finances.portfolio.instruments)
         allocations = pe.Var(
             sets.instruments,
-            sets.payment_horizons_as_set,
+            sets.all_decision_periods_as_set,
             bounds=(0.0, user_finances.financial_profile.monthly_allowance),
             initialize=user_finances.financial_profile.monthly_allowance
             / num_instruments
             if num_instruments > 0
             else 1,
         )
-        balances = pe.Var(sets.instruments, sets.payment_horizons_as_set, initialize=0)
+        balances = pe.Var(sets.instruments, sets.all_decision_periods_as_set, initialize=0)
         not_paid_off_indicators = pe.Var(
-            sets.loans, sets.payment_horizons_as_set, domain=pe.Binary, initialize=1
+            sets.loans, sets.working_periods_as_set, domain=pe.Binary, initialize=1
         )
         in_debt_indicators = pe.Var(
-            sets.payment_horizons_as_set, domain=pe.Binary, initialize=1
+            sets.working_periods_as_set, domain=pe.Binary, initialize=1
         )
         investment_risk_violations = pe.Var(
-            sets.payment_horizons_as_set, domain=pe.NonNegativeReals, initialize=0
+            sets.working_periods_as_set, domain=pe.NonNegativeReals, initialize=0
         )
         total_risk_violations = pe.Var(
-            sets.payment_horizons_as_set, domain=pe.NonNegativeReals, initialize=0
+            sets.working_periods_as_set, domain=pe.NonNegativeReals, initialize=0
         )
         allocation_slacks = pe.Var(
-            sets.payment_horizons_as_set, domain=pe.NonNegativeReals, initialize=0
+            sets.all_decision_periods_as_set, domain=pe.NonNegativeReals, initialize=0
         )
         loan_due_date_violations = pe.Var(
             sets.loans,
-            sets.payment_horizons_as_set,
+            sets.working_periods_as_set,
             domain=pe.NonNegativeReals,
             initialize=0,
         )
         taxable_monthly_incomes = pe.Var(
-            sets.payment_horizons_as_set
+            sets.all_decision_periods_as_set
         )
         pos_overflow_in_brackets = pe.Var(
-            sets.payment_horizons_as_set, sets.taxing_entities_and_brackets, domain=pe.NonNegativeReals
+            sets.all_decision_periods_as_set, sets.taxing_entities_and_brackets, domain=pe.NonNegativeReals
         )
         neg_overflow_in_brackets = pe.Var(
-            sets.payment_horizons_as_set, sets.taxing_entities_and_brackets, domain=pe.NonNegativeReals
+            sets.all_decision_periods_as_set, sets.taxing_entities_and_brackets, domain=pe.NonNegativeReals
         )
         remaining_marginal_income_in_brackets = pe.Var(
-            sets.payment_horizons_as_set, sets.taxing_entities_and_brackets, domain=pe.NonNegativeReals
+            sets.all_decision_periods_as_set, sets.taxing_entities_and_brackets, domain=pe.NonNegativeReals
         )
         taxes_accrued_in_brackets = pe.Var(
-            sets.payment_horizons_as_set, sets.taxing_entities_and_brackets, domain=pe.NonNegativeReals
+            sets.all_decision_periods_as_set, sets.taxing_entities_and_brackets, domain=pe.NonNegativeReals
+        )
+        withdrawals = pe.Var(
+            sets.investments_and_guaranteed_investments, sets.all_decision_periods_as_set, domain=pe.NonNegativeReals
+        )
+        retirement_spending_violations = pe.Var(
+            sets.retirement_periods_as_set, domain=pe.NonNegativeReals
         )
 
         return MILPVariables(
@@ -90,7 +98,9 @@ class MILPVariables:
             pos_overflow_in_brackets=pos_overflow_in_brackets,
             neg_overflow_in_brackets=neg_overflow_in_brackets,
             remaining_marginal_income_in_brackets=remaining_marginal_income_in_brackets,
-            taxes_accrued_in_brackets=taxes_accrued_in_brackets
+            taxes_accrued_in_brackets=taxes_accrued_in_brackets,
+            withdrawals=withdrawals,
+            retirement_spending_violations=retirement_spending_violations
         )
 
     def get_allocation(self, instrument: UUID, month: int):
@@ -131,3 +141,9 @@ class MILPVariables:
 
     def get_taxes_accrued_in_bracket(self, payment_horizon_order: int, entity: str, bracket_index: int):
         return self.taxes_accrued_in_brackets[payment_horizon_order, (entity, bracket_index)]
+
+    def get_withdrawal(self, investment: str, decision_period_index: int):
+        return self.withdrawals[investment, decision_period_index]
+
+    def get_retirement_spending_violation(self, decision_period_index: int):
+        return self.retirement_spending_violations[decision_period_index]

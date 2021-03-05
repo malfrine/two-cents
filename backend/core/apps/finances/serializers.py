@@ -72,9 +72,9 @@ class FinancialProfileSerializer(serializers.ModelSerializer):
 
 class PenniesInvestmentSerializer(serializers.ModelSerializer):
 
-    final_month = serializers.IntegerField(
-        source="user.financial_profile.months_to_retirement", read_only=True
-    )
+    # final_month = serializers.IntegerField(
+    #     source="user.financial_profile.months_to_retirement", read_only=True
+    # )
 
     class Meta:
         model = Investment

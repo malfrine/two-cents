@@ -24,6 +24,7 @@ def solve_request(request: Dict) -> Dict:
         ).dict()
 
     except Exception as e:
+        print(traceback.format_exc())
         return PenniesResponse(
             result=traceback.format_exc(), status=PenniesStatus.FAILURE
         ).dict()

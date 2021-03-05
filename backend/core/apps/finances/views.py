@@ -17,7 +17,7 @@ from core.apps.finances.serializers import (
     FinancialProfileSerializer,
     InvestmentSerializer,
     LoanSerializer,
-    UserFinancesSerializer,
+    UserFinancesSerializer, PenniesRequestSerializer,
 )
 
 
@@ -82,6 +82,13 @@ class FinancialProfileView(viewsets.GenericViewSet):
 
 class UserFinancesViewset(viewsets.GenericViewSet):
     serializer_class = UserFinancesSerializer
+
+    def list(self, request):
+        return Response(self.get_serializer(request.user).data)
+
+
+class PenniesRequestViewset(viewsets.GenericViewSet):
+    serializer_class = PenniesRequestSerializer
 
     def list(self, request):
         return Response(self.get_serializer(request.user).data)
