@@ -4,7 +4,7 @@ from pennies.model.interest_rate import (
     VariableLoanInterestRate,
     ZeroGrowthRate,
     FixedInvestmentInterestRate,
-    VariableInvestmentInterestRate,
+    VariableInvestmentInterestRate, GuaranteedInvestmentReturnRate,
 )
 from pennies.model.investment import (
     Investment,
@@ -46,9 +46,13 @@ class InvestmentFactory:
                     roi=request_investment.roi, volatility=request_investment.volatility
                 )
         else:
-            interest_rate = cls._INTEREST_RATE_MAP[
+            internal_interest_rate = cls._INTEREST_RATE_MAP[
                 request_investment.interest_type
             ].parse_obj(request_investment.dict())
+            interest_rate = GuaranteedInvestmentReturnRate(
+                interest_rate=internal_interest_rate,
+                final_month=request_investment.final_month
+            )
         return cls._INVESTMENT_MAP[request_investment.investment_type].parse_obj(
             dict(request_investment.dict(), interest_rate=interest_rate)
         )

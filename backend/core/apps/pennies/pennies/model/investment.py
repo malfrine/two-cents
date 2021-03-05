@@ -8,7 +8,7 @@ from pennies.model.interest_rate import (
     FixedLoanInterestRate,
     ZeroGrowthRate,
     VariableLoanInterestRate,
-    InterestRate,
+    InterestRate, GuaranteedInvestmentReturnRate,
 )
 from pennies.utilities.datetime import MONTHS_IN_YEAR
 
@@ -25,7 +25,7 @@ class GuaranteedInvestment(BaseInvestment):
     principal_investment_amount: float
     start_month: int  # can be negative (current month is 0)
     final_month: int
-    # interest_rate: Union[FixedLoanInterestRate, VariableLoanInterestRate]
+    interest_rate: GuaranteedInvestmentReturnRate
 
     def get_minimum_monthly_payment(self, month: int):
         return 0

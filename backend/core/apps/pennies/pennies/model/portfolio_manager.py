@@ -1,9 +1,9 @@
 import math
-from typing import Dict
+from typing import Dict, Optional
 
 from pennies.model.instrument import Instrument
-from pennies.model.investment import GuaranteedInvestment
-from pennies.model.loan import Loan
+from pennies.model.investment import GuaranteedInvestment, Investment
+from pennies.model.loan import Loan, RevolvingLoan
 from pennies.model.portfolio import Portfolio
 from pennies.utilities.dict import remove_from_dict
 
@@ -13,11 +13,15 @@ class PortfolioManager:
 
     @classmethod
     def forward_on_month(
-        cls, portfolio: Portfolio, payments: Dict[str, float], month: int
+        cls, portfolio: Portfolio, payments: Dict[str, float], month: int, withdrawals: Dict[str, float] = None
     ) -> Portfolio:
+        if withdrawals is None:
+            withdrawals = dict()
+
         forward_portfolio = portfolio.copy(deep=True)
         cls._incur_portfolio_interest(forward_portfolio, month)
         cls._implement_allocation_plan(forward_portfolio, payments, month)
+        cls._implement_withdrawals(forward_portfolio, withdrawals, month)
         cls._remove_paid_off_loans(forward_portfolio)
         return forward_portfolio
 
@@ -75,3 +79,27 @@ class PortfolioManager:
         instrument.current_balance += (
             instrument.current_balance * instrument.monthly_interest_rate(month)
         )
+
+    @classmethod
+    def _implement_withdrawals(cls, portfolio: Portfolio, withdrawals: Dict[str, float], month: int):
+        for instrument_name, withdrawal_amount in withdrawals.items():
+            instrument = portfolio.get_instrument(instrument_name)
+            if withdrawal_amount == 0:
+                continue
+            cls._execute_withdrawal(instrument, withdrawal_amount, month)
+
+    @classmethod
+    def _execute_withdrawal(cls, instrument: Instrument, withdrawal_amount: float, month: int):
+        if isinstance(instrument, RevolvingLoan):
+            instrument.current_balance -= withdrawal_amount
+            # TODO: add withdrawal limit
+        elif isinstance(instrument, Investment):
+            instrument.current_balance -= withdrawal_amount
+        elif isinstance(instrument, GuaranteedInvestment):
+            if month >= instrument.final_month:
+                instrument.current_balance -= withdrawal_amount
+            else:
+                raise ValueError("Cannot withdraw from a guaranteed investment that has not matured")
+        else:
+            raise ValueError(f"Unable to withdraw from instrument {instrument.name} - don't know how")
+

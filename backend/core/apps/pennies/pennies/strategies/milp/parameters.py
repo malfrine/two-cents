@@ -1,11 +1,11 @@
 from dataclasses import dataclass
-from typing import Dict
+from typing import Dict, Optional
 from uuid import UUID
 
 import pyomo.environ as pe
 
 from pennies.model.instrument import Instrument
-from pennies.model.investment import Investment
+from pennies.model.investment import Investment, GuaranteedInvestment
 from pennies.model.loan import Loan, RevolvingLoan
 from pennies.model.taxes import IncomeTaxBrackets
 from pennies.model.user_personal_finances import UserPersonalFinances
@@ -31,7 +31,7 @@ class MILPParameters:
         return self.user_finances.portfolio.investments_by_name[name]
 
     def get_average_interest_rate(self, id_: UUID, payment_horizon: int) -> float:
-        months = self.sets.payment_horizons.data[payment_horizon].months
+        months = self.sets.decision_periods.data[payment_horizon].months
         return sum(
             self._get_instrument(id_).monthly_interest_rate(month) for month in months
         ) / len(months)
@@ -61,8 +61,12 @@ class MILPParameters:
     def get_user_risk_profile_as_fraction(self) -> float:
         return self.user_finances.financial_profile.risk_tolerance / 100
 
-    def get_monthly_allowance(self):
-        return self.user_finances.financial_profile.monthly_allowance
+    def get_monthly_allowance(self, decision_period_index: int):
+        final_work_period_index = self.get_final_work_period_index()
+        if final_work_period_index is None or decision_period_index > final_work_period_index:
+            return 0 # assume they don't make any money when they are retired
+        else:
+            return self.user_finances.financial_profile.monthly_allowance
 
     def get_minimum_monthly_payment(
         self, instrument_id: UUID, payment_horizon_order: int
@@ -86,6 +90,9 @@ class MILPParameters:
             self.user_finances.portfolio.investments_by_name.get(id_, None) is not None
         )
 
+    def get_is_guaranteed_investment(self, id_):
+        return isinstance(self.user_finances.portfolio.get_instrument(id_), GuaranteedInvestment)
+
     def has_loans(self) -> bool:
         return len(self.user_finances.portfolio.loans) > 0
 
@@ -93,15 +100,18 @@ class MILPParameters:
         return len(self.user_finances.portfolio.investments()) > 0
 
     def get_final_month(self, id_) -> int:
-        return self._get_instrument(id_).final_month or self.user_finances.final_month
+        return self._get_instrument(id_).final_month or self.user_finances.financial_profile.retirement_month
 
     def get_instrument_final_payment_horizon(self, id_):
-        return self.sets.payment_horizons.corresponding_horizon(
+        return self.sets.decision_periods.corresponding_horizon(
             self.get_final_month(id_) - 1
         )
 
-    def get_last_payment_horizon_order(self):
-        return self.sets.payment_horizons.data[-1].order
+    def get_final_decision_period_index(self):
+        return self.sets.decision_periods.data[-1].index
+
+    def get_final_work_period_index(self) -> Optional[int]:
+        return max(self.sets.working_periods_as_set, default=None)
 
     def get_loan_upper_bound(self, id_):
         if id_ not in self._instrument_bounds:
@@ -117,8 +127,8 @@ class MILPParameters:
         return self._instrument_bounds[id_]
 
     def get_constraint_violation_penalty(self):
-        final_month = self.user_finances.final_month
-        monthly_allowance = self.get_monthly_allowance()
+        final_month = self.user_finances.financial_profile.retirement_month
+        monthly_allowance = self.user_finances.financial_profile.monthly_allowance
         starting_investment_worth = sum(
             self.get_starting_balance(i) for i in self.sets.investments
         )
@@ -132,3 +142,6 @@ class MILPParameters:
 
     def get_bracket_cumulative_income(self, e: str, b: int):
         return self.sets.income_tax_brackets[e].get_bracket_cumulative_income(b) / 12
+
+    def get_minimum_monthly_retirement_spending(self, t):
+        return self.user_finances.financial_profile.monthly_retirement_spending

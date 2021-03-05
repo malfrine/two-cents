@@ -2,7 +2,7 @@ from typing import Tuple
 
 import pytest
 
-from pennies.model.interest_rate import FixedLoanInterestRate
+from pennies.model.interest_rate import FixedLoanInterestRate, GuaranteedInvestmentReturnRate
 from pennies.model.investment import GuaranteedInvestment
 from pennies.model.loan import PersonalLoan
 from pennies.model.portfolio import Portfolio
@@ -69,12 +69,16 @@ def test_final_payment():
 def test_forward_on_guaranteed_investment():
     principal = 100
     apr = 12
+    interest_rate = GuaranteedInvestmentReturnRate(
+        interest_rate=FixedLoanInterestRate(apr=apr),
+        final_month=1
+    )
     gi = GuaranteedInvestment(
         name="generic",
         principal_investment_amount=principal,
         start_month=-1,
         final_month=1,
-        interest_rate=FixedLoanInterestRate(apr=apr),
+        interest_rate=interest_rate,
         current_balance=None,
     )
     p = Portfolio(instruments={gi.name: gi})

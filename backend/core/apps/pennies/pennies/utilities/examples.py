@@ -3,8 +3,6 @@ from typing import Tuple, Dict, List
 from pennies.model.factories.problem_input import ProblemInputFactory
 from pennies.model.factories.request_loan import RequestLoanFactory
 from pennies.model.financial_profile import FinancialProfile
-from pennies.model.interest_rate import FixedLoanInterestRate
-from pennies.model.investment import Investment
 from pennies.model.loan import Loan
 from pennies.model.portfolio import Portfolio
 from pennies.model.problem_input import ProblemInput
@@ -25,6 +23,7 @@ def financial_profile():
     return FinancialProfile(
         monthly_allowance=2500,
         years_to_retirement=35,
+        years_to_death=50
     )
 
 
@@ -99,7 +98,7 @@ def simple_investments() -> List[RequestInvestment]:
         ),
         RequestInvestment(
             name="medium risk",
-            roi=5.5,
+            roi=2.5,
             current_balance=0,
             minimum_monthly_payment=0,
             volatility=5.5,
@@ -108,7 +107,7 @@ def simple_investments() -> List[RequestInvestment]:
         RequestInvestment(
             name="term deposit",
             investment_type=RequestInvestmentType.TERM_DEPOSIT,
-            final_month=36,
+            final_month=100,
             principal_investment_amount=100000,
             start_month=-36,
             interest_type=InterestType.VARIABLE,

@@ -29,3 +29,4 @@ class UserPersonalFinances(BaseModel):
         )
         assert total_min_payments <= fp.monthly_allowance
         return values
+

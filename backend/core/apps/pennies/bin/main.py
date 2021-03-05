@@ -24,7 +24,7 @@ def main():
             # StrategyName.snowball.value,
             StrategyName.avalanche.value,
             # StrategyName.avalanche_ball.value,
-            # StrategyName.lp.value,
+            StrategyName.lp.value,
         ],
     )
     solution = solve(mi)

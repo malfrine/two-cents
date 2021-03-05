@@ -45,7 +45,7 @@ def test_lp_equals_avalanche():
 def get_request() -> PenniesRequest:
     return PenniesRequest(
         financial_profile=FinancialProfile(
-            monthly_allowance=2000, years_to_retirement=10
+            monthly_allowance=2000, years_to_retirement=10, years_to_death=20
         ),
         loans=[
             RequestLoan(

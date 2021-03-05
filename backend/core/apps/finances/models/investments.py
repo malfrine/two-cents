@@ -176,7 +176,7 @@ class Investment(models.Model):
     @property
     def start_month(self):
         if self.investment_type in [InvestmentType.GIC, InvestmentType.TERM_DEPOSIT]:
-            return get_months_between(self.investment_date, date.today())
+            return get_months_between(date.today(), self.investment_date)
         return None
 
     interest_type = models.CharField(

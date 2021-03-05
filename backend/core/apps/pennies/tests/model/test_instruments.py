@@ -1,7 +1,7 @@
 from pydantic import ValidationError
 
 from pennies.model.instrument import Instrument
-from pennies.model.interest_rate import FixedLoanInterestRate
+from pennies.model.interest_rate import FixedLoanInterestRate, GuaranteedInvestmentReturnRate
 from pennies.model.investment import GuaranteedInvestment
 from pennies.model.loan import Loan
 
@@ -48,12 +48,16 @@ def test_bad_loan():
 def test_guaranteed_investment():
     principal = 100
     apr = 12
+    interest_rate = GuaranteedInvestmentReturnRate(
+        interest_rate=FixedLoanInterestRate(apr=apr),
+        final_month=1
+    )
     gi = GuaranteedInvestment(
         name="generic",
         principal_investment_amount=principal,
         start_month=-1,
         final_month=1,
-        interest_rate=FixedLoanInterestRate(apr=apr),
+        interest_rate=interest_rate,
         current_balance=None,
     )
     assert gi.current_balance == principal * (1 + apr / 100 / 12)

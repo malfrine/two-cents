@@ -1,4 +1,4 @@
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, NewType
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -18,11 +18,15 @@ class MonthlyAllocation(BaseModel):
         return self.payments[item]
 
 
+MonthlyWithdrawal = NewType("MonthlyWithdrawal", Dict[str, float])
+
+
 class MonthlySolution(BaseModel):
     month: int
     portfolio: Portfolio
     allocation: MonthlyAllocation
     taxes_paid: float
+    withdrawals: MonthlyWithdrawal
 
     def get_loan_payment(self, loan_name: str) -> float:
         return get_value_from_dict(loan_name, self.allocation.payments)
@@ -75,6 +79,9 @@ class MonthlySolution(BaseModel):
         return sum(
             self.get_investment_payment(i.name) for i in self.portfolio.investments()
         )
+
+    def get_total_withdrawals(self):
+        return sum(w for w in self.withdrawals.values())
 
 
 class FinancialPlan(BaseModel):
