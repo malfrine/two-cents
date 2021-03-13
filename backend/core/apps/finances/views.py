@@ -17,7 +17,8 @@ from core.apps.finances.serializers import (
     FinancialProfileSerializer,
     InvestmentSerializer,
     LoanSerializer,
-    UserFinancesSerializer, PenniesRequestSerializer,
+    UserFinancesSerializer,
+    PenniesRequestSerializer,
 )
 
 

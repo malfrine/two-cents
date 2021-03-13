@@ -48,13 +48,16 @@ class PlanSummariesFactory:
         final_index = get_final_lookahead_index(num_sols)
         total_payments = defaultdict(int)
         for ms in plan.monthly_solutions[:final_index]:
-            for instrument, payment in ms.allocation.payments.items():
-                total_payments[instrument] += payment
+            for id_, payment in ms.allocation.payments.items():
+                total_payments[id_] += payment
         sorted_payments = sorted(
             dict(total_payments).items(), key=lambda x: x[1], reverse=True
         )
         # TODO: once allocation is keyed on UUID, get instruments from portfolio
-        return list(instrument for instrument, _ in sorted_payments)
+        return list(
+            plan.monthly_solutions[0].portfolio.get_instrument(instrument_id).name
+            for instrument_id, _ in sorted_payments
+        )
 
     @classmethod
     def get_important_dates(cls, plan: FinancialPlan) -> List[_ImportantDate]:
@@ -71,6 +74,6 @@ class PlanSummariesFactory:
 
         append_if_not_none(plan.first_positive_net_worth_month, "Positive Net Worth")
         append_if_not_none(plan.debt_free_month, "Debt Free")
-        append_if_not_none(plan.retirement_month, "Retirement")
+        append_if_not_none(plan.retirement_month, "Retirement")  # TODO: this is wrong!
 
         return sorted(important_dates, key=lambda x: x.date)

@@ -29,8 +29,8 @@ def test_lp_equals_avalanche():
     for milp_ms, avalanche_ms in zip(
         milp_solution.monthly_solutions, avalanche_solution.monthly_solutions
     ):
-        milp_payment = milp_ms.allocation.payments.get(loan.name, 0)
-        av_payment = milp_ms.allocation.payments.get(loan.name, 0)
+        milp_payment = milp_ms.allocation.payments.get(loan.id_, 0)
+        av_payment = milp_ms.allocation.payments.get(loan.id_, 0)
         assert math.isclose(milp_payment, av_payment)
 
     # assert equality for processed objects
@@ -45,7 +45,9 @@ def test_lp_equals_avalanche():
 def get_request() -> PenniesRequest:
     return PenniesRequest(
         financial_profile=FinancialProfile(
-            monthly_allowance=2000, years_to_retirement=10, years_to_death=20
+            monthly_allowance_before_retirement=2000,
+            years_to_retirement=10,
+            years_to_death=20,
         ),
         loans=[
             RequestLoan(

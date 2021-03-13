@@ -1,5 +1,9 @@
+from collections import defaultdict
 from dataclasses import dataclass
+from datetime import date, datetime
 from typing import List, Dict
+
+from pennies.utilities.datetime import get_first_date_of_next_month, DateTimeHelper
 
 
 @dataclass
@@ -17,14 +21,14 @@ class RetirementPeriod(DecisionPeriod):
 
 
 @dataclass
-class DecisionPeriods:
+class DecisionPeriodsManager:
     data: List[DecisionPeriod]
+    dt_helper: DateTimeHelper
     _month_to_period: Dict[int, DecisionPeriod] = None
+    _grouped_by_years: Dict[int, List[DecisionPeriod]] = None
 
-    def corresponding_horizon(self, month: int) -> DecisionPeriod:
-        if self._month_to_period is None:
-            self._month_to_period = {m: ph for ph in self.data for m in ph.months}
-        return self._month_to_period[month]
+    def get_corresponding_period(self, month: int) -> DecisionPeriod:
+        return self.month_to_period_dict[month]
 
     @property
     def all_periods(self) -> List[DecisionPeriod]:
@@ -32,18 +36,48 @@ class DecisionPeriods:
 
     @property
     def working_periods(self) -> List[WorkingPeriod]:
-        return list(period for period in self.all_periods if isinstance(period, WorkingPeriod))
+        return list(
+            period for period in self.all_periods if isinstance(period, WorkingPeriod)
+        )
 
     @property
     def retirement_periods(self) -> List[RetirementPeriod]:
-        return list(period for period in self.all_periods if isinstance(period, RetirementPeriod))
+        return list(
+            period
+            for period in self.all_periods
+            if isinstance(period, RetirementPeriod)
+        )
+
+    @property
+    def month_to_period_dict(self):
+        if self._month_to_period is None:
+            self._month_to_period = {m: ph for ph in self.data for m in ph.months}
+        return self._month_to_period
+
+    @property
+    def max_month(self):
+        return max(self.month_to_period_dict.keys())
+
+    @property
+    def grouped_by_years(self) -> Dict[int, List[DecisionPeriod]]:
+        if not self._grouped_by_years:
+            self._grouped_by_years = {
+                year: [self.month_to_period_dict[month] for month in months if month in self.month_to_period_dict]
+                for year, months in self.dt_helper.month_ints_by_year.items()
+            }
+        return self._grouped_by_years
+
+    def get_years_in_decision_period(self, dp_index: int) -> List[int]:
+        return list(set(self.dt_helper.get_date_from_month_int(month).year for month in self.data[dp_index].months))
 
 
 @dataclass
-class DecisionPeriodsFactory:
+class DecisionPeriodsManagerFactory:
     max_months: int = 3
 
-    def from_num_months(self, start_month: int, retirement_month: int, final_month: int) -> DecisionPeriods:
+    def from_num_months(
+        self, start_month: int, retirement_month: int, final_month: int
+    ) -> DecisionPeriodsManager:
         cur_index = 0
         data = list()
         for grouped_months in self._group_months(start_month, retirement_month):
@@ -52,7 +86,8 @@ class DecisionPeriodsFactory:
         for grouped_months in self._group_months(retirement_month, final_month):
             data.append(RetirementPeriod(index=cur_index, months=grouped_months))
             cur_index += 1
-        return DecisionPeriods(data=data)
+        dt_helper = DateTimeHelper.create(final_month)
+        return DecisionPeriodsManager(data=data, dt_helper=dt_helper)
 
     def _group_months(self, start: int, final: int) -> List[List[int]]:
         months = list(range(start, final))

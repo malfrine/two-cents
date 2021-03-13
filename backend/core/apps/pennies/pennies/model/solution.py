@@ -11,14 +11,14 @@ _ALMOST_ZERO_UPPER_BOUND = 1
 
 
 class MonthlyAllocation(BaseModel):
-    payments: Dict[str, float]  # TODO: key payments on UUID
+    payments: Dict[UUID, float]  # TODO: key payments on UUID
     leftover: float = 0.0
 
     def __getitem__(self, item):
         return self.payments[item]
 
 
-MonthlyWithdrawal = NewType("MonthlyWithdrawal", Dict[str, float])
+MonthlyWithdrawal = NewType("MonthlyWithdrawal", Dict[UUID, float])
 
 
 class MonthlySolution(BaseModel):
@@ -44,7 +44,7 @@ class MonthlySolution(BaseModel):
         return sum(loan.current_balance for loan in self.portfolio.loans)
 
     def get_total_loan_payments(self):
-        return sum(self.get_loan_payment(loan.name) for loan in self.portfolio.loans)
+        return sum(self.get_loan_payment(loan.id_) for loan in self.portfolio.loans)
 
     def get_total_loans_interest(self, month: int):
         return sum(
@@ -77,7 +77,7 @@ class MonthlySolution(BaseModel):
 
     def get_total_investment_payments(self):
         return sum(
-            self.get_investment_payment(i.name) for i in self.portfolio.investments()
+            self.get_investment_payment(i.id_) for i in self.portfolio.investments()
         )
 
     def get_total_withdrawals(self):
@@ -115,13 +115,15 @@ class FinancialPlan(BaseModel):
     def retirement_net_worth(self) -> float:
         if len(self.monthly_solutions) == 0:
             return 0
-        return round(self.monthly_solutions[-1].portfolio.net_worth)
+        return round(
+            self.monthly_solutions[-1].portfolio.net_worth
+        )  # TODO: this is wrong!
 
     @property
     def retirement_month(self) -> int:
         if len(self.monthly_solutions) == 0:
             return 0
-        return len(self.monthly_solutions)
+        return len(self.monthly_solutions)  # TODO: this is wrong!
 
     @property
     def first_positive_net_worth_month(self) -> Optional[int]:
@@ -140,6 +142,9 @@ class FinancialPlan(BaseModel):
                 continue
             return month + 1
         return None
+
+    def get_total_income_taxes_paid(self):
+        return sum(ms.taxes_paid for ms in self.monthly_solutions)
 
 
 class Solution(BaseModel):

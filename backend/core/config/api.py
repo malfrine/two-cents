@@ -4,7 +4,8 @@ from core.apps.finances.views import (
     InvestmentViewset,
     LoanViewset,
     UserFinancesViewset,
-    FinancesEnumsViewset, PenniesRequestViewset,
+    FinancesEnumsViewset,
+    PenniesRequestViewset,
 )
 from core.apps.plan.views import UserPlanViewSet
 from core.apps.users.views import AccountViewSet, SessionAPIView

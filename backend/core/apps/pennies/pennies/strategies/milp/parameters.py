@@ -7,7 +7,9 @@ import pyomo.environ as pe
 from pennies.model.instrument import Instrument
 from pennies.model.investment import Investment, GuaranteedInvestment
 from pennies.model.loan import Loan, RevolvingLoan
+from pennies.model.rrsp import RRSPAnnualLimitGetter
 from pennies.model.taxes import IncomeTaxBrackets
+from pennies.model.tfsa import TFSALimitGetter
 from pennies.model.user_personal_finances import UserPersonalFinances
 from pennies.strategies.milp.sets import MILPSets
 
@@ -62,11 +64,12 @@ class MILPParameters:
         return self.user_finances.financial_profile.risk_tolerance / 100
 
     def get_monthly_allowance(self, decision_period_index: int):
-        final_work_period_index = self.get_final_work_period_index()
-        if final_work_period_index is None or decision_period_index > final_work_period_index:
-            return 0 # assume they don't make any money when they are retired
-        else:
-            return self.user_finances.financial_profile.monthly_allowance
+        decision_period = self.sets.decision_periods.data[decision_period_index]
+        total_allowance_in_decision_period = sum(
+            self.user_finances.financial_profile.get_monthly_allowance(month)
+            for month in decision_period.months
+        )
+        return total_allowance_in_decision_period / len(decision_period.months)
 
     def get_minimum_monthly_payment(
         self, instrument_id: UUID, payment_horizon_order: int
@@ -77,8 +80,13 @@ class MILPParameters:
             for m in self.sets.get_months_in_horizon(payment_horizon_order)
         )
 
-    def get_before_tax_monthly_income(self):
-        return self.user_finances.financial_profile.monthly_income
+    def get_before_tax_monthly_income(self, decision_period_index: int):
+        decision_period = self.sets.decision_periods.data[decision_period_index]
+        total_salary_in_decision_period = sum(
+            self.user_finances.financial_profile.get_monthly_income(month)
+            for month in decision_period.months
+        )
+        return total_salary_in_decision_period / len(decision_period.months)
 
     def get_is_revolving_loan(self, id_) -> bool:
         return isinstance(
@@ -91,7 +99,9 @@ class MILPParameters:
         )
 
     def get_is_guaranteed_investment(self, id_):
-        return isinstance(self.user_finances.portfolio.get_instrument(id_), GuaranteedInvestment)
+        return isinstance(
+            self.user_finances.portfolio.get_instrument(id_), GuaranteedInvestment
+        )
 
     def has_loans(self) -> bool:
         return len(self.user_finances.portfolio.loans) > 0
@@ -100,10 +110,13 @@ class MILPParameters:
         return len(self.user_finances.portfolio.investments()) > 0
 
     def get_final_month(self, id_) -> int:
-        return self._get_instrument(id_).final_month or self.user_finances.financial_profile.retirement_month
+        return (
+            self._get_instrument(id_).final_month
+            or self.user_finances.financial_profile.retirement_month
+        )
 
     def get_instrument_final_payment_horizon(self, id_):
-        return self.sets.decision_periods.corresponding_horizon(
+        return self.sets.decision_periods.get_corresponding_period(
             self.get_final_month(id_) - 1
         )
 
@@ -128,7 +141,9 @@ class MILPParameters:
 
     def get_constraint_violation_penalty(self):
         final_month = self.user_finances.financial_profile.retirement_month
-        monthly_allowance = self.user_finances.financial_profile.monthly_allowance
+        monthly_allowance = (
+            self.user_finances.financial_profile.monthly_allowance_before_retirement
+        )
         starting_investment_worth = sum(
             self.get_starting_balance(i) for i in self.sets.investments
         )
@@ -145,3 +160,30 @@ class MILPParameters:
 
     def get_minimum_monthly_retirement_spending(self, t):
         return self.user_finances.financial_profile.monthly_retirement_spending
+
+    def get_rrsp_limit(self, year: int):
+        return RRSPAnnualLimitGetter.get_limit(year)
+
+    def get_starting_rrsp_deduction_limit(self) -> float:
+        return self.user_finances.financial_profile.starting_rrsp_contribution_limit
+
+    def get_age(self, year: int) -> float:
+        start_year = min(self.sets.years)
+        return self.user_finances.financial_profile.current_age + (year - start_year)
+
+    def get_retirement_age(self) -> float:
+        return self.user_finances.financial_profile.retirement_age
+
+    def get_additional_tfsa_limit(self, year: int):
+        return TFSALimitGetter.get_limit(year)
+
+    def get_starting_tfsa_contribution_limit(self):
+        return self.user_finances.financial_profile.starting_tfsa_contribution_limit
+
+    def get_guaranteed_investment_maturation_decision_period(self, i):
+        instrument = self._get_instrument(i)
+        if isinstance(instrument, GuaranteedInvestment):
+            return self.sets.decision_periods.month_to_period_dict[instrument.final_month].index
+        else:
+            raise ValueError(f"Investment {i} is not a Guaranteed Investment")
+

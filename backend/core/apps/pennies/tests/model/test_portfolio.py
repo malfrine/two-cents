@@ -2,7 +2,10 @@ from typing import Tuple
 
 import pytest
 
-from pennies.model.interest_rate import FixedLoanInterestRate, GuaranteedInvestmentReturnRate
+from pennies.model.interest_rate import (
+    FixedLoanInterestRate,
+    GuaranteedInvestmentReturnRate,
+)
 from pennies.model.investment import GuaranteedInvestment
 from pennies.model.loan import PersonalLoan
 from pennies.model.portfolio import Portfolio
@@ -52,9 +55,9 @@ def test_forward_on_month():
         pytest.approx(
             after_loan.current_balance,
             (
-                before.get_loan(after_loan.name).current_balance
+                before.get_loan(after_loan.id_).current_balance
                 * (1 + after_loan.monthly_interest_rate(TEST_MONTH))
-                + ma[after_loan.name]
+                + ma[after_loan.id_]
             ),
         )
 
@@ -70,8 +73,7 @@ def test_forward_on_guaranteed_investment():
     principal = 100
     apr = 12
     interest_rate = GuaranteedInvestmentReturnRate(
-        interest_rate=FixedLoanInterestRate(apr=apr),
-        final_month=1
+        interest_rate=FixedLoanInterestRate(apr=apr), final_month=1
     )
     gi = GuaranteedInvestment(
         name="generic",
@@ -81,7 +83,7 @@ def test_forward_on_guaranteed_investment():
         interest_rate=interest_rate,
         current_balance=None,
     )
-    p = Portfolio(instruments={gi.name: gi})
+    p = Portfolio(instruments={gi.id_: gi})
     p = PortfolioManager.forward_on_month(portfolio=p, payments=dict(), month=0)
     nb = gi.current_balance * (1 + gi.monthly_interest_rate(0))
     assert p.instruments["generic"].current_balance == nb

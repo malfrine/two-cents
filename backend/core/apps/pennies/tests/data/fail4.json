@@ -63,7 +63,7 @@
        }
    ],
    "financial_profile": {
-       "monthly_allowance": 1100.0,
+       "monthly_allowance_before_retirement": 1100.0,
        "years_to_retirement": 39,
        "risk_tolerance": 0.0
    },

@@ -48,7 +48,7 @@
        }
    ],
    "financial_profile": {
-       "monthly_allowance": 1000.0,
+       "monthly_allowance_before_retirement": 1000.0,
        "years_to_retirement": 39
    },
    "strategies": [

@@ -1,165 +1,28 @@
-from dataclasses import dataclass
-from typing import List, Dict
-
-import pyomo.environ as pe
 import pyutilib
-from pyomo.core import ConcreteModel
 
 from pennies.model.factories.financial_plan import FinancialPlanFactory
 from pennies.model.parameters import Parameters
 from pennies.model.solution import FinancialPlan
 from pennies.model.user_personal_finances import UserPersonalFinances
 from pennies.strategies.allocation_strategy import AllocationStrategy
-from pennies.strategies.milp.constraints import MILPConstraints
-from pennies.strategies.milp.objective import MILPObjective
-from pennies.strategies.milp.parameters import MILPParameters
-from pennies.strategies.milp.sets import MILPSets
-from pennies.strategies.milp.variables import MILPVariables
+from pennies.strategies.milp.milp import MILP
+from pennies.strategies.milp.milp_solution import MILPSolution
 
 pyutilib.subprocess.GlobalData.DEFINE_SIGNAL_HANDLERS_DEFAULT = False
-
-
-@dataclass
-class MILP:
-
-    user_finances: UserPersonalFinances
-    problem_parameters: Parameters
-    pyomodel: ConcreteModel
-    sets: MILPSets
-    milp_parameters: MILPParameters
-    variables: MILPVariables
-    constraints: MILPConstraints
-    objective: MILPObjective
-
-    @classmethod
-    def create(
-        cls, user_finances: UserPersonalFinances, parameters: Parameters
-    ) -> "MILP":
-        m = ConcreteModel()
-
-        sets = MILPSets.create(
-            user_finances,
-            parameters.max_months_in_payment_horizon,
-            parameters.starting_month,
-        )
-        m.instruments = sets.instruments
-        m.months = sets.all_decision_periods_as_set
-        m.loans = sets.loans
-        m.investments = sets.investments
-
-        milp_parameters = MILPParameters(user_finances, sets)
-
-        variables = MILPVariables.create(user_finances, sets)
-        m.balances = variables.balances
-        m.allocations = variables.allocations
-        m.paid_off_indicators = variables.not_paid_off_indicators
-        m.debt_free_indicators = variables.in_debt_indicators
-        m.investment_risk_violations = variables.investment_risk_violations
-        m.total_risk_violations = variables.total_risk_violations
-        m.allocation_slacks = variables.allocation_slacks
-        m.loan_due_date_violations = variables.loan_due_date_violations
-        m.taxable_monthly_incomes = variables.taxable_monthly_incomes
-        m.pos_overflow_in_brackets = variables.pos_overflow_in_brackets
-        m.neg_overflow_in_brackets = variables.neg_overflow_in_brackets
-        m.remaining_marginal_income_in_brackets = variables.remaining_marginal_income_in_brackets
-        m.taxes_accrued_in_brackets = variables.taxes_accrued_in_brackets
-        m.withdrawals = variables.withdrawals
-        m.retirement_spending_violations = variables.retirement_spending_violations
-
-        cls._fix_final_allocation_to_zero(sets, variables)
-
-        constraints = MILPConstraints.create(sets, milp_parameters, variables)
-        m.c1 = constraints.define_loan_paid_off_indicator
-        m.c2 = constraints.allocate_minimum_payments
-        m.c3 = constraints.define_account_balance
-        m.c4 = constraints.total_payments_limit
-        m.c5 = constraints.loans_are_non_positive
-        m.c6 = constraints.pay_off_loans_by_end_date
-        m.c7 = constraints.limit_total_risk
-        m.c8 = constraints.define_in_debt_indicator
-        m.c9 = constraints.limit_investment_risk
-        m.c10 = constraints.define_taxable_income_in_bracket
-        m.c11 = constraints.limit_remaining_marginal_income_in_bracket
-        m.c12 = constraints.define_taxes_accrued_in_bracket
-        m.c13 = constraints.satisfy_retirement_spending_requirement
-        m.c14 = constraints.zero_allocations_for_guaranteed_investments
-
-        objective = MILPObjective.create(sets, milp_parameters, variables)
-        m.obj = objective.obj
-
-        return MILP(
-            problem_parameters=parameters,
-            user_finances=user_finances,
-            pyomodel=m,
-            sets=sets,
-            milp_parameters=milp_parameters,
-            variables=variables,
-            constraints=constraints,
-            objective=objective,
-        )
-    #
-    @classmethod
-    def _fix_final_allocation_to_zero(cls, sets: MILPSets, variables: MILPVariables):
-        final_decision_period_index = max(sets.all_decision_periods_as_set)
-        for i in sets.instruments:
-            variables.get_allocation(i, final_decision_period_index).fix(0)
-
-    def _is_valid_solution(self, results) -> bool:
-        return (results.solver.status == pe.SolverStatus.ok) and (
-            results.solver.termination_condition == pe.TerminationCondition.optimal
-        )
-
-    def _make_monthly_payments(self) -> List[Dict[str, float]]:
-        def get_allocation(i_, t_):
-            return pe.value(self.variables.get_allocation(i_, t_))
-
-        return [
-            {i: get_allocation(i, t) for i in self.sets.instruments}
-            for t in list(sorted(self.sets.all_decision_periods_as_set))
-            for _ in range(self.sets.get_num_months_in_horizon(t))
-        ]
-
-    def _make_monthly_withdrawals(self) -> List[Dict[str, float]]:
-        def get_withdrawal(i_, t_):
-            if t_ < min(self.sets.retirement_periods_as_set):
-                return 0
-            return pe.value(self.variables.get_withdrawal(i_, t_))
-
-        return [
-            {i: get_withdrawal(i, t) for i in self.sets.investments_and_guaranteed_investments}
-            for t in list(sorted(self.sets.all_decision_periods_as_set))
-            for _ in range(self.sets.get_num_months_in_horizon(t))
-        ]
-
-    def solve(self):
-        results = pe.SolverFactory("cbc").solve(self.pyomodel, tee=True)
-        if not self._is_valid_solution(results):
-            print("It is not a valid solution")
-            print(results.solver.status)
-            print(results.solver.termination_condition)
-            return None
-        monthly_payments = self._make_monthly_payments()
-        monthly_withdrawals = self._make_monthly_withdrawals()
-        self.print_objective_components_breakdown()
-        return FinancialPlanFactory.create(monthly_payments, self.user_finances, self.problem_parameters, monthly_withdrawals)
-
-    def print_objective_components_breakdown(self):
-        c = self.objective.components
-        print(f"Risk violation costs: {pe.value(c.get_risk_violation_costs())}")
-        print(f"Retirement spending violation costs: {pe.value(c.get_retirement_spending_violation_cost())}")
-        print(f"Loan due date violation costs: {pe.value(c.get_loan_due_date_violation_costs())}")
-        print(f"Taxes paid: {pe.value(c.get_taxes_paid())}")
-        print(f"Taxes overflow costs: {pe.value(c.get_taxes_overflow_cost())}")
-        print(f"Interest Earned: {pe.value(c.get_interest_earned())}")
-        print(f"Final net worth: {pe.value(c.get_final_net_worth())}")
-        print(f"Total: {pe.value(c.get_obj())}")
-
 
 
 class MILPStrategy(AllocationStrategy):
     def create_solution(
         self, user_finances: UserPersonalFinances, parameters: Parameters
     ) -> FinancialPlan:
-        milp = MILP.create(user_finances=user_finances, parameters=parameters)
-        new_solution = milp.solve()
-        return new_solution
+        milp = MILP.create(user_finances=user_finances, parameters=parameters).solve()
+        if milp is None:
+            return
+        solution = MILPSolution(milp=milp)
+        solution.print_objective_components_breakdown()
+        return FinancialPlanFactory.create(
+            solution.get_monthly_payments(),
+            user_finances,
+            parameters,
+            solution.get_monthly_withdrawals(),
+        )

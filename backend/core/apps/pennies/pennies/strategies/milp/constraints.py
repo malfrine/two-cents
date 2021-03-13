@@ -1,12 +1,15 @@
 import itertools
 from dataclasses import dataclass
+from math import floor
 from typing import Optional
 
 import pyomo.environ as pe
 
+from pennies.model.rrsp import RRSP_LIMIT_INCOME_FACTOR, RRIFMinPaymentCalculator
 from pennies.strategies.milp.parameters import MILPParameters
 from pennies.strategies.milp.sets import MILPSets
 from pennies.strategies.milp.variables import MILPVariables
+from pennies.utilities.datetime import MONTHS_IN_YEAR
 
 
 @dataclass
@@ -31,33 +34,25 @@ class _ConstraintMaker:
         def rule(_, i, t):
             if self.pars.get_is_guaranteed_investment(i):
                 return pe.Constraint.Skip
-            if t >= max(self.sets.working_periods_as_set):
-                return pe.Constraint.Skip
-
+            # if t >= max(self.sets.working_periods_as_set):
+            #     return pe.Constraint.Skip
 
             allocation = self.vars.get_allocation(i, t)
             if self.pars.get_is_investment(i):
                 return self.pars.get_minimum_monthly_payment(i, t) <= allocation
 
-            final_payment_order = self.pars.get_final_decision_period_index()
+            final_payment_order = self.pars.get_final_work_period_index()
             allocation_slack = self.pars.get_monthly_allowance(t) * (
                 1 - self.vars.get_is_unpaid(i, min(t + 1, final_payment_order))
             )
 
-            if self.pars.get_is_revolving_loan(i):
-                # mmp = -self.vars.get_balance(l, t) * self.pars.get_average_interest_rate(l, t) # TODO: make faster
-                mmp = -self.pars.get_starting_balance(
-                    i
-                ) * self.pars.get_average_interest_rate(i, t)
-                return mmp <= allocation + allocation_slack
-            else:  # is instalment loan
-                return (
-                    self.pars.get_minimum_monthly_payment(i, t)
-                    <= allocation + allocation_slack
-                )
+            return (
+                self.pars.get_minimum_monthly_payment(i, t)
+                <= allocation + allocation_slack
+            )
 
         return pe.Constraint(
-            itertools.product(self.sets.instruments, self.sets.all_decision_periods_as_set),
+            itertools.product(self.sets.instruments, self.sets.working_periods_as_set),
             rule=rule,
         )
 
@@ -73,49 +68,58 @@ class _ConstraintMaker:
             elif self.pars.get_average_interest_rate(i, t - 1) == 0:
                 prev_balance = self.vars.get_balance(i, t - 1)
                 allocation = self.vars.get_allocation(i, t - 1)
-                if self.pars.get_is_investment(i) or self.pars.get_is_guaranteed_investment(i):
-                    withdrawal = self.vars.get_withdrawal(i, t)
+                if self.pars.get_is_investment(
+                    i
+                ) or self.pars.get_is_guaranteed_investment(i):
+                    withdrawal = self.vars.get_withdrawal(i, t - 1)
                 else:
                     withdrawal = 0
-                n = self.sets.get_num_months_in_horizon(t)
+                n = self.sets.get_num_months_in_decision_period(t)
                 return cur_balance == prev_balance + (allocation - withdrawal) * n
             else:
                 prev_balance = self.vars.get_balance(i, t - 1)
                 r = 1 + self.pars.get_average_interest_rate(i, t - 1)
-                n = self.sets.get_num_months_in_horizon(t)
+                n = self.sets.get_num_months_in_decision_period(t)
                 allocation = self.vars.get_allocation(i, t - 1)
-                if self.pars.get_is_investment(i) or self.pars.get_is_guaranteed_investment(i):
-                    withdrawal = self.vars.get_withdrawal(i, t)
+                if self.pars.get_is_investment(
+                    i
+                ) or self.pars.get_is_guaranteed_investment(i):
+                    withdrawal = self.vars.get_withdrawal(i, t - 1)
                 else:
                     withdrawal = 0
-                return cur_balance == ((prev_balance * r ** n)
+                return cur_balance == (
+                    (prev_balance * r ** n)
                     + (allocation - withdrawal) * (r ** n - 1) / (r - 1)
                 )
 
         return pe.Constraint(
-            itertools.product(self.sets.instruments, self.sets.all_decision_periods_as_set),
+            itertools.product(
+                self.sets.instruments, self.sets.all_decision_periods_as_set
+            ),
             rule=rule,
         )
 
     def make_total_payments_limit(self) -> pe.Constraint:
         def rule(_, t):
-            return (
-                sum(self.vars.get_allocation(i, t) for i in self.sets.instruments)
-                + self.vars.get_allocation_slack(t)
-                == self.pars.get_monthly_allowance(t)
-            )
+            return sum(
+                self.vars.get_allocation(i, t) for i in self.sets.instruments
+            ) + self.vars.get_allocation_slack(t) == self.pars.get_monthly_allowance(t)
 
         return pe.Constraint(self.sets.all_decision_periods_as_set, rule=rule)
 
     def make_loans_are_non_positive(self) -> pe.Constraint:
         def rule(_, i, t):
-            if self.pars.get_is_investment(i) or self.pars.get_is_guaranteed_investment(i):
+            if self.pars.get_is_investment(i) or self.pars.get_is_guaranteed_investment(
+                i
+            ):
                 return self.vars.get_balance(i, t) >= 0
             else:
                 return self.vars.get_balance(i, t) <= 0
 
         return pe.Constraint(
-            itertools.product(self.sets.instruments, self.sets.all_decision_periods_as_set),
+            itertools.product(
+                self.sets.instruments, self.sets.all_decision_periods_as_set
+            ),
             rule=rule,
         )
 
@@ -135,11 +139,9 @@ class _ConstraintMaker:
 
     def make_define_in_debt_indicator(self) -> pe.Constraint:
         def rule(_, t):
-            count_of_unpaid_loans = sum(
-                self.vars.get_is_unpaid(l, t) for l in self.sets.loans
-            )
-            total_loans = len(self.sets.loans)
-            return self.vars.get_is_in_debt(t) >= count_of_unpaid_loans / total_loans
+            max_debt = -sum(self.pars.get_starting_balance(l) for l in self.sets.loans)
+            current_debt = -sum(self.vars.get_balance(l, t) for l in self.sets.loans)
+            return self.vars.get_is_in_debt(t) >= current_debt / max_debt
 
         if not self.pars.has_loans():
             return pe.Constraint.NoConstraint
@@ -224,27 +226,31 @@ class _ConstraintMaker:
     def make_define_taxable_income_in_bracket(self):
         def rule(_, t, e, b):
             pos = self.vars.get_pos_overflow_in_bracket(t, e, b)
-            neg = self.vars.get_neg_overflow_in_bracket(t, e, b)
             rem = self.vars.get_remaining_marginal_income_in_bracket(t, e, b)
-            # taxable_income = self.vars.get_taxable_monthly_income(t)
-            taxable_income = self.pars.get_before_tax_monthly_income()
+            taxable_income = self.vars.get_taxable_monthly_income(t)
             bracket_cumulative_income = self.pars.get_bracket_cumulative_income(e, b)
-            return pos - rem - neg == taxable_income - bracket_cumulative_income
+            return pos - rem == taxable_income - bracket_cumulative_income
 
         return pe.Constraint(
-            itertools.product(self.sets.all_decision_periods_as_set, self.sets.taxing_entities_and_brackets),
-            rule=rule
+            itertools.product(
+                self.sets.all_decision_periods_as_set,
+                self.sets.taxing_entities_and_brackets,
+            ),
+            rule=rule,
         )
 
     def make_limit_remaining_marginal_income_in_bracket(self):
         def rule(_, t, e, b):
             rem = self.vars.get_remaining_marginal_income_in_bracket(t, e, b)
-            ub = self.pars.get_bracket_marginal_income(e, b)
+            ub = self.pars.get_bracket_cumulative_income(e, b)
             return rem <= ub
 
         return pe.Constraint(
-            itertools.product(self.sets.all_decision_periods_as_set, self.sets.taxing_entities_and_brackets),
-            rule=rule
+            itertools.product(
+                self.sets.all_decision_periods_as_set,
+                self.sets.taxing_entities_and_brackets,
+            ),
+            rule=rule,
         )
 
     def make_define_taxes_accrued_in_bracket(self):
@@ -253,27 +259,31 @@ class _ConstraintMaker:
             rem = self.vars.get_remaining_marginal_income_in_bracket(t, e, b)
             rate = self.pars.get_bracket_marginal_tax_rate(e, b)
             ub = self.pars.get_bracket_marginal_income(e, b)
-            return tax == (ub - rem) * rate
+            return tax >= (ub - rem) * rate
 
         return pe.Constraint(
-            itertools.product(self.sets.all_decision_periods_as_set, self.sets.taxing_entities_and_brackets),
-            rule=rule
+            itertools.product(
+                self.sets.all_decision_periods_as_set,
+                self.sets.taxing_entities_and_brackets,
+            ),
+            rule=rule,
         )
 
     def make_satisfy_retirement_spending_requirement(self):
         def rule(_, t):
             all_withdrawals = sum(
-                self.vars.get_withdrawal(i, t) for i in self.sets.investments_and_guaranteed_investments
+                self.vars.get_withdrawal(i, t)
+                for i in self.sets.investments_and_guaranteed_investments
             )
             spending = self.pars.get_minimum_monthly_retirement_spending(t)
             violation = self.vars.get_retirement_spending_violation(t)
             return violation >= spending - all_withdrawals
+
         if not self.sets.investments_and_guaranteed_investments:
             return pe.Constraint.NoConstraint
         else:
             return pe.Constraint(
-                itertools.product(self.sets.retirement_periods_as_set),
-                rule=rule
+                itertools.product(self.sets.retirement_periods_as_set), rule=rule
             )
 
     def make_zero_allocations_for_guaranteed_investments(self):
@@ -284,9 +294,147 @@ class _ConstraintMaker:
                 return pe.Constraint.Skip
 
         return pe.Constraint(
-            itertools.product(self.sets.instruments, self.sets.all_decision_periods_as_set),
+            itertools.product(
+                self.sets.instruments, self.sets.all_decision_periods_as_set
+            ),
+            rule=rule,
+        )
+
+    def make_define_taxable_monthly_income(self):
+        def rule(_, t):
+            rrsp_allocations = sum(
+                self.vars.get_allocation(i, t)
+                for i in self.sets.rrsp_investments_and_guaranteed_investments
+            )
+            non_tfsa_withdrawals = sum(
+                self.vars.get_withdrawal(i, t)
+                for i in self.sets.non_tfsa_investments_and_guaranteed_investments
+            )
+            taxable_income = self.vars.get_taxable_monthly_income(t)
+            return taxable_income == (
+                self.pars.get_before_tax_monthly_income(t)
+                + non_tfsa_withdrawals
+                - rrsp_allocations
+            )
+
+        return pe.Constraint(self.sets.all_decision_periods_as_set, rule=rule)
+
+    def make_define_rrsp_deduction_limits(self):
+        def rule(_, y):
+            decision_periods = self.sets.decision_periods.grouped_by_years[y]
+            annual_income = sum(
+                self.pars.get_monthly_allowance(dp.index) for dp in decision_periods
+            )
+            rrsp_limit = self.pars.get_rrsp_limit(y)
+            rrsp_investments = sum(
+                self.vars.get_allocation(i, dp.index)
+                for i, dp in itertools.product(
+                    self.sets.rrsp_investments_and_guaranteed_investments,
+                    decision_periods,
+                )
+            )
+            prev_deduction = (
+                self.pars.get_starting_rrsp_deduction_limit()
+                if y == min(self.sets.years)
+                else self.vars.get_rrsp_deduction_limit(y - 1)
+            )
+            cur_deduction = self.vars.get_rrsp_deduction_limit(y)
+            return (
+                cur_deduction
+                == prev_deduction
+                + min(rrsp_limit, annual_income * RRSP_LIMIT_INCOME_FACTOR)
+                - rrsp_investments
+            )
+
+        return pe.Constraint(self.sets.years, rule=rule)
+
+    def make_set_minimum_rrif_withdrawals(self):
+        def rule(_, t):
+            max_year = max(self.sets.decision_periods.get_years_in_decision_period(t))
+            max_age = floor(self.pars.get_age(max_year))
+            max_min_payment_percentage = RRIFMinPaymentCalculator.get_min_payment_percentage(max_age)
+            total_rrsp_balance = sum(
+                self.vars.get_balance(i, t)
+                for i in self.sets.rrsp_investments_and_guaranteed_investments
+            )
+            min_withdrawal_fraction = max_min_payment_percentage / 100 / MONTHS_IN_YEAR
+            min_rrsp_withdrawal = total_rrsp_balance * min_withdrawal_fraction
+            total_rrsp_withdrawals = sum(
+                self.vars.get_withdrawal(i, t)
+                for i in self.sets.rrsp_investments_and_guaranteed_investments
+            )
+            return total_rrsp_withdrawals >= min_rrsp_withdrawal
+
+        if self.sets.rrsp_investments_and_guaranteed_investments:
+            return pe.Constraint(
+                self.sets.retirement_periods_as_set,
+                rule=rule
+            )
+        else:
+            return pe.Constraint.NoConstraint
+
+    def make_define_tfsa_deduction_limits(self):
+
+        def get_total_tfsa_withdrawals(y: int):
+            if y == min(self.sets.years) - 1:
+                return 0
+            decision_periods = self.sets.decision_periods.grouped_by_years[y]
+            return sum(
+                self.vars.get_withdrawal(i, dp.index)
+                for i, dp in itertools.product(
+                    self.sets.tfsa_investments_and_guaranteed_investments,
+                    decision_periods,
+                )
+            )
+
+        def rule(_, y):
+            decision_periods = self.sets.decision_periods.grouped_by_years[y]
+            additional_tfsa_limit = self.pars.get_additional_tfsa_limit(y)
+            tfsa_investments = sum(
+                self.vars.get_allocation(i, dp.index)
+                for i, dp in itertools.product(
+                    self.sets.tfsa_investments_and_guaranteed_investments,
+                    decision_periods,
+                )
+            )
+            prev_deduction = (
+                self.pars.get_starting_tfsa_contribution_limit()
+                if y == min(self.sets.years)
+                else self.vars.get_tfsa_contribution_limit(y - 1)
+            )
+            last_year_withdrawals = get_total_tfsa_withdrawals(y - 1)
+            cur_deduction = self.vars.get_tfsa_contribution_limit(y)
+            return (
+                cur_deduction
+                == prev_deduction
+                + additional_tfsa_limit
+                + last_year_withdrawals
+                - tfsa_investments
+            )
+
+        if self.sets.tfsa_investments_and_guaranteed_investments:
+            return pe.Constraint(
+                self.sets.years,
+                rule=rule
+            )
+        else:
+            return pe.Constraint.NoConstraint
+
+    def make_zero_guaranteed_investment_withdrawal_before_maturation(self):
+        def rule(_, i, t):
+
+            if t <= self.pars.get_guaranteed_investment_maturation_decision_period(i):
+                withdrawal = self.vars.get_withdrawal(i, t)
+                return withdrawal == 0
+            else:
+                return pe.Constraint.Skip
+
+        return pe.Constraint(
+            itertools.product(self.sets.guaranteed_investments, self.sets.all_decision_periods_as_set),
             rule=rule
         )
+
+
 
 @dataclass
 class MILPConstraints:
@@ -305,6 +453,11 @@ class MILPConstraints:
     define_taxes_accrued_in_bracket: pe.Constraint
     satisfy_retirement_spending_requirement: pe.Constraint
     zero_allocations_for_guaranteed_investments: pe.Constraint
+    define_taxable_monthly_income: pe.Constraint
+    define_rrsp_deduction_limits: pe.Constraint
+    set_minimum_rrif_withdrawals: pe.Constraint
+    define_tfsa_deduction_limits: pe.Constraint
+    zero_guaranteed_investment_withdrawal_before_maturation: pe.Constraint
 
     @classmethod
     def create(
@@ -325,5 +478,10 @@ class MILPConstraints:
             limit_remaining_marginal_income_in_bracket=cm.make_limit_remaining_marginal_income_in_bracket(),
             define_taxes_accrued_in_bracket=cm.make_define_taxes_accrued_in_bracket(),
             satisfy_retirement_spending_requirement=cm.make_satisfy_retirement_spending_requirement(),
-            zero_allocations_for_guaranteed_investments=cm.make_zero_allocations_for_guaranteed_investments()
+            zero_allocations_for_guaranteed_investments=cm.make_zero_allocations_for_guaranteed_investments(),
+            define_taxable_monthly_income=cm.make_define_taxable_monthly_income(),
+            define_rrsp_deduction_limits=cm.make_define_rrsp_deduction_limits(),
+            set_minimum_rrif_withdrawals=cm.make_set_minimum_rrif_withdrawals(),
+            define_tfsa_deduction_limits=cm.make_define_tfsa_deduction_limits(),
+            zero_guaranteed_investment_withdrawal_before_maturation=cm.make_zero_guaranteed_investment_withdrawal_before_maturation()
         )

@@ -9,7 +9,6 @@ from pennies.utilities.finance import calculate_monthly_income_tax
 
 
 class FinancialPlanFactory:
-
     @classmethod
     def create(
         cls,
@@ -22,13 +21,30 @@ class FinancialPlanFactory:
             monthly_withdrawals = [dict() for _ in range(len(monthly_payments))]
 
         monthly_solutions = []
-        cur_portfolio = user_personal_finances.portfolio.copy(deep=True)
-        income = user_personal_finances.financial_profile.monthly_income
+        cur_portfolio: Portfolio = user_personal_finances.portfolio.copy(deep=True)
         province = user_personal_finances.financial_profile.province_of_residence
-        monthly_allowance = user_personal_finances.financial_profile.monthly_allowance
-        for index, (mp, w) in enumerate(zip(monthly_payments, monthly_withdrawals)):
-            taxes_paid = calculate_monthly_income_tax(income=income, province=province)
+        for index, (mp, withdrawals) in enumerate(
+            zip(monthly_payments, monthly_withdrawals)
+        ):
+            non_tfsa_withdrawals = sum(
+                withdrawals.get(i.id_, 0)
+                for i in cur_portfolio.non_tfsa_investments_and_guaranteed_investments
+            )
             month = index + parameters.starting_month
+            income_in_month = (
+                user_personal_finances.financial_profile.get_monthly_income(month)
+                + non_tfsa_withdrawals
+                - sum(
+                    mp.get(i.id_, 0)
+                    for i in cur_portfolio.rrsp_investments_and_guaranteed_investments
+                )
+            )
+            monthly_allowance = (
+                user_personal_finances.financial_profile.get_monthly_allowance(month)
+            )
+            taxes_paid = calculate_monthly_income_tax(
+                income=income_in_month, province=province
+            )
             monthly_solutions.append(
                 MonthlySolution(
                     allocation=MonthlyAllocation(
@@ -38,10 +54,14 @@ class FinancialPlanFactory:
                     portfolio=cur_portfolio,
                     month=month,
                     taxes_paid=taxes_paid,
-                    withdrawals=w
+                    withdrawals=withdrawals,
                 )
             )
-            cur_portfolio = PortfolioManager.forward_on_month(
-                portfolio=cur_portfolio, payments=mp, month=month, withdrawals=w
+            cur_portfolio = cur_portfolio.copy(deep=True)
+            PortfolioManager.forward_on_month(
+                portfolio=cur_portfolio,
+                payments=mp,
+                month=month,
+                withdrawals=withdrawals,
             )
         return FinancialPlan(monthly_solutions=monthly_solutions)

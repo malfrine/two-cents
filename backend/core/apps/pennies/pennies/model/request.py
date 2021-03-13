@@ -54,6 +54,12 @@ class RequestInvestmentType(Enum):
     CASH = "Cash"
 
 
+class RequestInvestmentAccountType(Enum):
+    NON_REGISTERED = "Non-Registered"
+    RRSP = "RRSP"
+    TFSA = "TFSA"
+
+
 class RequestInvestment(BaseModel):
     name: str
     investment_type: RequestInvestmentType = RequestInvestmentType.MUTUAL_FUND
@@ -66,6 +72,7 @@ class RequestInvestment(BaseModel):
     start_month: Optional[int] = None
     final_month: Optional[int] = None
     interest_type: Optional[InterestType] = None
+    account_type: RequestInvestmentAccountType = RequestInvestmentAccountType.NON_REGISTERED
 
 
 class PenniesRequest(BaseModel):

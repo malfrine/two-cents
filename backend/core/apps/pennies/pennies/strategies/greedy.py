@@ -7,7 +7,12 @@ from pennies.model.financial_profile import FinancialProfile
 from pennies.model.investment import Investment
 from pennies.model.loan import Loan
 from pennies.model.parameters import Parameters
-from pennies.model.decision_periods import DecisionPeriodsFactory, DecisionPeriod, WorkingPeriod, DecisionPeriods
+from pennies.model.decision_periods import (
+    DecisionPeriodsManagerFactory,
+    DecisionPeriod,
+    WorkingPeriod,
+    DecisionPeriodsManager,
+)
 from pennies.model.portfolio import Portfolio
 from pennies.model.portfolio_manager import PortfolioManager
 from pennies.model.solution import FinancialPlan, MonthlySolution, MonthlyAllocation
@@ -17,7 +22,8 @@ from pennies.strategies.milp.strategy import MILPStrategy
 from pennies.utilities.finance import (
     calculate_loan_ending_payment,
     calculate_average_monthly_interest_rate,
-    calculate_balance_after_fixed_monthly_payments, calculate_monthly_income_tax,
+    calculate_balance_after_fixed_monthly_payments,
+    calculate_monthly_income_tax,
 )
 
 
@@ -35,15 +41,18 @@ class GreedyAllocationStrategy(AllocationStrategy):
                 break
             allocations = self.create_allocation_for_working_period(
                 cur_portfolio,
-                user_finances.financial_profile.monthly_allowance,
+                user_finances.financial_profile,
                 working_period=working_period,
             )
             for month, allocation in zip(working_period.months, allocations):
                 monthly_payments.append(allocation.payments)
-                cur_portfolio = PortfolioManager.forward_on_month(
+                cur_portfolio = cur_portfolio.copy(deep=True)
+                PortfolioManager.forward_on_month(
                     cur_portfolio, payments=allocation.payments, month=month
                 )
-        monthly_solutions = FinancialPlanFactory.create(monthly_payments, user_finances, parameters).monthly_solutions
+        monthly_solutions = FinancialPlanFactory.create(
+            monthly_payments, user_finances, parameters
+        ).monthly_solutions
         milp_monthly_solutions = self.solve_with_milp(
             start_month,
             cur_portfolio,
@@ -54,15 +63,16 @@ class GreedyAllocationStrategy(AllocationStrategy):
         return FinancialPlan(monthly_solutions=monthly_solutions)
 
     @classmethod
-    def _make_decision_periods(cls, user_finances: UserPersonalFinances, parameters: Parameters) -> DecisionPeriods:
-        return DecisionPeriodsFactory(
+    def _make_decision_periods(
+        cls, user_finances: UserPersonalFinances, parameters: Parameters
+    ) -> DecisionPeriodsManager:
+        return DecisionPeriodsManagerFactory(
             max_months=parameters.max_months_in_payment_horizon,
         ).from_num_months(
             start_month=parameters.starting_month,
             retirement_month=user_finances.financial_profile.retirement_month,
-            final_month=user_finances.financial_profile.death_month
+            final_month=user_finances.financial_profile.death_month,
         )
-
 
     def solve_with_milp(
         self,
@@ -83,26 +93,35 @@ class GreedyAllocationStrategy(AllocationStrategy):
         return financial_plan.monthly_solutions
 
     def create_allocation_for_working_period(
-        self, portfolio: Portfolio, allowance: float, working_period: WorkingPeriod
+        self,
+        portfolio: Portfolio,
+        financial_profile: FinancialProfile,
+        working_period: WorkingPeriod,
     ) -> List[MonthlyAllocation]:
         ...
 
 
 class GreedyHeuristicStrategy(GreedyAllocationStrategy):
     def create_allocation_for_working_period(
-        self, portfolio: Portfolio, allowance: float, working_period: WorkingPeriod
+        self,
+        portfolio: Portfolio,
+        financial_profile: FinancialProfile,
+        working_period: WorkingPeriod,
     ) -> List[MonthlyAllocation]:
         payments = defaultdict(float)
         min_payments = self.calculate_min_payments(portfolio, working_period.months)
         for key, value in min_payments.items():
             payments[key] = value
+        allowance = sum(
+            financial_profile.get_monthly_allowance(m) for m in working_period.months
+        ) / len(working_period.months)
         allowance -= sum(payment for payment in payments.values())
         remaining_loans = portfolio.loans
         while remaining_loans and allowance:
             worst_loan = self.get_worst_loan(remaining_loans, working_period.months)
             max_additional_payment = self.calculate_max_possible_loan_payment(
                 worst_loan, allowance, working_period.months, payments[worst_loan.id_]
-            ) # payment in addition to the minimum payment made
+            )  # payment in addition to the minimum payment made
             payments[worst_loan.id_] += max_additional_payment
             allowance -= max_additional_payment
             remaining_loans = list(
@@ -160,7 +179,7 @@ class GreedyHeuristicStrategy(GreedyAllocationStrategy):
         leftover: float,
     ) -> List[MonthlyAllocation]:
         payments_by_name = {
-            portfolio.instruments_by_id[key].name: value
+            portfolio.instruments_by_id[key].id_: value
             for key, value in payments.items()
         }
         return [
