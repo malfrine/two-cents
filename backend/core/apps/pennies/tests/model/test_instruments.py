@@ -1,7 +1,10 @@
 from pydantic import ValidationError
 
 from pennies.model.instrument import Instrument
-from pennies.model.interest_rate import FixedLoanInterestRate, GuaranteedInvestmentReturnRate
+from pennies.model.interest_rate import (
+    FixedLoanInterestRate,
+    GuaranteedInvestmentReturnRate,
+)
 from pennies.model.investment import GuaranteedInvestment
 from pennies.model.loan import Loan
 
@@ -49,8 +52,7 @@ def test_guaranteed_investment():
     principal = 100
     apr = 12
     interest_rate = GuaranteedInvestmentReturnRate(
-        interest_rate=FixedLoanInterestRate(apr=apr),
-        final_month=1
+        interest_rate=FixedLoanInterestRate(apr=apr), final_month=1
     )
     gi = GuaranteedInvestment(
         name="generic",

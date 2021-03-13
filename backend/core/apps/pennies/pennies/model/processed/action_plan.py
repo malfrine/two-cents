@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 
 from pydantic import BaseModel
 
@@ -12,7 +12,7 @@ class Payment(BaseModel):
 
 class ActionPlan(BaseModel):
     monthly_allowance: float
-    payments: Dict[str, Payment]
+    payments: List[Payment]
 
 
 class ActionPlanFactory:
@@ -33,8 +33,13 @@ class ActionPlanFactory:
         )
 
     @classmethod
-    def get_payments(cls, monthly_solution: MonthlySolution) -> Dict[str, Payment]:
-        return {
-            instrument_name: Payment(instrument=instrument_name, payment=payment_amount)
-            for instrument_name, payment_amount in monthly_solution.allocation.payments.items()
-        }
+    def get_payments(cls, monthly_solution: MonthlySolution) -> List[Payment]:
+        return [
+            Payment(
+                instrument=monthly_solution.portfolio.get_instrument(
+                    instrument_id
+                ).name,
+                payment=payment_amount,
+            )
+            for instrument_id, payment_amount in monthly_solution.allocation.payments.items()
+        ]

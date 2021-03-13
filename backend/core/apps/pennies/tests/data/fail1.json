@@ -10,7 +10,7 @@
    ],
    "investments": [],
    "financial_profile": {
-       "monthly_allowance": 2000.0,
+       "monthly_allowance_before_retirement": 2000.0,
        "years_to_retirement": 29
    },
    "strategies": [

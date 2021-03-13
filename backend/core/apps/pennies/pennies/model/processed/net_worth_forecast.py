@@ -1,5 +1,6 @@
 from datetime import datetime, date
 from typing import List
+from uuid import UUID
 
 from dateutil.relativedelta import relativedelta
 from pydantic import BaseModel
@@ -49,21 +50,21 @@ class NetWorthForecastFactory:
         if len(monthly_solutions) == 0:
             return list()
 
-        def get_instrument_balance_or_zero(instrument_name: str, ms: MonthlySolution):
-            instrument = ms.portfolio.instruments.get(instrument_name, None)
+        def get_instrument_balance_or_zero(id_: UUID, ms: MonthlySolution):
+            instrument = ms.portfolio.instruments.get(id_, None)
             if instrument is None:
                 return 0
             else:
                 return round(instrument.current_balance)
 
-        all_instruments = list(monthly_solutions[0].portfolio.instruments.keys())
+        instruments = list(monthly_solutions[0].portfolio.instruments.values())
         return [
             InstrumentForecast(
-                label=instrument_name,
+                label=instrument.name,
                 data=[
-                    get_instrument_balance_or_zero(instrument_name, ms)
+                    get_instrument_balance_or_zero(instrument.id_, ms)
                     for ms in monthly_solutions
                 ],
             )
-            for instrument_name in all_instruments
+            for instrument in instruments
         ]

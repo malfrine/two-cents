@@ -5,7 +5,7 @@ from pydantic.main import BaseModel
 from pennies.model.constants import Province
 from pennies.utilities.datetime import MONTHS_IN_YEAR
 
-MAX_MARGINAL_ANNUAL_INCOME = 1_000_000
+MAX_MARGINAL_ANNUAL_INCOME = 100_000_000
 
 
 class TaxBracket(BaseModel):
@@ -41,8 +41,6 @@ class IncomeTaxBrackets(BaseModel):
 
     class Config:
         underscore_attrs_are_private = True
-
-
 
 
 FEDERAL = IncomeTaxBrackets(
@@ -220,7 +218,7 @@ def make_provincial_tax_map() -> Dict[Province, IncomeTaxBrackets]:
         Province.BC: BC,
         Province.YK: YK,
         Province.NWT: NWT,
-        Province.NT: NT
+        Province.NT: NT,
     }
 
 

@@ -13,17 +13,18 @@ class PortfolioManager:
 
     @classmethod
     def forward_on_month(
-        cls, portfolio: Portfolio, payments: Dict[str, float], month: int, withdrawals: Dict[str, float] = None
-    ) -> Portfolio:
+        cls,
+        portfolio: Portfolio,
+        payments: Dict[str, float],
+        month: int,
+        withdrawals: Dict[str, float] = None,
+    ) -> None:
         if withdrawals is None:
             withdrawals = dict()
-
-        forward_portfolio = portfolio.copy(deep=True)
-        cls._incur_portfolio_interest(forward_portfolio, month)
-        cls._implement_allocation_plan(forward_portfolio, payments, month)
-        cls._implement_withdrawals(forward_portfolio, withdrawals, month)
-        cls._remove_paid_off_loans(forward_portfolio)
-        return forward_portfolio
+        cls._incur_portfolio_interest(portfolio, month)
+        cls._implement_allocation_plan(portfolio, payments, month)
+        cls._implement_withdrawals(portfolio, withdrawals, month)
+        cls._remove_paid_off_loans(portfolio)
 
     @classmethod
     def _implement_allocation_plan(
@@ -48,7 +49,7 @@ class PortfolioManager:
     def _remove_paid_off_loans(cls, portfolio: Portfolio) -> None:
         paid_off_loans = [loan for loan in portfolio.loans if loan.is_paid_off()]
         for loan in paid_off_loans:
-            remove_from_dict(loan.name, portfolio.instruments)
+            remove_from_dict(loan.id_, portfolio.instruments)
 
     @classmethod
     def _incur_portfolio_interest(cls, portfolio: Portfolio, month: int):
@@ -81,7 +82,9 @@ class PortfolioManager:
         )
 
     @classmethod
-    def _implement_withdrawals(cls, portfolio: Portfolio, withdrawals: Dict[str, float], month: int):
+    def _implement_withdrawals(
+        cls, portfolio: Portfolio, withdrawals: Dict[str, float], month: int
+    ):
         for instrument_name, withdrawal_amount in withdrawals.items():
             instrument = portfolio.get_instrument(instrument_name)
             if withdrawal_amount == 0:
@@ -89,7 +92,9 @@ class PortfolioManager:
             cls._execute_withdrawal(instrument, withdrawal_amount, month)
 
     @classmethod
-    def _execute_withdrawal(cls, instrument: Instrument, withdrawal_amount: float, month: int):
+    def _execute_withdrawal(
+        cls, instrument: Instrument, withdrawal_amount: float, month: int
+    ):
         if isinstance(instrument, RevolvingLoan):
             instrument.current_balance -= withdrawal_amount
             # TODO: add withdrawal limit
@@ -99,7 +104,10 @@ class PortfolioManager:
             if month >= instrument.final_month:
                 instrument.current_balance -= withdrawal_amount
             else:
-                raise ValueError("Cannot withdraw from a guaranteed investment that has not matured")
+                raise ValueError(
+                    "Cannot withdraw from a guaranteed investment that has not matured"
+                )
         else:
-            raise ValueError(f"Unable to withdraw from instrument {instrument.name} - don't know how")
-
+            raise ValueError(
+                f"Unable to withdraw from instrument {instrument.id_} - don't know how"
+            )

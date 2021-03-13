@@ -11,7 +11,7 @@ class UserPersonalFinances(BaseModel):
 
     def __str__(self):
         return "name: {:s}, monthly_allowance ${:,.2f} \n".format(
-            self.name, self.financial_profile.monthly_allowance
+            self.name, self.financial_profile.monthly_allowance_before_retirement
         ) + "portfolio: \n\t{}".format(str(self.portfolio))
 
     @property
@@ -27,6 +27,5 @@ class UserPersonalFinances(BaseModel):
             instrument.get_minimum_monthly_payment(0)
             for instrument in p.instruments.values()
         )
-        assert total_min_payments <= fp.monthly_allowance
+        assert total_min_payments <= fp.monthly_allowance_before_retirement
         return values
-

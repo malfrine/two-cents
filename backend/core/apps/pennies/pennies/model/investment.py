@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import Optional, Union
 
 from pydantic import validator, root_validator
@@ -8,12 +9,22 @@ from pennies.model.interest_rate import (
     FixedLoanInterestRate,
     ZeroGrowthRate,
     VariableLoanInterestRate,
-    InterestRate, GuaranteedInvestmentReturnRate,
+    InterestRate,
+    GuaranteedInvestmentReturnRate,
 )
 from pennies.utilities.datetime import MONTHS_IN_YEAR
 
 
+class InvestmentAccountType(Enum):
+    NON_REGISTERED = "Non-Registered"
+    RRSP = "RRSP"
+    TFSA = "TFSA"
+
+
 class BaseInvestment(Instrument):
+
+    account_type: InvestmentAccountType = InvestmentAccountType.NON_REGISTERED
+
     def get_minimum_monthly_payment(self, month: int):
         raise NotImplementedError()
 

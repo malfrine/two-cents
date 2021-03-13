@@ -4,7 +4,14 @@ from uuid import UUID
 from pydantic import BaseModel, validator, ValidationError
 
 from pennies.model.instrument import Instrument
-from pennies.model.investment import Investment, Cash
+from pennies.model.interest_rate import ZeroGrowthRate
+from pennies.model.investment import (
+    Investment,
+    Cash,
+    GuaranteedInvestment,
+    BaseInvestment,
+    InvestmentAccountType,
+)
 from pennies.model.loan import Loan
 from pennies.utilities.dict import (
     get_value_from_dict,
@@ -12,16 +19,31 @@ from pennies.utilities.dict import (
 
 
 class Portfolio(BaseModel):
-    instruments: Dict[str, Instrument] = dict()
+    instruments: Dict[UUID, Instrument] = dict()
 
     @validator("instruments", pre=True)
     def list_to_dict(cls, v):
         if isinstance(v, list):
-            return {i.name: i for i in v}
+            return {i.id_: i for i in v}
         elif isinstance(v, dict):
             return v
         else:
             raise ValidationError()
+
+    @validator("instruments")
+    def add_cash_account_if_needed(cls, v):
+        for id_, instrument in v.items():
+            if isinstance(instrument, Cash) and instrument.account_type == InvestmentAccountType.NON_REGISTERED:
+                return v
+        cash = Cash(
+            name="Generic Cash Account",
+            interest_rate=ZeroGrowthRate(),
+            current_balance=0,
+            account_type=InvestmentAccountType.NON_REGISTERED,
+            pre_authorized_monthly_contribution=0
+        )
+        v[cash.id_] = cash
+        return v
 
     @property
     def loans(self) -> List[Loan]:
@@ -36,9 +58,27 @@ class Portfolio(BaseModel):
         return {instrument.id_: instrument for instrument in self.instruments.values()}
 
     @property
+    def rrsp_investments_and_guaranteed_investments(self) -> List[BaseInvestment]:
+        return list(
+            i
+            for i in self.instruments.values()
+            if isinstance(i, (Investment, GuaranteedInvestment))
+            and i.account_type == InvestmentAccountType.RRSP
+        )
+
+    @property
+    def non_tfsa_investments_and_guaranteed_investments(self) -> List[BaseInvestment]:
+        return list(
+            i
+            for i in self.instruments.values()
+            if isinstance(i, (Investment, GuaranteedInvestment))
+            and i.account_type != InvestmentAccountType.TFSA
+        )
+
+    @property
     def investments_by_name(self) -> Dict[str, Investment]:
         # TODO: delete this and use id instead
-        return {investment.name: investment for investment in self.investments()}
+        return {investment.id_: investment for investment in self.investments()}
 
     def investments(self) -> List[Investment]:
         return list(i for i in self.instruments.values() if isinstance(i, Investment))
@@ -57,8 +97,8 @@ class Portfolio(BaseModel):
     def final_month(self):
         return max((i.final_month or 0 for i in self.instruments.values()), default=0)
 
-    def get_instrument(self, instrument_name: str) -> Instrument:
-        return get_value_from_dict(instrument_name, self.instruments)
+    def get_instrument(self, id_: UUID) -> Instrument:
+        return get_value_from_dict(id_, self.instruments)
 
     def get_debt(self) -> float:
         return abs(sum(loan.current_balance for loan in self.loans))

@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
 import pandas as pd
 from matplotlib import pyplot as plt
@@ -10,15 +10,16 @@ def _visualize_portfolios(portfolio_balances: List[Dict[str, float]]) -> None:
     ax = pd.DataFrame(portfolio_balances).plot(
         kind="bar", stacked=True, width=1.0, figsize=(10, 10)
     )
-    ax.set_xticks(range(0, 360, 10))
+    ax.set_xticks(range(0, len(portfolio_balances), 24))
     plt.savefig("portfolio.png")
 
 
-def _visualize_payments(payments: List[Dict[str, float]]):
-    ax = pd.DataFrame(payments).plot(
+def _visualize_money_movements(money_movements: List[Dict[str, float]], ):
+    df = pd.DataFrame(money_movements)
+    ax = df.plot(
         kind="bar", stacked=True, width=1.0, figsize=(10, 10)
     )
-    ax.set_xticks(range(0, 360, 10))
+    ax.set_xticks(range(0, len(money_movements), 24))
     plt.savefig("payments.png")
 
 
@@ -26,12 +27,19 @@ def visualize_solution(plan: FinancialPlan) -> None:
     starting_instruments = plan.monthly_solutions[0].portfolio.instruments
     portfolio_balances = [
         {
-            name: ms.portfolio.get_instrument(name).current_balance
-            if name in ms.portfolio.instruments
+            instrument.name: ms.portfolio.get_instrument(id_).current_balance
+            if id_ in ms.portfolio.instruments.keys()
             else 0
-            for name, _ in starting_instruments.items()
+            for id_, instrument in starting_instruments.items()
         }
         for ms in plan.monthly_solutions
     ]
+    money_movements = list()
+    for ms in plan.monthly_solutions:
+        money_movement = {
+            instrument.name: ms.allocation.payments.get(id_, 0) - ms.withdrawals.get(id_, 0)
+            for id_, instrument in starting_instruments.items()
+        }
+        money_movements.append(money_movement)
+    _visualize_money_movements(money_movements)
     _visualize_portfolios(portfolio_balances)
-    _visualize_payments([ms.allocation.payments for ms in plan.monthly_solutions])

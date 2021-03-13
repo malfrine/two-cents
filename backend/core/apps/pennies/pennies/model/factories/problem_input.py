@@ -12,11 +12,11 @@ class ProblemInputFactory:
     def from_request(cls, request: PenniesRequest) -> ProblemInput:
         instruments = dict()
         for loan in request.loans:
-            instruments[loan.name] = LoanFactory.from_request_loan(loan)
+            loan = LoanFactory.from_request_loan(loan)
+            instruments[loan.id_] = loan
         for investment in request.investments:
-            instruments[investment.name] = InvestmentFactory.from_request_investment(
-                investment
-            )
+            investment = InvestmentFactory.from_request_investment(investment)
+            instruments[investment.id_] = investment
         return ProblemInput(
             user_finances=UserPersonalFinances(
                 financial_profile=request.financial_profile,
