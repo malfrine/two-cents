@@ -4,8 +4,6 @@ from pydantic import validator, root_validator
 
 from pennies.errors.validation_errors import BadDomainException
 from pennies.model.instrument import Instrument
-from pennies.model.interest_rate import InterestRate
-from pennies.utilities.finance import LoanMinimumPaymentCalculator
 
 
 class Loan(Instrument):

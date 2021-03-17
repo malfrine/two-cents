@@ -201,12 +201,12 @@ class _ConstraintMaker:
             )
 
             total_investment_allocations = sum(
-                self.vars.get_allocation(i, t) for i in self.sets.investments
+                self.vars.get_allocation(i, t) for i in self.sets.non_cash_investments
             )
 
             allocation_volatility = sum(
                 self.vars.get_allocation(i, t) * self.pars.get_volatility(i)
-                for i in self.sets.investments
+                for i in self.sets.non_cash_investments
             )
 
             violation = self.vars.get_investment_risk_violation(t)
@@ -275,7 +275,7 @@ class _ConstraintMaker:
                 self.vars.get_withdrawal(i, t)
                 for i in self.sets.investments_and_guaranteed_investments
             )
-            spending = self.pars.get_minimum_monthly_retirement_spending(t)
+            spending = self.pars.get_minimum_monthly_withdrawals(t)
             violation = self.vars.get_retirement_spending_violation(t)
             return violation >= spending - all_withdrawals
 
@@ -420,21 +420,54 @@ class _ConstraintMaker:
         else:
             return pe.Constraint.NoConstraint
 
-    def make_zero_guaranteed_investment_withdrawal_before_maturation(self):
-        def rule(_, i, t):
+    def make_set_withdrawal_limits(self):
 
-            if t <= self.pars.get_guaranteed_investment_maturation_decision_period(i):
-                withdrawal = self.vars.get_withdrawal(i, t)
-                return withdrawal == 0
-            else:
-                return pe.Constraint.Skip
+        def rule(_, i, t):
+            withdrawal = self.vars.get_withdrawal(i, t)
+            if self.pars.get_is_guaranteed_investment(i) and not self.pars.get_has_guaranteed_investment_matured(i, t):
+                    return withdrawal == 0
+            if self.pars.get_is_rrsp_investment(i) and not self.pars.get_is_retired(t):
+                    return withdrawal == 0
+            return pe.Constraint.Skip
 
         return pe.Constraint(
-            itertools.product(self.sets.guaranteed_investments, self.sets.all_decision_periods_as_set),
+            itertools.product(self.sets.investments_and_guaranteed_investments, self.sets.all_decision_periods_as_set),
             rule=rule
         )
 
+    def make_define_surplus_withdrawal_differences(self):
+        def rule(_, t):
+            if t == 0:
+                return pe.Constraint.Skip
+            cur_surplus_withdrawal = sum(
+                self.vars.get_withdrawal(i, t)
+                for i in self.sets.investments_and_guaranteed_investments
+            ) - self.pars.get_minimum_monthly_withdrawals(t)
+            prev_surplus_withdrawal = sum(
+                self.vars.get_withdrawal(i, t - 1)
+                for i in self.sets.investments_and_guaranteed_investments
+            ) - self.pars.get_minimum_monthly_withdrawals(t - 1)
+            pos_difference = self.vars.get_pos_withdrawal_difference(t)
+            neg_difference = self.vars.get_neg_withdrawal_difference(t)
+            return pos_difference - neg_difference == cur_surplus_withdrawal - prev_surplus_withdrawal
 
+        return pe.Constraint(
+            self.sets.all_decision_periods_as_set,
+            rule=rule
+        )
+
+    def make_limit_surplus_withdrawal_fluctuations(self):
+        def rule(_):
+            total_fluctuation = sum(
+                (self.vars.get_pos_withdrawal_difference(t) + self.vars.get_neg_withdrawal_difference(t)) * self.sets.get_num_months_in_decision_period(t)
+                for t in self.sets.all_decision_periods_as_set
+            )
+            violation = self.vars.get_withdrawal_fluctuation_violation()
+            return total_fluctuation <= 6 * self.pars.user_finances.financial_profile.monthly_retirement_spending + 10000
+
+        return pe.Constraint(
+            rule=rule
+        )
 
 @dataclass
 class MILPConstraints:
@@ -457,7 +490,9 @@ class MILPConstraints:
     define_rrsp_deduction_limits: pe.Constraint
     set_minimum_rrif_withdrawals: pe.Constraint
     define_tfsa_deduction_limits: pe.Constraint
-    zero_guaranteed_investment_withdrawal_before_maturation: pe.Constraint
+    set_withdrawal_limits: pe.Constraint
+    define_surplus_withdrawal_differences: pe.Constraint
+    limit_surplus_withdrawal_fluctuations: pe.Constraint
 
     @classmethod
     def create(
@@ -483,5 +518,7 @@ class MILPConstraints:
             define_rrsp_deduction_limits=cm.make_define_rrsp_deduction_limits(),
             set_minimum_rrif_withdrawals=cm.make_set_minimum_rrif_withdrawals(),
             define_tfsa_deduction_limits=cm.make_define_tfsa_deduction_limits(),
-            zero_guaranteed_investment_withdrawal_before_maturation=cm.make_zero_guaranteed_investment_withdrawal_before_maturation()
+            set_withdrawal_limits=cm.make_set_withdrawal_limits(),
+            define_surplus_withdrawal_differences=cm.make_define_surplus_withdrawal_differences(),
+            limit_surplus_withdrawal_fluctuations=cm.make_limit_surplus_withdrawal_fluctuations()
         )

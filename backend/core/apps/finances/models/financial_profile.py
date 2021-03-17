@@ -30,5 +30,9 @@ class FinancialProfile(models.Model):
     def months_to_retirement(self):
         return self.years_to_retirement * 12
 
+    @property
+    def monthly_allowance_before_retirement(self):
+        return self.monthly_allowance
+
     def __str__(self):
         return "Profile" + " - " + str(self.user.pk)

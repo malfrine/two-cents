@@ -47,4 +47,7 @@ def solve(problem_input: ProblemInput) -> Solution:
         print(
             f"\t interest earned on investments: {plan.get_total_interest_earned_on_investments()}"
         )
+        print(f"\t total withdrawals: {plan.get_total_withdrawals()}")
+        print(f"\t total taxes paid: {plan.get_total_income_taxes_paid()}")
+
     return Solution(plans=plans)

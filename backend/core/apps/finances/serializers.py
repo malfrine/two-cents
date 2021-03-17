@@ -96,7 +96,7 @@ class PenniesInvestmentSerializer(serializers.ModelSerializer):
 class PenniesFinancialProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = FinancialProfile
-        fields = ("monthly_allowance", "years_to_retirement", "risk_tolerance")
+        fields = ("monthly_allowance_before_retirement", "years_to_retirement", "risk_tolerance")
 
 
 class UserFinancesSerializer(serializers.ModelSerializer):
