@@ -26,6 +26,9 @@ class MILPVariables:
     retirement_spending_violations: pe.Var
     rrsp_deduction_limits: pe.Var
     tfsa_contribution_limits: pe.Var
+    pos_withdrawal_differences: pe.Var
+    neg_withdrawal_differences: pe.Var
+    withdrawal_fluctuation_violation: pe.Var
 
     @classmethod
     def create(
@@ -95,6 +98,9 @@ class MILPVariables:
         )
         rrsp_deduction_limits = pe.Var(sets.years, domain=pe.NonNegativeReals)
         tfsa_contribution_limits = pe.Var(sets.years, domain=pe.NonNegativeReals)
+        pos_withdrawal_differences = pe.Var(sets.all_decision_periods_as_set, domain=pe.NonNegativeReals)
+        neg_withdrawal_differences = pe.Var(sets.all_decision_periods_as_set, domain=pe.NonNegativeReals)
+        withdrawal_fluctuation_violation = pe.Var(domain=pe.NonNegativeReals)
 
         return MILPVariables(
             allocations=allocations,
@@ -112,7 +118,10 @@ class MILPVariables:
             withdrawals=withdrawals,
             retirement_spending_violations=retirement_spending_violations,
             rrsp_deduction_limits=rrsp_deduction_limits,
-            tfsa_contribution_limits=tfsa_contribution_limits
+            tfsa_contribution_limits=tfsa_contribution_limits,
+            neg_withdrawal_differences=neg_withdrawal_differences,
+            pos_withdrawal_differences=pos_withdrawal_differences,
+            withdrawal_fluctuation_violation=withdrawal_fluctuation_violation
         )
 
     def get_allocation(self, instrument: UUID, month: int):
@@ -174,3 +183,12 @@ class MILPVariables:
 
     def get_tfsa_contribution_limit(self, year: int):
         return self.tfsa_contribution_limits[year]
+
+    def get_neg_withdrawal_difference(self, decision_period_index: int):
+        return self.neg_withdrawal_differences[decision_period_index]
+
+    def get_pos_withdrawal_difference(self, decision_period_index: int):
+        return self.pos_withdrawal_differences[decision_period_index]
+
+    def get_withdrawal_fluctuation_violation(self):
+        return self.withdrawal_fluctuation_violation

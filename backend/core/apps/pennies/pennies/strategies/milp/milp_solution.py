@@ -2,13 +2,10 @@ import itertools
 from dataclasses import dataclass
 from typing import Dict, List
 
-from pydantic import BaseModel
 import pyomo.environ as pe
 
-from pennies.model.decision_periods import DecisionPeriodsManagerFactory
 from pennies.model.portfolio import Portfolio
-from pennies.model.portfolio_manager import PortfolioManager
-from pennies.model.solution import FinancialPlan, MonthlySolution, MonthlyAllocation
+from pennies.model.solution import MonthlySolution, MonthlyAllocation
 from pennies.model.user_personal_finances import UserPersonalFinances
 from pennies.strategies.milp.milp import MILP
 from pennies.strategies.milp.objective import MILPObjective
@@ -106,6 +103,7 @@ class MILPSolution:
         )
         print(f"Taxes paid: {pe.value(c.get_taxes_paid())}")
         print(f"Taxes overflow costs: {pe.value(c.get_taxes_overflow_cost())}")
+        # print(f"Withdrawal differences costs: {pe.value(c.get_withdrawal_differences_cost())}")
         print(f"Interest Earned: {pe.value(c.get_interest_earned())}")
         print(f"Final net worth: {pe.value(c.get_final_net_worth())}")
         print(f"Withdrawals: {pe.value(c.get_extra_spending_money())}")

@@ -27,7 +27,7 @@ class PlanSummariesFactory:
     def from_plan(cls, plan: FinancialPlan) -> PlanSummaries:
 
         return PlanSummaries(
-            net_worth=plan.retirement_net_worth,
+            net_worth=round(plan.get_net_worth()),
             priorities=cls.get_instrument_priorities(plan),
             important_dates=cls.get_important_dates(plan),
         )
@@ -74,6 +74,6 @@ class PlanSummariesFactory:
 
         append_if_not_none(plan.first_positive_net_worth_month, "Positive Net Worth")
         append_if_not_none(plan.debt_free_month, "Debt Free")
-        append_if_not_none(plan.retirement_month, "Retirement")  # TODO: this is wrong!
+        # append_if_not_none(plan.retirement_month, "Retirement")  # TODO: this is wrong!
 
         return sorted(important_dates, key=lambda x: x.date)

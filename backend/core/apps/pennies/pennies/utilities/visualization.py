@@ -37,7 +37,7 @@ def visualize_solution(plan: FinancialPlan) -> None:
     money_movements = list()
     for ms in plan.monthly_solutions:
         money_movement = {
-            instrument.name: ms.allocation.payments.get(id_, 0) - ms.withdrawals.get(id_, 0)
+            instrument.name: - ms.allocation.payments.get(id_, 0) + ms.withdrawals.get(id_, 0)
             for id_, instrument in starting_instruments.items()
         }
         money_movements.append(money_movement)

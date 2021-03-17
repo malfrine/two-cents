@@ -21,7 +21,7 @@ from pennies.strategies import StrategyName
 
 def financial_profile():
     return FinancialProfile(
-        monthly_allowance_before_retirement=1800,
+        monthly_allowance_before_retirement=1200,
         years_to_retirement=45,
         years_to_death=70,
         risk_tolerance=50,
@@ -81,43 +81,43 @@ def all_possible_loans() -> List[RequestLoan]:
 
 def simple_investments() -> List[RequestInvestment]:
     return [
-        # RequestInvestment(
-        #     name="high risk",
-        #     roi=7,
-        #     current_balance=0,
-        #     minimum_monthly_payment=0,
-        #     volatility=10,
-        #     investment_type=RequestInvestmentType.MUTUAL_FUND,
-        # ),
         RequestInvestment(
-            name="medium risk (rrsp)",
-            roi=2.5,
+            name="medium risk (non-registered)",
+            roi=5.0,
             current_balance=0,
             minimum_monthly_payment=0,
-            volatility=5.5,
+            volatility=5.0,
+            investment_type=RequestInvestmentType.MUTUAL_FUND,
+        ),
+        RequestInvestment(
+            name="low risk (rrsp)",
+            roi=3.0,
+            current_balance=0,
+            minimum_monthly_payment=0,
+            volatility=1.0,
             investment_type=RequestInvestmentType.MUTUAL_FUND,
             account_type=RequestInvestmentAccountType.RRSP
         ),
         RequestInvestment(
             name="medium risk (tfsa)",
-            roi=2.6,
+            roi=5.0,
             current_balance=0,
             minimum_monthly_payment=0,
-            volatility=5.3,
+            volatility=5.0,
             investment_type=RequestInvestmentType.MUTUAL_FUND,
             account_type=RequestInvestmentAccountType.TFSA
         ),
-        RequestInvestment(
-            name="term deposit",
-            investment_type=RequestInvestmentType.TERM_DEPOSIT,
-            final_month=100,
-            principal_investment_amount=100000,
-            start_month=-36,
-            interest_type=InterestType.VARIABLE,
-            prime_modifier=0,
-            volatility=0,
-            account_type=RequestInvestmentAccountType.NON_REGISTERED
-        ),
+        # RequestInvestment(
+        #     name="term deposit",
+        #     investment_type=RequestInvestmentType.TERM_DEPOSIT,
+        #     final_month=100,
+        #     principal_investment_amount=100000,
+        #     start_month=-36,
+        #     interest_type=InterestType.VARIABLE,
+        #     prime_modifier=0,
+        #     volatility=0,
+        #     account_type=RequestInvestmentAccountType.NON_REGISTERED
+        # ),
     ]
 
 

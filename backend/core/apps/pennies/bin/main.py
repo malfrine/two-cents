@@ -26,7 +26,7 @@ def main():
         user_finances=sp,
         strategies=[
             # StrategyName.snowball.value,
-            # StrategyName.avalanche.value,
+            StrategyName.avalanche.value,
             # StrategyName.avalanche_ball.value,
             StrategyName.lp.value,
         ],
@@ -40,6 +40,7 @@ def main():
         print(
             f"\t interest earned on investments: {plan.get_total_interest_earned_on_investments()}"
         )
+        print(f"\t total withdrawals: {plan.get_total_withdrawals()}")
     pr.disable()
     # pr.print_stats(sort="cumulative")
     for strategy_name, plan in solution.plans.items():

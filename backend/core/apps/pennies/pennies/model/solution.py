@@ -91,6 +91,8 @@ class FinancialPlan(BaseModel):
         return sum(ms.get_total_payments() for ms in self.monthly_solutions)
 
     def get_net_worth(self):
+        if len(self.monthly_solutions) == 0:
+            return 0
         return self.monthly_solutions[-1].get_value()
 
     def get_total_interest_paid_on_loans(self):
@@ -110,14 +112,6 @@ class FinancialPlan(BaseModel):
         return sum(
             abs(ms.get_loan_interest_incurred(id_)) for ms in self.monthly_solutions
         )
-
-    @property
-    def retirement_net_worth(self) -> float:
-        if len(self.monthly_solutions) == 0:
-            return 0
-        return round(
-            self.monthly_solutions[-1].portfolio.net_worth
-        )  # TODO: this is wrong!
 
     @property
     def retirement_month(self) -> int:
@@ -145,6 +139,9 @@ class FinancialPlan(BaseModel):
 
     def get_total_income_taxes_paid(self):
         return sum(ms.taxes_paid for ms in self.monthly_solutions)
+
+    def get_total_withdrawals(self):
+        return sum(ms.get_total_withdrawals() for ms in self.monthly_solutions)
 
 
 class Solution(BaseModel):

@@ -63,6 +63,9 @@ class MILP:
         m.taxable_monthly_incomes = variables.taxable_monthly_incomes
         m.rrsp_deduction_limits = variables.rrsp_deduction_limits
         m.tfsa_contribution_limits = variables.tfsa_contribution_limits
+        m.pos_withdrawal_differences = variables.pos_withdrawal_differences
+        m.neg_withdrawal_differences = variables.neg_withdrawal_differences
+        m.withdrawal_fluctuation_violation = variables.withdrawal_fluctuation_violation
 
         cls._fix_final_allocation_to_zero(sets, variables)
 
@@ -85,9 +88,11 @@ class MILP:
         m.c16 = constraints.define_rrsp_deduction_limits
         m.c17 = constraints.set_minimum_rrif_withdrawals
         m.c18 = constraints.define_tfsa_deduction_limits
-        m.c19 = constraints.zero_guaranteed_investment_withdrawal_before_maturation
+        m.c19 = constraints.set_withdrawal_limits
+        m.c20 = constraints.define_surplus_withdrawal_differences
+        # m.c21 = constraints.limit_surplus_withdrawal_fluctuations
 
-        objective = MILPObjective.create(sets, milp_parameters, variables)
+        objective = MILPObjective.create(sets, milp_parameters, variables, discount_factor=parameters.discount_factor)
         m.obj = objective.obj
 
         return MILP(

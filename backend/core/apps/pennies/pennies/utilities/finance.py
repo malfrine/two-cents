@@ -1,10 +1,14 @@
 import math
+from dataclasses import dataclass
 from typing import List
 
 from pennies.model import taxes
 from pennies.model.constants import Province
+from pennies.model.financial_profile import FinancialProfile
 from pennies.model.instrument import Instrument
+from pennies.model.portfolio import Portfolio
 from pennies.model.taxes import PROVINCIAL_TAX_MAP, IncomeTaxBrackets, FEDERAL
+from pennies.model.user_personal_finances import UserPersonalFinances
 from pennies.utilities.datetime import MONTHS_IN_YEAR
 
 
@@ -96,3 +100,38 @@ def calculate_monthly_income_tax(income: float, province: Province):
     )
     fed_tax = calculate_monthly_income_tax_from_brackets(income, taxes.FEDERAL)
     return prov_tax + fed_tax
+
+
+@dataclass
+class DiscountFactorCalculator:
+    portfolio: Portfolio
+    financial_profile: FinancialProfile
+
+    def calculate_factor(self):
+        expected_roi = self.get_expected_roi()
+        investment_capital = self.get_investment_capital()
+        total_debt = self.get_total_debt()
+        total_weighted_debt = self.get_total_weighted_debt()
+        top = investment_capital * expected_roi + total_weighted_debt
+        bottom = total_debt + investment_capital
+        print(top / bottom)
+        return top / bottom
+
+    def get_expected_roi(self):
+        portfolio = self.portfolio
+        min_return = min(i.monthly_interest_rate(0) for i in portfolio.investments())
+        max_return = max(i.monthly_interest_rate(0) for i in portfolio.investments())
+        weight = self.financial_profile.risk_tolerance / 100
+        return min_return + weight * (max_return - min_return)
+
+    def get_investment_capital(self):
+        financial_profile = self.financial_profile
+        return financial_profile.annual_income_before_retirement * financial_profile.years_to_retirement
+
+    def get_total_debt(self):
+        portfolio = self.portfolio
+        return sum(abs(l.current_balance) for l in portfolio.loans)
+
+    def get_total_weighted_debt(self):
+        portfolio = self.portfolio
+        return sum(abs(l.current_balance) * l.monthly_interest_rate(0) for l in portfolio.loans)
