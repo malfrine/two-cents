@@ -28,4 +28,16 @@ const asDollar = function (num) {
   return num.toLocaleString('en-CA', { style: 'currency', currency: 'CAD', minimumFractionDigits: 0 })
 }
 
-export { delay, calculateMinimumAmortizedLoanPayment, calculateMinimumRevolvingLoanPayment, asDollar }
+function debounce (fn, delay) {
+  let timeoutID = null
+  return function () {
+    clearTimeout(timeoutID)
+    const args = arguments
+    const that = this
+    timeoutID = setTimeout(function () {
+      fn.apply(that, args)
+    }, delay)
+  }
+}
+
+export { delay, calculateMinimumAmortizedLoanPayment, calculateMinimumRevolvingLoanPayment, asDollar, debounce }

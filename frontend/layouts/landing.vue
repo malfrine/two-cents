@@ -2,12 +2,13 @@
   <v-app>
     <v-app-bar
       fixed
+      hide-on-scroll
       app
       dark
       min-height="78"
       class="pt-2"
     >
-      <div class="d-flex justify-center">
+      <div class="d-flex justify-center align-center">
         <v-img
           max-width="150"
           max-height="65"
@@ -15,25 +16,26 @@
         />
       </div>
       <v-spacer />
-      <v-btn icon @click.prevent="$vuetify.theme.isDark = !$vuetify.theme.isDark">
-        <v-icon>mdi-theme-light-dark</v-icon>
+      <v-btn outlined large color="primary" to="/login" nuxt>
+        Login
       </v-btn>
     </v-app-bar>
     <v-main>
-      <v-container>
-        <nuxt />
-      </v-container>
+      <nuxt />
     </v-main>
-    <BaseFooter />
+    <LandingFooter />
   </v-app>
 </template>
 
 <script>
-import BaseFooter from '@/components/base/BaseFooter'
+import LandingFooter from '@/components/landing/LandingFooter.vue'
 
 export default {
   components: {
-    BaseFooter
+    LandingFooter
+  },
+  created () {
+    this.$vuetify.theme.isDark = false
   }
 }
 </script>
