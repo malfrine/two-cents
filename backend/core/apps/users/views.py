@@ -1,4 +1,6 @@
 import re
+
+from django.contrib.auth.base_user import BaseUserManager
 from django.db.models.query import QuerySet
 import requests
 from uuid import uuid4
@@ -14,8 +16,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import serializers
 
-from core.apps.users.models import User
-from core.apps.users.serializers import UserWriteSerializer
+from core.apps.users.models import User, WaitlistUser
+from core.apps.users.serializers import UserWriteSerializer, WaitlistUserSerializer
 
 
 class SessionAPIView(views.APIView):
@@ -53,8 +55,24 @@ class AccountViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     queryset = User.objects.none()
 
     def perform_create(self, serializer):
+        try:
+            waitlist_user = WaitlistUser.objects.get(email=self.request.data.get("email"))
+        except WaitlistUser.DoesNotExist:
+            raise serializers.ValidationError("Given email is not in waitlist - please request access", code=status.HTTP_404_NOT_FOUND)
+        if not waitlist_user.can_register:
+            raise serializers.ValidationError("Given email is on waitlist but not authorized to register account", code=status.HTTP_403_FORBIDDEN)
         if self.request.data.get("password") is None:
             raise serializers.ValidationError("Password is required.")
         user = serializer.save()
         user.set_password(self.request.data.get("password"))
         user.save()
+
+
+class WaitlistUserViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
+    serializer_class = WaitlistUserSerializer
+
+    def perform_create(self, serializer):
+        waitlist_user = serializer.save()
+        waitlist_user.email = BaseUserManager.normalize_email(waitlist_user.email)
+        waitlist_user.save()
+

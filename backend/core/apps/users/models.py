@@ -9,6 +9,13 @@ from django.db import models
 from django.utils import timezone
 
 
+class WaitlistUser(models.Model):
+    email = models.EmailField(verbose_name="Email", unique=True, max_length=255)
+    can_register = models.BooleanField(default=False, verbose_name="Can Register")
+    waitlist_join_dt = models.DateTimeField(
+        verbose_name="Waitlist Joined Datetime", auto_now_add=timezone.now
+    )
+
 class UserManager(BaseUserManager):
     def _create_user(self, email, password, is_staff, is_superuser, **extra_fields):
         """

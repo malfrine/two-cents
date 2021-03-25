@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from django.conf import settings
 
-from core.apps.users.models import User
+from core.apps.users.models import User, WaitlistUser
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -34,3 +34,9 @@ class UserWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["email", "password", "first_name", "last_name"]
+
+
+class WaitlistUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WaitlistUser
+        fields = ["email"]
