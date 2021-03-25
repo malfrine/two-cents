@@ -7,8 +7,8 @@ from pennies.model.investment import (
     Investment,
     Cash,
     GuaranteedInvestment,
-    InvestmentAccountType,
 )
+from pennies.model.constants import InvestmentAccountType
 from pennies.model.loan import Loan, InstalmentLoan
 from pennies.model.decision_periods import (
     DecisionPeriodsManager,

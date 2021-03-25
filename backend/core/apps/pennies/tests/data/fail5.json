@@ -53,7 +53,8 @@
            "principal_investment_amount": null,
            "start_month": null,
            "prime_modifier": null,
-           "interest_type": null
+           "interest_type": null,
+           "account_type": "Non-Registered"
        },
        {
            "name": "Cash Money",
@@ -66,7 +67,8 @@
            "principal_investment_amount": 0.0,
            "start_month": null,
            "prime_modifier": null,
-           "interest_type": null
+           "interest_type": null,
+           "account_type": "Non-Registered"
        },
        {
            "name": "Random ETF",
@@ -79,7 +81,8 @@
            "principal_investment_amount": 0.0,
            "start_month": null,
            "prime_modifier": null,
-           "interest_type": null
+           "interest_type": null,
+           "account_type": "Non-Registered"
        },
        {
            "name": "Test GIC",
@@ -92,13 +95,20 @@
            "principal_investment_amount": 10000.0,
            "start_month": 132,
            "prime_modifier": 4.0,
-           "interest_type": "Variable"
+           "interest_type": "Variable",
+           "account_type": "Non-Registered"
        }
    ],
    "financial_profile": {
-       "monthly_allowance_before_retirement": 1600.0,
+       "monthly_salary_before_tax": 2000.0,
        "years_to_retirement": 39,
-       "risk_tolerance": 63.0
+       "percent_salary_for_spending": 100,
+       "risk_tolerance": 63,
+       "province_of_residence": "AB",
+       "starting_rrsp_contribution_limit": 0,
+       "starting_tfsa_contribution_limit": 0,
+       "current_age": 25,
+       "years_to_death": 65
    },
    "strategies": [
        "Two Cents Plan",

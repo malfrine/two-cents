@@ -5,7 +5,8 @@ from uuid import UUID
 import pyomo.environ as pe
 
 from pennies.model.instrument import Instrument
-from pennies.model.investment import Investment, GuaranteedInvestment, InvestmentAccountType
+from pennies.model.investment import Investment, GuaranteedInvestment
+from pennies.model.constants import InvestmentAccountType
 from pennies.model.loan import Loan, RevolvingLoan
 from pennies.model.rrsp import RRSPAnnualLimitGetter
 from pennies.model.taxes import IncomeTaxBrackets

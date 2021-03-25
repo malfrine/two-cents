@@ -10,8 +10,8 @@ from pennies.model.investment import (
     Cash,
     GuaranteedInvestment,
     BaseInvestment,
-    InvestmentAccountType,
 )
+from pennies.model.constants import InvestmentAccountType
 from pennies.model.loan import Loan
 from pennies.utilities.dict import (
     get_value_from_dict,

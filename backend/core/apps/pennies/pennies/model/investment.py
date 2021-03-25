@@ -1,24 +1,13 @@
-from enum import Enum
-from typing import Optional, Union
-
 from pydantic import validator, root_validator
 
 from pennies.errors.validation_errors import BadDomainException
+from pennies.model.constants import InvestmentAccountType
 from pennies.model.instrument import Instrument
 from pennies.model.interest_rate import (
-    FixedLoanInterestRate,
     ZeroGrowthRate,
-    VariableLoanInterestRate,
     InterestRate,
     GuaranteedInvestmentReturnRate,
 )
-from pennies.utilities.datetime import MONTHS_IN_YEAR
-
-
-class InvestmentAccountType(Enum):
-    NON_REGISTERED = "Non-Registered"
-    RRSP = "RRSP"
-    TFSA = "TFSA"
 
 
 class BaseInvestment(Instrument):

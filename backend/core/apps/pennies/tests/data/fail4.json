@@ -33,7 +33,8 @@
            "principal_amount_invested": null,
            "start_month": null,
            "prime_modifier": null,
-           "interest_type": null
+           "interest_type": null,
+           "account_type": "Non-Registered"
        },
        {
            "name": "High Risk Investment",
@@ -46,7 +47,8 @@
            "principal_amount_invested": null,
            "start_month": null,
            "prime_modifier": null,
-           "interest_type": null
+           "interest_type": null,
+           "account_type": "Non-Registered"
        },
        {
            "name": "Cash Money",
@@ -59,13 +61,20 @@
            "principal_amount_invested": null,
            "start_month": null,
            "prime_modifier": null,
-           "interest_type": null
+           "interest_type": null,
+           "account_type": "Non-Registered"
        }
    ],
    "financial_profile": {
-       "monthly_allowance_before_retirement": 1100.0,
+       "monthly_salary_before_tax": 2000.0,
        "years_to_retirement": 39,
-       "risk_tolerance": 0.0
+       "percent_salary_for_spending": 100,
+       "risk_tolerance": 50,
+       "province_of_residence": "AB",
+       "starting_rrsp_contribution_limit": 0,
+       "starting_tfsa_contribution_limit": 0,
+       "current_age": 25,
+       "years_to_death": 65
    },
    "strategies": [
        "Two Cents Plan",

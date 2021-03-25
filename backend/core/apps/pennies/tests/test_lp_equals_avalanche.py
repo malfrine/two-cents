@@ -1,5 +1,6 @@
 import math
 
+from pennies.model.constants import Province
 from pennies.model.factories.problem_input import ProblemInputFactory
 from pennies.model.financial_profile import FinancialProfile
 from pennies.model.parameters import Parameters
@@ -45,9 +46,15 @@ def test_lp_equals_avalanche():
 def get_request() -> PenniesRequest:
     return PenniesRequest(
         financial_profile=FinancialProfile(
-            monthly_allowance_before_retirement=2000,
+            monthly_salary_before_tax=2000,
             years_to_retirement=10,
             years_to_death=20,
+            percent_salary_for_spending=100,
+            province_of_residence=Province.AB,
+            starting_tfsa_contribution_limit=0,
+            starting_rrsp_contribution_limit=0,
+            current_age=50,
+            risk_tolerance=0
         ),
         loans=[
             RequestLoan(

@@ -1,9 +1,10 @@
 from enum import Enum
 from typing import List, Optional
 
-from pydantic import root_validator
+from pydantic import root_validator, validator
 from pydantic.main import BaseModel
 
+from pennies.model.constants import InvestmentAccountType
 from pennies.model.financial_profile import FinancialProfile
 from pennies.model.loan import Loan
 
@@ -54,15 +55,10 @@ class RequestInvestmentType(Enum):
     CASH = "Cash"
 
 
-class RequestInvestmentAccountType(Enum):
-    NON_REGISTERED = "Non-Registered"
-    RRSP = "RRSP"
-    TFSA = "TFSA"
-
-
 class RequestInvestment(BaseModel):
     name: str
     investment_type: RequestInvestmentType = RequestInvestmentType.MUTUAL_FUND
+    account_type: InvestmentAccountType
     roi: Optional[float] = None
     volatility: Optional[float] = None
     current_balance: Optional[float] = None
@@ -72,7 +68,13 @@ class RequestInvestment(BaseModel):
     start_month: Optional[int] = None
     final_month: Optional[int] = None
     interest_type: Optional[InterestType] = None
-    account_type: RequestInvestmentAccountType = RequestInvestmentAccountType.NON_REGISTERED
+
+    @validator("account_type")
+    def parse_account_type(cls, v):
+        if not isinstance(v, InvestmentAccountType):
+            return InvestmentAccountType[str(v)]
+        else:
+            return v
 
 
 class PenniesRequest(BaseModel):

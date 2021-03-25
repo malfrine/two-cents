@@ -5,9 +5,11 @@ from pennies.model.decision_periods import (
     WorkingPeriod,
     RetirementPeriod,
 )
+from pennies.utilities.datetime import DateTimeHelper
 
 
 def test_decision_periods():
+    dt_helper = DateTimeHelper.create(19)
     actual_phs = DecisionPeriodsManager(
         data=[
             WorkingPeriod(index=0, months=[3, 4, 5]),
@@ -17,7 +19,8 @@ def test_decision_periods():
             RetirementPeriod(index=4, months=[13, 14, 15]),
             RetirementPeriod(index=5, months=[16, 17, 18]),
             RetirementPeriod(index=6, months=[19]),
-        ]
+        ],
+        dt_helper=dt_helper
     )
 
     test_phs = DecisionPeriodsManagerFactory(max_months=3).from_num_months(

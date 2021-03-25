@@ -1,6 +1,8 @@
 from enum import Enum
 
 
+
+
 class Province(Enum):
     NL = "Newfoundland and Labrador"
     PEI = "Prince Edward Island"
@@ -15,3 +17,9 @@ class Province(Enum):
     YK = "Yukon"
     NWT = "Northwest Territories"
     NT = "Nunavut"
+
+
+class InvestmentAccountType(Enum):
+    NON_REGISTERED = "Non-Registered"
+    RRSP = "RRSP"
+    TFSA = "TFSA"

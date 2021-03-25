@@ -31,7 +31,7 @@ class PortfolioManager:
         cls, portfolio: Portfolio, payments: Dict[str, float], month: int
     ) -> None:
         for instrument_name, payment in payments.items():
-            if payment == 0:
+            if math.isclose(payment, 0, abs_tol=0.01):
                 continue
             instrument = portfolio.get_instrument(instrument_name)
             mmp = instrument.get_minimum_monthly_payment(month)

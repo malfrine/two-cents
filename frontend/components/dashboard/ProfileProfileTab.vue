@@ -19,7 +19,7 @@
       <v-card>
         <v-container>
           <!-- Basic User Information-->
-          <v-card-title>
+          <v-card-title class="text-h5">
             User Information
           </v-card-title>
           <v-row>
@@ -59,17 +59,26 @@
                 type="email"
               />
             </v-col>
+            <v-col cols="12" md="6">
+              <v-autocomplete
+                v-model="financial_profile.province_of_residence"
+                label="Province"
+                outlined
+                :disabled="!editMode"
+                :items="provinces"
+              />
+            </v-col>
           </v-row>
           <!-- Financial Information -->
           <v-divider />
-          <v-card-title>
+          <v-card-title class="text-h5">
             Financial Information
           </v-card-title>
           <v-row>
             <v-col cols="12" md="6">
               <v-text-field
-                v-model="financial_profile.monthly_allowance"
-                label="Monthly Allowance"
+                v-model="financial_profile.monthly_salary_before_tax"
+                label="Pre-Tax Monthly Income"
                 outlined
                 prefix="$"
                 :disabled="!editMode"
@@ -83,8 +92,39 @@
                 :disabled="!editMode"
               />
             </v-col>
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="financial_profile.starting_rrsp_contribution_limit"
+                label="RRSP Contribution Limit"
+                outlined
+                prefix="$"
+                :disabled="!editMode"
+              />
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="financial_profile.starting_tfsa_contribution_limit"
+                label="TFSA Contribution Limit"
+                outlined
+                :disabled="!editMode"
+              />
+            </v-col>
           </v-row>
-          <v-divider />
+          <v-divider inset />
+          <v-card-title>
+            Percent of Income Allocated for Financial Goals: {{ financial_profile.percent_salary_for_spending }}%
+          </v-card-title>
+          <v-row class="mt-6" align="center" align-content="center" justify="center">
+            <v-slider v-model="financial_profile.percent_salary_for_spending" style="max-width: 500px" :disabled="!editMode">
+              <template #append>
+                100%
+              </template>
+              <template #prepend>
+                0%
+              </template>
+            </v-slider>
+          </v-row>
+          <v-divider inset />
           <v-card-title>
             Risk Tolerance: {{ financial_profile.risk_tolerance }}%
           </v-card-title>
@@ -108,11 +148,19 @@
 
 export default {
   data () {
+    const defaultFinProfile = {
+      birth_date: new Date(),
+      monthly_salary_before_tax: 8000,
+      starting_rrsp_contribution_limit: 0,
+      starting_tfsa_contribution_limit: 0,
+      retirement_age: 65,
+      percent_salary_for_spending: 25,
+      death_age: 90,
+      province_of_residence: 'AB'
+    }
     return {
       editMode: false,
-      defaultBirthDate: new Date(),
-      defaultMonthlyAllowance: 1000,
-      defaultRetirementAge: 65,
+      defaultFinProfile,
       financial_profile: { ...this.$store.getters['finances/getFinancialProfile'] }
     }
   },
@@ -125,17 +173,16 @@ export default {
     },
     email () {
       return this.$store.getters['finances/getEmail']
+    },
+
+    provinces () {
+      return this.$store.getters['enums/getProvinces']
     }
   },
   methods: {
     toggleEditMode () {
       if (this.editMode) {
-        const fp = {
-          birth_date: this.financial_profile.birth_date || this.defaultBirthDate,
-          monthly_allowance: this.financial_profile.monthly_allowance || this.defaultMonthlyAllowance,
-          retirement_age: this.financial_profile.retirement_age || this.defaultRetirementAge,
-          risk_tolerance: this.financial_profile.risk_tolerance
-        }
+        const fp = { ...this.defaultFinProfile, ...this.financial_profile }
         this.$axios.$post('/api/my/finances/profile', fp)
           .then(
             (response) => {
