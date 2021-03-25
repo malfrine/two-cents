@@ -15,6 +15,7 @@ from pennies.strategies import get_strategy
 
 def solve_request(request: Dict) -> Dict:
     try:
+        print(request)
         pennies_request = PenniesRequest.parse_obj(request)
         model_input = ProblemInputFactory.from_request(pennies_request)
         solution = solve(model_input)

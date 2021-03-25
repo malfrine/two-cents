@@ -10,8 +10,15 @@
    ],
    "investments": [],
    "financial_profile": {
-       "monthly_allowance_before_retirement": 2000.0,
-       "years_to_retirement": 29
+       "monthly_salary_before_tax": 2000.0,
+       "years_to_retirement": 29,
+       "percent_salary_for_spending": 100,
+       "risk_tolerance": 50,
+       "province_of_residence": "AB",
+       "starting_rrsp_contribution_limit": 0,
+       "starting_tfsa_contribution_limit": 0,
+       "current_age": 25,
+       "years_to_death": 65
    },
    "strategies": [
        "Two Cents Plan",

@@ -1,5 +1,6 @@
 from typing import Tuple, Dict, List
 
+from pennies.model.constants import Province, InvestmentAccountType
 from pennies.model.factories.problem_input import ProblemInputFactory
 from pennies.model.factories.request_loan import RequestLoanFactory
 from pennies.model.financial_profile import FinancialProfile
@@ -12,7 +13,7 @@ from pennies.model.request import (
     RequestLoanType,
     RequestInvestment,
     InterestType,
-    RequestInvestmentType, RequestInvestmentAccountType,
+    RequestInvestmentType,
 )
 from pennies.model.solution import MonthlyAllocation
 from pennies.model.user_personal_finances import UserPersonalFinances
@@ -21,10 +22,15 @@ from pennies.strategies import StrategyName
 
 def financial_profile():
     return FinancialProfile(
-        monthly_allowance_before_retirement=1200,
-        years_to_retirement=45,
-        years_to_death=70,
+        years_to_retirement=40,
         risk_tolerance=50,
+        province_of_residence=Province.AB,
+        starting_rrsp_contribution_limit=0,
+        starting_tfsa_contribution_limit=0,
+        current_age=25,
+        monthly_salary_before_tax=5000,
+        percent_salary_for_spending=25,
+        years_to_death=65
     )
 
 
@@ -85,27 +91,28 @@ def simple_investments() -> List[RequestInvestment]:
             name="medium risk (non-registered)",
             roi=5.0,
             current_balance=0,
-            minimum_monthly_payment=0,
+            pre_authorized_monthly_contribution=0,
             volatility=5.0,
             investment_type=RequestInvestmentType.MUTUAL_FUND,
+            account_type=InvestmentAccountType.NON_REGISTERED
         ),
         RequestInvestment(
             name="low risk (rrsp)",
             roi=3.0,
             current_balance=0,
-            minimum_monthly_payment=0,
+            pre_authorized_monthly_contribution=0,
             volatility=1.0,
             investment_type=RequestInvestmentType.MUTUAL_FUND,
-            account_type=RequestInvestmentAccountType.RRSP
+            account_type=InvestmentAccountType.RRSP
         ),
         RequestInvestment(
             name="medium risk (tfsa)",
             roi=5.0,
             current_balance=0,
-            minimum_monthly_payment=0,
+            pre_authorized_monthly_contribution=0,
             volatility=5.0,
             investment_type=RequestInvestmentType.MUTUAL_FUND,
-            account_type=RequestInvestmentAccountType.TFSA
+            account_type=InvestmentAccountType.TFSA
         ),
         # RequestInvestment(
         #     name="term deposit",
@@ -130,6 +137,7 @@ def all_possible_investments() -> List[RequestInvestment]:
             roi=5,
             volatility=5,
             pre_authorized_monthly_contribution=0,
+            account_type=InvestmentAccountType.TFSA
         ),
         RequestInvestment(
             name="etf",
@@ -138,6 +146,7 @@ def all_possible_investments() -> List[RequestInvestment]:
             roi=5,
             volatility=5,
             pre_authorized_monthly_contribution=0,
+            account_type=InvestmentAccountType.RRSP
         ),
         RequestInvestment(
             name="stock",
@@ -146,12 +155,14 @@ def all_possible_investments() -> List[RequestInvestment]:
             roi=5,
             volatility=5,
             pre_authorized_monthly_contribution=0,
+            account_type=InvestmentAccountType.NON_REGISTERED,
         ),
         RequestInvestment(
             name="cash",
             current_balance=0,
             investment_type=RequestInvestmentType.CASH,
             pre_authorized_monthly_contribution=10,
+            account_type=InvestmentAccountType.NON_REGISTERED
         ),
         RequestInvestment(
             name="gic",
@@ -162,6 +173,7 @@ def all_possible_investments() -> List[RequestInvestment]:
             start_month=-36,
             interest_type=InterestType.FIXED,
             volatility=0,
+            account_type=InvestmentAccountType.TFSA
         ),
         RequestInvestment(
             name="term deposit",
@@ -172,6 +184,7 @@ def all_possible_investments() -> List[RequestInvestment]:
             interest_type=InterestType.VARIABLE,
             prime_modifier=0,
             volatility=0,
+            account_type=InvestmentAccountType.NON_REGISTERED
         ),
     ]
 

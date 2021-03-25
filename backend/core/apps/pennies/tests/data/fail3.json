@@ -44,12 +44,20 @@
            "roi": 7.0,
            "final_month": 468,
            "minimum_monthly_payment": 0,
-           "volatility": 2
+           "volatility": 2,
+           "account_type": "Non-Registered"
        }
    ],
    "financial_profile": {
-       "monthly_allowance_before_retirement": 1000.0,
-       "years_to_retirement": 39
+       "monthly_salary_before_tax": 2000.0,
+       "years_to_retirement": 29,
+       "percent_salary_for_spending": 100,
+       "risk_tolerance": 50,
+       "province_of_residence": "AB",
+       "starting_rrsp_contribution_limit": 0,
+       "starting_tfsa_contribution_limit": 0,
+       "current_age": 25,
+       "years_to_death": 65
    },
    "strategies": [
        "Two Cents Plan",

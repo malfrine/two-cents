@@ -60,14 +60,7 @@ class FinancialProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FinancialProfile
-        fields = (
-            "birth_date",
-            "monthly_allowance",
-            "retirement_age",
-            "current_age",
-            "years_to_retirement",
-            "risk_tolerance",
-        )
+        exclude = ('user',)
 
 
 class PenniesInvestmentSerializer(serializers.ModelSerializer):
@@ -90,13 +83,24 @@ class PenniesInvestmentSerializer(serializers.ModelSerializer):
             "start_month",
             "prime_modifier",
             "interest_type",
+            "account_type"
         )
 
 
 class PenniesFinancialProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = FinancialProfile
-        fields = ("monthly_allowance_before_retirement", "years_to_retirement", "risk_tolerance")
+        fields = (
+            "monthly_salary_before_tax",
+            "years_to_retirement",
+            "risk_tolerance",
+            "percent_salary_for_spending",
+            "province_of_residence",
+            "starting_rrsp_contribution_limit",
+            "starting_tfsa_contribution_limit",
+            "current_age",
+            "years_to_death"
+        )
 
 
 class UserFinancesSerializer(serializers.ModelSerializer):

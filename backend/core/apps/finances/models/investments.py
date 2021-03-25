@@ -16,9 +16,13 @@ class InvestmentType(models.TextChoices):
     BOND = "Bond", "Bond"  # TODO
     CASH = "Cash", "Cash"
 
+class InvestmentAccountType(models.TextChoices):
+    NON_REGISTERED = "Non-Registered", "Non-Registered"
+    RRSP = "RRSP", "Registered Retirement Savings Plan"
+    TFSA = "TFSA", "Tax-Free Savings Account"
 
 def get_required_fields_map():
-    all_non_guaranteed_inv_fields = ["name", "current_balance", "investment_type"]
+    all_non_guaranteed_inv_fields = ["name", "current_balance", "investment_type", "account_type"]
     all_guaranteed_inv_fields = [
         "name",
         "investment_type",
@@ -28,6 +32,7 @@ def get_required_fields_map():
         "interest_type",
         "expected_roi",
         "prime_modifier",
+        "account_type"
     ]
     return {
         InvestmentType.MUTUAL_FUND: all_non_guaranteed_inv_fields
@@ -131,7 +136,12 @@ class Investment(models.Model):
         choices=InvestmentType.choices,
         verbose_name="Investment Type",
     )
-
+    account_type = models.CharField(
+        max_length=50,
+        default=InvestmentAccountType.NON_REGISTERED,
+        choices=InvestmentAccountType.choices,
+        verbose_name="Investment Account Type"
+    )
     pre_authorized_monthly_contribution = models.FloatField(
         default=0,
         blank=True,

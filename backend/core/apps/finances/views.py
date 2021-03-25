@@ -3,12 +3,12 @@ from rest_framework.response import Response
 
 from core.apps.finances.models.loans import LoanType, INSTALMENT_LOANS, REVOLVING_LOANS
 from core.apps.finances.models.constants import InterestTypes
-from core.apps.finances.models.financial_profile import FinancialProfile
+from core.apps.finances.models.financial_profile import FinancialProfile, Province
 from core.apps.finances.models.investments import (
     Investment,
     INVESTMENT_REQUIRED_FIELDS_MAP,
     RiskChoices,
-    VolatilityChoices,
+    VolatilityChoices, InvestmentAccountType,
 )
 from core.apps.finances.models.financial_profile import Loan
 from rest_framework import viewsets
@@ -110,5 +110,7 @@ class FinancesEnumsViewset(viewsets.GenericViewSet):
             "investment_fields": INVESTMENT_REQUIRED_FIELDS_MAP,
             "risk_levels": list(name for name in RiskChoices),
             "volatility_choices": list(name for name in VolatilityChoices),
+            "provinces": list(name for name in Province),
+            "investment_account_types": list(name for name in InvestmentAccountType)
         }
         return Response(data)

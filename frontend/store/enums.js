@@ -6,7 +6,8 @@ const defaultState = function () {
       interest_types: [''],
       investment_fields: {},
       risk_levels: [''],
-      volatility_choices: ['']
+      volatility_choices: [''],
+      provinces: ['']
     }
   }
 }
@@ -40,6 +41,12 @@ const getters = {
   },
   getStateExists (state) {
     return state.exists
+  },
+  getProvinces (state) {
+    return state.enums.provinces
+  },
+  getInvestmentAccountTypes (state) {
+    return state.enums.investment_account_types
   }
 }
 

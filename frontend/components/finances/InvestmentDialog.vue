@@ -90,6 +90,14 @@
             outlined
             :rules="[mandatoryFieldRule('volatility_choice', 'volatility')]"
           />
+          <v-autocomplete
+            v-if="requiredFields.includes('account_type')"
+            v-model="account_type"
+            label="Account Type"
+            :items="accountTypes"
+            outlined
+            :rules="[mandatoryFieldRule('account_type', 'account type')]"
+          />
           <v-text-field
             v-if="isGuaranteedInvestment"
             v-model="principal_investment_amount"
@@ -130,7 +138,7 @@ export default {
   data () {
     const investment = this.$store.getters['finances/getInvestmentById'](this.investmentId)
     if (investment) {
-      console.log(investment)
+      console.log({ ...investment })
       return {
         id: investment.id,
         name: investment.name,
@@ -193,6 +201,9 @@ export default {
     },
     interestTypes () {
       return this.$store.getters['enums/getInterestTypes']
+    },
+    accountTypes () {
+      return this.$store.getters['enums/getInvestmentAccountTypes']
     },
 
     // attrs
