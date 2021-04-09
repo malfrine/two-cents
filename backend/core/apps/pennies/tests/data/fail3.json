@@ -3,38 +3,48 @@
        {
            "name": "Car Loan",
            "current_balance": -1400.0,
-           "apr": 1.0,
+
            "minimum_monthly_payment": 0.0,
            "final_month": 227,
            "loan_type": "Personal Loan",
-           "interest_type": "Fixed"
+
+            "interest_rate": {
+                   "interest_type": "Fixed",
+                         "apr": 1.0
+            }
        },
        {
            "name": "Credit Card Loan",
            "current_balance": -1500.0,
-           "apr": 20.0,
            "minimum_monthly_payment": 26.0,
            "final_month": 227,
            "loan_type": "Personal Loan",
-           "interest_type": "Fixed"
+                     "interest_rate": {
+                   "interest_type": "Fixed",
+           "apr": 20.0
+                     }
        },
        {
            "name": "Student Loan",
            "current_balance": -100000.0,
-           "apr": 3.5,
            "minimum_monthly_payment": 421.0,
            "final_month": 407,
            "loan_type": "Personal Loan",
-           "interest_type": "Fixed"
+                              "interest_rate": {
+                   "interest_type": "Fixed",
+           "apr": 3.5
+                              }
        },
        {
            "name": "Test Loan",
            "current_balance": -100.0,
-           "prime_modifier": 1.0,
            "minimum_monthly_payment": 10.0,
            "final_month": null,
            "loan_type": "Student Line of Credit",
-           "interest_type": "Variable"
+                                       "interest_rate": {
+           "interest_type": "Variable",
+           "prime_modifier": 1.0
+                                       }
        }
    ],
    "investments": [

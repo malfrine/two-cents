@@ -13,7 +13,7 @@
             </div>
             <v-spacer />
             <div class="text red--text">
-              {{ asDollar(loan.current_balance) }}
+              {{ asDollar(getLoanValue(loan)) }}
             </div>
           </v-row>
           <v-divider />
@@ -49,7 +49,7 @@
             </div>
             <v-spacer />
             <div class="text primary--text">
-              {{ asDollar(inv.current_balance) }}
+              {{ asDollar(inv.current_balance || 0) }}
             </div>
           </v-row>
           <v-divider />
@@ -102,7 +102,7 @@ export default {
     totalLoans () {
       let total = 0
       for (const id in this.loans) {
-        total += this.loans[id].current_balance
+        total += this.getLoanValue(this.loans[id])
       }
       return total
     },
@@ -113,7 +113,10 @@ export default {
     }
   },
   methods: {
-    asDollar
+    asDollar,
+    getLoanValue (loanObject) {
+      return loanObject.current_balance || loanObject.mortgage_details.purchase_price
+    }
   }
 }
 </script>

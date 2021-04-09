@@ -469,6 +469,36 @@ class _ConstraintMaker:
             rule=rule
         )
 
+    def make_limit_monthly_payment(self):
+        def rule(_, i, t):
+            max_allocation = self.pars.get_max_monthly_payment(i, t)
+            if max_allocation is None:
+                return pe.Constraint.Skip
+            num_months = self.sets.get_num_months_in_decision_period(t)
+            violation = self.vars.get_max_monthly_payment_violation(i, t)
+            allocation = self.vars.get_allocation(i, t)
+            return violation >= (allocation - max_allocation) * num_months
+
+        return pe.Constraint(
+            itertools.product(self.sets.instruments, self.sets.all_decision_periods_as_set),
+            rule=rule
+        )
+
+    def make_same_mortgage_payments(self):
+        def rule(_, m, t):
+            if t > self.pars.get_instrument_final_payment_horizon(m).index - 1 or t == 0:
+                return pe.Constraint.Skip
+
+            allocation = self.vars.get_allocation(m, t)
+            first = self.vars.get_allocation(m, 0)
+            return allocation == first
+
+        return pe.Constraint(
+            itertools.product(self.sets.mortgages, self.sets.working_periods_as_set),
+            rule=rule
+        )
+
+
 @dataclass
 class MILPConstraints:
 
@@ -493,6 +523,8 @@ class MILPConstraints:
     set_withdrawal_limits: pe.Constraint
     define_surplus_withdrawal_differences: pe.Constraint
     limit_surplus_withdrawal_fluctuations: pe.Constraint
+    limit_monthly_payment: pe.Constraint
+    same_mortgage_payments: pe.Constraint
 
     @classmethod
     def create(
@@ -520,5 +552,7 @@ class MILPConstraints:
             define_tfsa_deduction_limits=cm.make_define_tfsa_deduction_limits(),
             set_withdrawal_limits=cm.make_set_withdrawal_limits(),
             define_surplus_withdrawal_differences=cm.make_define_surplus_withdrawal_differences(),
-            limit_surplus_withdrawal_fluctuations=cm.make_limit_surplus_withdrawal_fluctuations()
+            limit_surplus_withdrawal_fluctuations=cm.make_limit_surplus_withdrawal_fluctuations(),
+            limit_monthly_payment=cm.make_limit_monthly_payment(),
+            same_mortgage_payments=cm.make_same_mortgage_payments()
         )

@@ -25,7 +25,7 @@ const calculateMinimumRevolvingLoanPayment = function (principal, apr) {
 }
 
 const asDollar = function (num) {
-  return num.toLocaleString('en-CA', { style: 'currency', currency: 'CAD', minimumFractionDigits: 0 })
+  return Number(num).toLocaleString('en-CA', { style: 'currency', currency: 'CAD', minimumFractionDigits: 0 })
 }
 
 function debounce (fn, delay) {
@@ -40,4 +40,12 @@ function debounce (fn, delay) {
   }
 }
 
-export { delay, calculateMinimumAmortizedLoanPayment, calculateMinimumRevolvingLoanPayment, asDollar, debounce }
+function mandatoryFieldRule (requiredFields, fieldName, verboseName) {
+  if (requiredFields.includes(fieldName)) {
+    return v => v !== null || `Must provide ${verboseName}`
+  } else {
+    return v => true
+  }
+}
+
+export { delay, calculateMinimumAmortizedLoanPayment, calculateMinimumRevolvingLoanPayment, asDollar, debounce, mandatoryFieldRule }

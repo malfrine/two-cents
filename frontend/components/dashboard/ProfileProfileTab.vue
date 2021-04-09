@@ -7,7 +7,7 @@
         color="primary"
         @click.prevent="toggleEditMode()"
       >
-        <v-icon v-if="!this.editMode" color="white">
+        <v-icon v-if="!editMode" color="white">
           mdi-pencil
         </v-icon>
         <v-icon v-else color="white">

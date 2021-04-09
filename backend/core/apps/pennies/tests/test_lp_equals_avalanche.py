@@ -3,6 +3,8 @@ import math
 from pennies.model.constants import Province
 from pennies.model.factories.problem_input import ProblemInputFactory
 from pennies.model.financial_profile import FinancialProfile
+from pennies.model.interest_rate import FixedLoanInterestRate
+from pennies.model.loan import PersonalLoan
 from pennies.model.parameters import Parameters
 from pennies.model.processed.plan import ProcessedFinancialPlan
 from pennies.model.request import PenniesRequest, RequestLoan, InterestType
@@ -57,13 +59,12 @@ def get_request() -> PenniesRequest:
             risk_tolerance=0
         ),
         loans=[
-            RequestLoan(
+            PersonalLoan(
                 name="loan1",
-                apr=1,
-                current_balance=-50000,
+                interest_rate=FixedLoanInterestRate(apr=1),
+                current_balance=-50_000,
                 minimum_monthly_payment=854,
-                final_month=60,
-                interest_type=InterestType.FIXED,
+                final_month=60
             )
         ],
         investments=list(),

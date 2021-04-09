@@ -1,7 +1,7 @@
 from rest_framework import status
 from rest_framework.response import Response
 
-from core.apps.finances.models.loans import LoanType, INSTALMENT_LOANS, REVOLVING_LOANS
+from core.apps.finances.models.loans import LOAN_REQUIRED_FIELDS_MAP, LOAN_INTEREST_REQUIRED_FIELDS_MAP
 from core.apps.finances.models.constants import InterestTypes
 from core.apps.finances.models.financial_profile import FinancialProfile, Province
 from core.apps.finances.models.investments import (
@@ -13,13 +13,13 @@ from core.apps.finances.models.investments import (
 from core.apps.finances.models.financial_profile import Loan
 from rest_framework import viewsets
 
-from core.apps.finances.serializers import (
+from core.apps.finances.serializers.serializers import (
     FinancialProfileSerializer,
     InvestmentSerializer,
-    LoanSerializer,
     UserFinancesSerializer,
-    PenniesRequestSerializer,
 )
+from core.apps.finances.serializers.pennies.request import PenniesRequestSerializer
+from core.apps.finances.serializers.views.loan import LoanSerializer
 
 
 # Create your views here.
@@ -52,6 +52,21 @@ class InvestmentViewset(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         # TODO: check if anonymous users can actually add investments
         return serializer.save(user=self.request.user)
+
+
+# class MortgageViewset(viewsets.ModelViewSet):
+#     queryset = Mortgage.objects.none()
+#     serializer_class = MortgageSerializer
+#
+#     def get_queryset(self):
+#         if self.request.user.is_anonymous:
+#             return Mortgage.objects.none()
+#         else:
+#             return self.request.user.mortgages.all()
+#
+#     def perform_create(self, serializer):
+#         # TODO: check if anonymous users can actually add investments
+#         return serializer.save(user=self.request.user)
 
 
 class FinancialProfileView(viewsets.GenericViewSet):
@@ -98,16 +113,11 @@ class PenniesRequestViewset(viewsets.GenericViewSet):
 class FinancesEnumsViewset(viewsets.GenericViewSet):
     def list(self, request):
 
-        d = dict()
-        for name in REVOLVING_LOANS:
-            d[name.value] = "revolving"
-        for name in INSTALMENT_LOANS:
-            d[name.value] = "instalment"
-
         data = {
-            "loan_types": d,
             "interest_types": list(name for name in InterestTypes),
             "investment_fields": INVESTMENT_REQUIRED_FIELDS_MAP,
+            "loan_fields": LOAN_REQUIRED_FIELDS_MAP,
+            "loan_interest_types_fields": LOAN_INTEREST_REQUIRED_FIELDS_MAP,
             "risk_levels": list(name for name in RiskChoices),
             "volatility_choices": list(name for name in VolatilityChoices),
             "provinces": list(name for name in Province),

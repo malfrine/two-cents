@@ -220,5 +220,17 @@ class MILPParameters:
             for dp_index in range(start_dp_index, end_dp_index)
         )
 
+    def get_max_monthly_payment(self, instrument_id, decision_period_index):
+        months = self.sets.get_months_in_horizon(decision_period_index)
+        instrument = self.user_finances.portfolio.instruments[instrument_id]
+        return min(
+            (
+                instrument.get_maximum_monthly_payment(month)
+                for month in months
+                if instrument.get_maximum_monthly_payment(month) is not None
+             ),
+            default=None
+        )
+
 
 

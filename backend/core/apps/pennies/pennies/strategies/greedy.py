@@ -1,9 +1,11 @@
+import math
 from collections import defaultdict
 from typing import Dict, Optional, Iterable, List
 from uuid import UUID
 
 from pennies.model.factories.financial_plan import FinancialPlanFactory
 from pennies.model.financial_profile import FinancialProfile
+from pennies.model.instrument import Instrument
 from pennies.model.investment import Investment
 from pennies.model.loan import Loan
 from pennies.model.parameters import Parameters
@@ -36,7 +38,7 @@ class GreedyAllocationStrategy(AllocationStrategy):
         decision_periods = self._make_decision_periods(user_finances, parameters)
         start_month = user_finances.financial_profile.retirement_month
         for working_period in decision_periods.working_periods:
-            if not cur_portfolio.loans and cur_portfolio.investments():
+            if not cur_portfolio.non_mortgage_loans and cur_portfolio.investments():
                 start_month = working_period.months[0]
                 break
             allocations = self.create_allocation_for_working_period(
@@ -116,7 +118,7 @@ class GreedyHeuristicStrategy(GreedyAllocationStrategy):
             financial_profile.get_monthly_allowance(m) for m in working_period.months
         ) / len(working_period.months)
         allowance -= sum(payment for payment in payments.values())
-        remaining_loans = portfolio.loans
+        remaining_loans = portfolio.non_mortgage_loans
         while remaining_loans and allowance:
             worst_loan = self.get_worst_loan(remaining_loans, working_period.months)
             max_additional_payment = self.calculate_max_possible_loan_payment(
@@ -168,7 +170,18 @@ class GreedyHeuristicStrategy(GreedyAllocationStrategy):
             )
             - cur_payment
         )
-        return min(loan_ending_payment, allowance)
+        return min(loan_ending_payment, allowance, cls.get_max_payment(loan, months) or allowance)
+
+    @classmethod
+    def get_max_payment(cls, instrument: Instrument, months: List[int]):
+        return min(
+            (
+                instrument.get_maximum_monthly_payment(month)
+                for month in months
+                if instrument.get_maximum_monthly_payment(month) is not None
+            ),
+            default=None
+        )
 
     @classmethod
     def make_monthly_allocations(

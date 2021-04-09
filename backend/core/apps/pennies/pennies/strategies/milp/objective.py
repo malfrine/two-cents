@@ -20,14 +20,10 @@ class ObjectiveComponents:
     discount_factor: float
 
     def get_discount_factor(self, instrument, month):
-        print(self.pars._get_instrument(instrument).name)
         dp_index = self.sets.decision_periods.month_to_period_dict[month].index
         growth_rate = self.pars.get_average_interest_rate(instrument, dp_index) + 1
         discount_rate = ANNUALIZED_DISCOUNT_FACTOR / 12 + 1
-        print(discount_rate)
-        print(growth_rate)
         factor = (growth_rate / discount_rate) ** month
-        print(factor)
         return factor
 
     def get_npv_weighting(self, month: int):
@@ -113,6 +109,12 @@ class ObjectiveComponents:
     def get_withdrawal_fluctuation_cost(self):
         return self.vars.get_withdrawal_fluctuation_violation()
 
+    def get_max_payment_violation_cost(self):
+        return sum(
+            self.vars.get_max_monthly_payment_violation(i, t)
+            for i, t in itertools.product(self.sets.instruments, self.sets.all_decision_periods_as_set)
+        )
+
     def get_obj(self):
         obj = (
             - self.get_risk_violation_costs()
@@ -120,6 +122,7 @@ class ObjectiveComponents:
             - self.get_taxes_paid()
             - self.get_taxes_overflow_cost()
             - self.get_retirement_spending_violation_cost()
+            - self.get_max_payment_violation_cost()
         )
         if self.pars.has_investments():
             obj += self.get_extra_spending_money() + self.get_final_net_worth()

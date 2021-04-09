@@ -1,16 +1,15 @@
-from typing import Tuple, Dict, List
+from typing import Tuple, Dict, List, ClassVar
 
 from pennies.model.constants import Province, InvestmentAccountType
 from pennies.model.factories.problem_input import ProblemInputFactory
 from pennies.model.factories.request_loan import RequestLoanFactory
 from pennies.model.financial_profile import FinancialProfile
-from pennies.model.loan import Loan
+from pennies.model.interest_rate import FixedLoanInterestRate, VariableLoanInterestRate, InterestRate
+from pennies.model.loan import Loan, PersonalLoan, LineOfCredit, StudentLineOfCredit, StudentLoan, CreditCardLoan
 from pennies.model.portfolio import Portfolio
 from pennies.model.problem_input import ProblemInput
 from pennies.model.request import (
     PenniesRequest,
-    RequestLoan,
-    RequestLoanType,
     RequestInvestment,
     InterestType,
     RequestInvestmentType,
@@ -34,54 +33,51 @@ def financial_profile():
     )
 
 
-def simple_request_loans() -> List[RequestLoan]:
+def simple_request_loans() -> List[Loan]:
     return [
-        RequestLoanFactory.create(
+        PersonalLoan(
             name="loan1",
-            apr=5,
+            interest_rate=FixedLoanInterestRate(apr=3.5),
             current_balance=-20000,
-            loan_type=RequestLoanType.PERSONAL_LOAN,
             final_month=12 * 10,
-            interest_type=InterestType.FIXED,
+            minimum_monthly_payment=50
         ),
-        RequestLoanFactory.create(
+        LineOfCredit(
             name="loan2",
-            apr=20,
+            interest_rate=FixedLoanInterestRate(apr=4.1),
             current_balance=-10000,
-            loan_type=RequestLoanType.LINE_OF_CREDIT,
-            interest_type=InterestType.FIXED,
         ),
-        RequestLoanFactory.create(
+        StudentLineOfCredit(
             name="loan3",
-            apr=3.5,
+            interest_rate=FixedLoanInterestRate(apr=3.5),
             current_balance=-200000,
-            loan_type=RequestLoanType.STUDENT_LINE_OF_CREDIT,
-            interest_type=InterestType.FIXED,
-        ),
+        )
     ]
 
 
-def all_possible_loans() -> List[RequestLoan]:
+def all_possible_loans() -> List[Loan]:
     default_apr = 1
     default_prime_modifier = -2
     default_current_balance = -10
 
-    return [
-        RequestLoanFactory.create(
-            name=f"{loan_type.value}-{interest_type.value}",
-            apr=default_apr if interest_type == InterestType.FIXED else None,
+    def make_loan(loan_class: ClassVar[Loan], interest_class: ClassVar[InterestRate]) -> Loan:
+        interest_rate = interest_class(
+            apr=default_apr,
             prime_modifier=default_prime_modifier
-            if interest_type == InterestType.VARIABLE
-            else None,
-            current_balance=default_current_balance,
-            loan_type=loan_type,
-            final_month=10
-            if loan_type in RequestLoanFactory.INSTALMENT_LOANS
-            else None,
-            interest_type=interest_type,
         )
-        for loan_type in RequestLoanType
-        for interest_type in InterestType
+        loan = loan_class(
+            name=f"{loan_class.__name__}-{interest_class.__name__}",
+            interest_rate=interest_rate,
+            current_balance=default_current_balance,
+            final_month=10,
+            minimum_monthly_payment=0
+        )
+        return loan
+
+    return [
+        make_loan(loan_class, interest_class)
+        for loan_class in [CreditCardLoan, StudentLoan]
+        for interest_class in [FixedLoanInterestRate, VariableLoanInterestRate]
     ]
 
 

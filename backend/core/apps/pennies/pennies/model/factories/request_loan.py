@@ -49,10 +49,14 @@ class RequestLoanFactory:
             mmp = LoanMinimumPaymentCalculator.calculate_for_instalment_loan(
                 abs(current_balance), interest_rate, final_month
             )
-        return RequestLoan(
-            name=name,
+        interest_rate_dict = dict(
+            interest_type=interest_type,
             apr=apr,
-            prime_modifier=prime_modifier,
+            prime_modifier=prime_modifier
+        )
+        return dict(
+            name=name,
+            interest_rate=interest_rate_dict,
             current_balance=current_balance,
             final_month=final_month,
             minimum_monthly_payment=mmp,

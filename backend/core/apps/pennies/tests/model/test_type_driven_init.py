@@ -1,4 +1,13 @@
-{
+from enum import Enum
+from typing import Literal, ClassVar, List, Union, Any
+
+from pydantic import BaseModel
+
+from pennies.model.loan import AllLoanTypes, CarLoan, StudentLoan, Mortgage
+
+
+def get_data():
+    return {
     "loans": [
         {
             "name": "Mortgage",
@@ -50,7 +59,7 @@
                 ]
             },
             "start_month": -1,
-            "final_month": 360,
+            "final_month": 323,
             "monthly_payment": 1200.0,
             "purchase_price": 500000.0,
             "downpayment_amount": 100000.0
@@ -66,65 +75,19 @@
             "loan_type": "Student Loan",
             "minimum_monthly_payment": 1000.0
         }
-    ],
-    "investments": [
-        {
-            "name": "RBC Term Deposit",
-            "current_balance": 5000.0,
-            "roi": 8.0,
-            "final_month": 105,
-            "volatility": 0,
-            "investment_type": "Term Deposit",
-            "pre_authorized_monthly_contribution": 0.0,
-            "principal_investment_amount": 50000.0,
-            "start_month": -135,
-            "prime_modifier": 1.0,
-            "interest_type": "Variable",
-            "account_type": "Non-Registered"
-        },
-        {
-            "name": "Low Risk ETF RRSP",
-            "current_balance": 0.0,
-            "roi": 3.5,
-            "final_month": null,
-            "volatility": 2.5,
-            "investment_type": "ETF",
-            "pre_authorized_monthly_contribution": 100.0,
-            "principal_investment_amount": 0.0,
-            "start_month": null,
-            "prime_modifier": null,
-            "interest_type": null,
-            "account_type": "Non-Registered"
-        },
-        {
-            "name": "Medium Risk Mutual Fund",
-            "current_balance": 0.0,
-            "roi": 3.5,
-            "final_month": null,
-            "volatility": 2.5,
-            "investment_type": "Mutual Fund",
-            "pre_authorized_monthly_contribution": 0.0,
-            "principal_investment_amount": 0.0,
-            "start_month": null,
-            "prime_modifier": null,
-            "interest_type": null,
-            "account_type": "Non-Registered"
-        }
-    ],
-    "financial_profile": {
-        "monthly_salary_before_tax": 8000.0,
-        "years_to_retirement": 38,
-        "risk_tolerance": 67.0,
-        "percent_salary_for_spending": 40.0,
-        "province_of_residence": "MB",
-        "starting_rrsp_contribution_limit": 20000.0,
-        "starting_tfsa_contribution_limit": 0.0,
-        "current_age": 27,
-        "years_to_death": 63
-    },
-    "strategies": [
-        "Two Cents Plan",
-        "Avalanche Plan",
-        "Snowball Plan"
     ]
-}
+    }
+
+def test_simple_case():
+
+    class Portfolio(BaseModel):
+        loans: List[AllLoanTypes]
+
+    p = Portfolio.parse_obj(get_data())
+
+    assert isinstance(p.loans[0], Mortgage)
+    assert isinstance(p.loans[1], StudentLoan)
+    assert isinstance(p.loans[2], Mortgage)
+    assert isinstance(p.loans[3], StudentLoan)
+
+

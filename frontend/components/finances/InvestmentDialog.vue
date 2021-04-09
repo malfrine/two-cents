@@ -138,7 +138,6 @@ export default {
   data () {
     const investment = this.$store.getters['finances/getInvestmentById'](this.investmentId)
     if (investment) {
-      console.log({ ...investment })
       return {
         id: investment.id,
         name: investment.name,
