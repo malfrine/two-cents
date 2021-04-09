@@ -3,6 +3,7 @@ from pathlib import Path
 from pennies.dao.json_dao import JsonDao
 from pennies.model.factories.problem_input import ProblemInputFactory
 from pennies.model.problem_input import ProblemInput
+from pennies.solution_processor import SolutionProcessor
 from pennies.solver import solve
 from pennies.strategies import StrategyName
 from pennies.utilities.examples import (
@@ -19,8 +20,8 @@ def main():
     pr = cProfile.Profile()
     pr.enable()
     json_dao = JsonDao(data_dir=Path("data"))
-    # request = json_dao.read_request("fail.json")
-    request = simple_request()
+    request = json_dao.read_request("fail.json")
+    # request = simple_request()
     sp = ProblemInputFactory.from_request(request).user_finances
     mi = ProblemInput(
         user_finances=sp,
@@ -32,6 +33,7 @@ def main():
         ],
     )
     solution = solve(mi)
+    processed_solution = SolutionProcessor.process(solution)
     print(str(mi.user_finances))
     for strategy_name, plan in solution.plans.items():
         print(f"solution strategy: {strategy_name}")

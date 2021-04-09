@@ -7,7 +7,8 @@ const defaultState = function () {
       investment_fields: {},
       risk_levels: [''],
       volatility_choices: [''],
-      provinces: ['']
+      provinces: [''],
+      loan_fields: {}
     }
   }
 }
@@ -21,11 +22,7 @@ const getters = {
     return state.enums.interest_types
   },
   getLoanTypes (state) {
-    return Object.keys(state.enums.loan_types)
-  },
-  isRevolving: state => (loanType) => {
-    const loanBehaviour = state.enums.loan_types[loanType] || ''
-    return loanBehaviour.toUpperCase() === 'REVOLVING'
+    return Object.keys(state.enums.loan_fields)
   },
   getInvestmentTypes (state) {
     return Object.keys(state.enums.investment_fields)
@@ -38,6 +35,11 @@ const getters = {
   },
   getRequiredFields: state => (investmentType) => {
     return state.enums.investment_fields[investmentType] || []
+  },
+  getRequiredLoanFields: state => (loanType, interestType) => {
+    const mandatoryFields = state.enums.loan_fields[loanType] || []
+    const interestField = state.enums.loan_interest_types_fields[interestType] || ''
+    return [...mandatoryFields, interestField]
   },
   getStateExists (state) {
     return state.exists

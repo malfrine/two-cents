@@ -66,6 +66,7 @@ class MILP:
         m.pos_withdrawal_differences = variables.pos_withdrawal_differences
         m.neg_withdrawal_differences = variables.neg_withdrawal_differences
         m.withdrawal_fluctuation_violation = variables.withdrawal_fluctuation_violation
+        m.max_monthly_payment_violations = variables.max_monthly_payment_violations
 
         cls._fix_final_allocation_to_zero(sets, variables)
 
@@ -91,6 +92,8 @@ class MILP:
         m.c19 = constraints.set_withdrawal_limits
         m.c20 = constraints.define_surplus_withdrawal_differences
         # m.c21 = constraints.limit_surplus_withdrawal_fluctuations
+        m.c22 = constraints.limit_monthly_payment
+        m.c23 = constraints.same_mortgage_payments
 
         objective = MILPObjective.create(sets, milp_parameters, variables, discount_factor=parameters.discount_factor)
         m.obj = objective.obj

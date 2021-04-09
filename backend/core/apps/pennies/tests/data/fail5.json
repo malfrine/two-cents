@@ -3,42 +3,47 @@
        {
            "name": "LOC",
            "current_balance": -150000.0,
-           "apr": 2.5,
-           "prime_modifier": null,
            "minimum_monthly_payment": 996.0,
            "final_month": 227,
            "loan_type": "Personal Loan",
-           "interest_type": "Fixed"
+         "interest_rate": {
+                      "interest_type": "Fixed",
+                      "apr": 2.5
+         }
        },
        {
            "name": "Test LOC",
            "current_balance": -1000.0,
-           "apr": null,
-           "prime_modifier": 1.0,
            "minimum_monthly_payment": 2.91666666666667,
            "final_month": null,
            "loan_type": "Line of Credit",
-           "interest_type": "Variable"
+         "interest_rate": {
+                      "interest_type": "Variable",
+                      "prime_modifier": 1.0
+         }
        },
        {
            "name": "Student LOC",
            "current_balance": -100001.0,
            "apr": null,
-           "prime_modifier": 1.0,
            "minimum_monthly_payment": 291.669583333333,
            "final_month": null,
            "loan_type": "Student Line of Credit",
-           "interest_type": "Variable"
+         "interest_rate": {
+                      "prime_modifier": 1.0,
+                      "interest_type": "Variable"
+         }
        },
        {
            "name": "RCL",
            "current_balance": -10000.0,
-           "apr": 1.8,
-           "prime_modifier": null,
            "minimum_monthly_payment": 212.0,
            "final_month": 50,
            "loan_type": "Personal Loan",
-           "interest_type": "Fixed"
+         "interest_rate": {
+                      "interest_type": "Fixed",
+                      "apr": 1.8
+         }
        }
    ],
    "investments": [

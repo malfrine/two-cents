@@ -23,7 +23,7 @@ export default {
               labelString: 'Value ($)'
             },
             gridLines: {
-              display: false
+              display: true
             }
           }],
           xAxes: [{

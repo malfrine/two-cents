@@ -3,22 +3,24 @@
        {
            "name": "LOC",
            "current_balance": -50000.0,
-           "apr": 2.5,
-           "prime_modifier": null,
            "minimum_monthly_payment": 522.0,
            "final_month": 108,
            "loan_type": "Personal Loan",
-           "interest_type": "Fixed"
+         "interest_rate": {
+                      "apr": 2.5,
+                      "interest_type": "Fixed"
+         }
        },
        {
            "name": "LOC 2",
            "current_balance": -80000.0,
-           "apr": null,
-           "prime_modifier": 1.0,
            "minimum_monthly_payment": null,
            "final_month": null,
            "loan_type": "Student Line of Credit",
+                  "interest_rate": {
+           "prime_modifier": 1.0,
            "interest_type": "Variable"
+                  }
        }
    ],
    "investments": [

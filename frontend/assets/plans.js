@@ -48,7 +48,6 @@ export class PlanMaker {
     }
 
     makeStrategies (responseData) {
-      console.log(responseData)
       return Object.keys(responseData)
     }
 

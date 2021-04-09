@@ -29,6 +29,7 @@ class MILPVariables:
     pos_withdrawal_differences: pe.Var
     neg_withdrawal_differences: pe.Var
     withdrawal_fluctuation_violation: pe.Var
+    max_monthly_payment_violations: pe.Var
 
     @classmethod
     def create(
@@ -101,6 +102,7 @@ class MILPVariables:
         pos_withdrawal_differences = pe.Var(sets.all_decision_periods_as_set, domain=pe.NonNegativeReals)
         neg_withdrawal_differences = pe.Var(sets.all_decision_periods_as_set, domain=pe.NonNegativeReals)
         withdrawal_fluctuation_violation = pe.Var(domain=pe.NonNegativeReals)
+        max_monthly_payment_violations = pe.Var(sets.instruments, sets.all_decision_periods_as_set, domain=pe.NonNegativeReals, initialize=0)
 
         return MILPVariables(
             allocations=allocations,
@@ -121,7 +123,8 @@ class MILPVariables:
             tfsa_contribution_limits=tfsa_contribution_limits,
             neg_withdrawal_differences=neg_withdrawal_differences,
             pos_withdrawal_differences=pos_withdrawal_differences,
-            withdrawal_fluctuation_violation=withdrawal_fluctuation_violation
+            withdrawal_fluctuation_violation=withdrawal_fluctuation_violation,
+            max_monthly_payment_violations=max_monthly_payment_violations,
         )
 
     def get_allocation(self, instrument: UUID, month: int):
@@ -192,3 +195,6 @@ class MILPVariables:
 
     def get_withdrawal_fluctuation_violation(self):
         return self.withdrawal_fluctuation_violation
+
+    def get_max_monthly_payment_violation(self, instrument, decision_period_index):
+        return self.max_monthly_payment_violations[instrument, decision_period_index]

@@ -1,7 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 
-from core.apps.finances.serializers import PenniesRequestSerializer
+from core.apps.finances.serializers.pennies.request import PenniesRequestSerializer
 from core.apps.pennies.pennies.solver import solve_request
 
 # Create your views here.

@@ -12,7 +12,7 @@ from pennies.model.investment import (
     BaseInvestment,
 )
 from pennies.model.constants import InvestmentAccountType
-from pennies.model.loan import Loan
+from pennies.model.loan import Loan, Mortgage
 from pennies.utilities.dict import (
     get_value_from_dict,
 )
@@ -48,6 +48,10 @@ class Portfolio(BaseModel):
     @property
     def loans(self) -> List[Loan]:
         return list(l for l in self.instruments.values() if isinstance(l, Loan))
+
+    @property
+    def non_mortgage_loans(self) -> List[Loan]:
+        return list(l for l in self.loans if not isinstance(l, Mortgage))
 
     @property
     def loans_by_id(self) -> Dict[UUID, Loan]:

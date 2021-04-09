@@ -14,20 +14,15 @@ class ProblemInputFactory:
     def from_request(cls, request: PenniesRequest) -> ProblemInput:
         instruments = dict()
         for loan in request.loans:
-            loan = LoanFactory.from_request_loan(loan)
             instruments[loan.id_] = loan
         for investment in request.investments:
             investment = InvestmentFactory.from_request_investment(investment)
             instruments[investment.id_] = investment
         portfolio = Portfolio(instruments=instruments)
-        parameters = Parameters(
-            discount_factor=DiscountFactorCalculator(portfolio, request.financial_profile).calculate_factor()
-        )
         return ProblemInput(
             user_finances=UserPersonalFinances(
                 financial_profile=request.financial_profile,
                 portfolio=portfolio,
             ),
             strategies=request.strategies,
-            parameters=parameters
         )

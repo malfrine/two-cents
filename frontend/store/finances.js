@@ -125,6 +125,7 @@ const actions = {
         }
       )
   },
+
   createOrUpdateInvestment (context, payload) {
     if (payload.id == null) {
       this.$axios.$post('/api/my/finances/investments', payload)

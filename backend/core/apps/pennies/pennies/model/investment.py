@@ -5,7 +5,7 @@ from pennies.model.constants import InvestmentAccountType
 from pennies.model.instrument import Instrument
 from pennies.model.interest_rate import (
     ZeroGrowthRate,
-    InterestRate,
+    CompoundingRate,
     GuaranteedInvestmentReturnRate,
 )
 
@@ -34,7 +34,7 @@ class GuaranteedInvestment(BaseInvestment):
     def set_current_balance(cls, values):
         v: int = values["current_balance"]
         n: int = abs(values["start_month"])
-        r: InterestRate = values["interest_rate"]
+        r: GuaranteedInvestmentReturnRate = values["interest_rate"]
         p: float = values["principal_investment_amount"]
         expected_current_balance = p * (1 + r.get_monthly_interest_rate(0)) ** n
         if v is None or v != expected_current_balance:

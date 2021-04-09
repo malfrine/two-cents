@@ -4,7 +4,7 @@ import pytest
 
 from pennies.model.interest_rate import (
     FixedLoanInterestRate,
-    GuaranteedInvestmentReturnRate,
+    GuaranteedInvestmentReturnRate, FixedInvestmentInterestRate,
 )
 from pennies.model.investment import GuaranteedInvestment
 from pennies.model.loan import PersonalLoan
@@ -71,9 +71,9 @@ def test_final_payment():
 
 def test_forward_on_guaranteed_investment():
     principal = 100
-    apr = 12
+    roi = 12
     interest_rate = GuaranteedInvestmentReturnRate(
-        interest_rate=FixedLoanInterestRate(apr=apr), final_month=1
+        interest_rate=FixedInvestmentInterestRate(roi=roi), final_month=1
     )
     gi = GuaranteedInvestment(
         name="generic",
@@ -84,13 +84,13 @@ def test_forward_on_guaranteed_investment():
         current_balance=None,
     )
     p = Portfolio(instruments={gi.id_: gi})
-    p = PortfolioManager.forward_on_month(portfolio=p, payments=dict(), month=0)
+    PortfolioManager.forward_on_month(portfolio=p, payments=dict(), month=0)
     nb = gi.current_balance * (1 + gi.monthly_interest_rate(0))
-    assert p.instruments["generic"].current_balance == nb
-    p = PortfolioManager.forward_on_month(portfolio=p, payments=dict(), month=1)
+    assert p.instruments[gi.id_].current_balance == nb
+    PortfolioManager.forward_on_month(portfolio=p, payments=dict(), month=1)
     nb = nb * (1 + gi.monthly_interest_rate(1))
-    assert p.instruments["generic"].current_balance == nb
-    p = PortfolioManager.forward_on_month(portfolio=p, payments=dict(), month=2)
-    assert p.instruments["generic"].current_balance == nb
-    p = PortfolioManager.forward_on_month(portfolio=p, payments=dict(), month=3)
-    assert p.instruments["generic"].current_balance == nb
+    assert p.instruments[gi.id_].current_balance == nb
+    PortfolioManager.forward_on_month(portfolio=p, payments=dict(), month=2)
+    assert p.instruments[gi.id_].current_balance == nb
+    PortfolioManager.forward_on_month(portfolio=p, payments=dict(), month=3)
+    assert p.instruments[gi.id_].current_balance == nb

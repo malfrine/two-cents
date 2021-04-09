@@ -9,7 +9,7 @@ from pennies.model.investment import (
     GuaranteedInvestment,
 )
 from pennies.model.constants import InvestmentAccountType
-from pennies.model.loan import Loan, InstalmentLoan
+from pennies.model.loan import Loan, InstalmentLoan, Mortgage
 from pennies.model.decision_periods import (
     DecisionPeriodsManager,
     DecisionPeriodsManagerFactory,
@@ -51,6 +51,10 @@ class MILPSets:
     @property
     def loans(self):
         return list(i.id_ for i in self._instruments if isinstance(i, Loan))
+
+    @property
+    def mortgages(self):
+        return list(i.id_ for i in self._instruments if isinstance(i, Mortgage))
 
     @property
     def investments(self):
