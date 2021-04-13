@@ -1,33 +1,59 @@
 <template>
   <div>
-    <div style="height: 100vh;">
-      <v-row justify="center">
-        <v-col cols="12" lg="9">
-          <BigLogoSvg />
-          <div class="primary--text text-center text-h6 text-sm-h4 text-xl-h3">
+    <div style="min-height: 100vh;">
+      <v-row justify="center" align="center" class="mb-n5">
+        <v-col cols="12" lg="9" align-self="center">
+          <div class="text-center">
+            <BigLogoSvg class="text-center mt-6 mb-9" style="max-height: 35px" />
+          </div>
+        </v-col>
+      </v-row>
+      <v-row justify="center" align="center">
+        <v-col cols="12" lg="9" align-self="center">
+          <div class="font-weight-medium primary--text text-center text-h4 text-sm-h3 text-md-h2">
             DIY financial planning powered by AI
           </div>
         </v-col>
       </v-row>
-      <v-container class="px-10">
-        <v-row>
-          <v-col cols="12" sm="6">
-            <div class="text-center">
-              DASHBOARD IMAGE HERE
-            </div>
-          </v-col>
-          <v-col cols="12" sm="6">
-            <RequestAccessButton />
-          </v-col>
-        </v-row>
-      </v-container>
+      <v-row justify="center" align="center">
+        <v-col cols="12" lg="9" align-self="center">
+          <div class="text-center text-h5 text-sm-h5 text-md-h4">
+            Optimize your
+            <client-only>
+                <vue-typer
+                :text="['investments', 'debt', 'taxes', 'retirement', 'financial goals']"
+                :repeat="Infinity"
+                :shuffle="false"
+                initial-action="typing"
+                :pre-type-delay="70"
+                :type-delay="70"
+                :pre-erase-delay="2000"
+                :erase-delay="250"
+                erase-style="clear"
+                :erase-on-complete="false"
+                caret-animation="blink"
+              />
+            </client-only>
+          </div>
+        </v-col>
+      </v-row>
+      <v-row align="center" justify="center" class="mt-2">
+        <v-col cols="12">
+          <RequestAccessButton />
+        </v-col>
+        <v-col cols="12">
+          <div class="text-center">
+            <DashboardExampleSvg style="max-height: 800px" />
+          </div>
+        </v-col>
+      </v-row>
     </div>
     <v-container>
       <v-row justify="center" align="center">
         <v-col cols="12" sm="6">
           <div class="text-center text-sm-left text-h4 my-3">
             Financial planning
-            <span class="blue--text">
+            <span class="blue--text font-weight-bold">
               without the fees
             </span>
           </div>
@@ -48,7 +74,7 @@
         <v-col cols="12" sm="6" :order="$vuetify.breakpoint.xsOnly ? 0 : 1">
           <div class="text-center text-sm-left text-h4 my-3">
             At last, a plan you can
-            <span class="pink--text">
+            <span class="pink--text font-weight-bold">
               trust
             </span>
           </div>
@@ -63,7 +89,7 @@
         <v-col cols="12" sm="6">
           <div class="text-center text-sm-left text-h4 my-3">
             A plan built just
-            <span class="purple--text">
+            <span class="purple--text font-weight-bold">
               for you
             </span>
           </div>
@@ -90,7 +116,7 @@
         </v-row>
         <v-row justify="center">
           <div class="text-center text-body-1 white--text">
-            We generate a monthly spending plan for you using the same algorithms and computing power used by Wall Street hedge funds
+            We generate a monthly spending plan for you using algorithms that optimize your financial picture
           </div>
         </v-row>
       </v-container>
@@ -122,6 +148,7 @@ import SuccessFactorsSvg from '@/components/landing/SuccessFactorsSvg.vue'
 import FeaturePointCard from '@/components/landing/FeaturePointCard.vue'
 import BigLogoSvg from '@/components/logo/BigLogoSvg.vue'
 import RequestAccessButton from '@/components/landing/RequestAccessButton.vue'
+import DashboardExampleSvg from '@/components/landing/DashboardExampleSvg.vue'
 
 export default {
   layout: 'landing',
@@ -131,7 +158,8 @@ export default {
     SuccessFactorsSvg,
     BigLogoSvg,
     FeaturePointCard,
-    RequestAccessButton
+    RequestAccessButton,
+    DashboardExampleSvg
   },
   data () {
     return {
@@ -178,8 +206,10 @@ export default {
 }
 </script>
 
-<style scoped>
-  .v-input__append-outer {
-    margin: 0 !important
-  }
+<style>
+
+.vue-typer .custom.char {
+  color: #25b245;
+  font-weight: bold;
+}
 </style>

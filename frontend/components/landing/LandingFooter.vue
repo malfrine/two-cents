@@ -11,13 +11,14 @@
       >
         <v-card-text>
           <v-btn
-            v-for="icon in icons"
-            :key="icon"
+            v-for="(icon, index) in icons"
+            :key="index"
             class="mx-4 white--text"
             icon
+            :href="icon.link"
           >
             <v-icon size="24px">
-              {{ icon }}
+              {{ icon.iconName }}
             </v-icon>
           </v-btn>
         </v-card-text>
@@ -36,9 +37,14 @@
 export default {
   data: () => ({
     icons: [
-      'mdi-twitter',
-      'mdi-linkedin',
-      'mdi-instagram'
+      {
+        iconName: 'mdi-twitter',
+        link: 'https://twitter.com/TwoCents_Canada'
+      },
+      {
+        iconName: 'mdi-linkedin',
+        link: 'https://www.linkedin.com/company/two-cents-canada'
+      }
     ]
   })
 }
