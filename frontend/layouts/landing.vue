@@ -5,8 +5,6 @@
       hide-on-scroll
       app
       dark
-      min-height="78"
-      class="pt-2"
     >
       <div class="d-flex justify-center align-center">
         <v-img

@@ -1,12 +1,12 @@
 <template>
   <v-container class="px-1 py-10">
     <v-form ref="form">
-      <v-row justify="center" align="center" class="mb-5">
+      <v-row justify="center" align="center" class="mb-n3">
         <v-text-field
           v-model="email"
           outlined
           label="Your Email"
-          style="max-width: 450px;"
+          style="max-width: 350px;"
           :rules="emailRules"
         />
       </v-row>
