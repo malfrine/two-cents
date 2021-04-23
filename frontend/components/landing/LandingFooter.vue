@@ -24,17 +24,34 @@
         </v-card-text>
 
         <v-divider />
-
-        <v-card-text class="white--text">
-          {{ new Date().getFullYear() }} — <strong>Two Cents</strong>
-        </v-card-text>
+        <v-row justify="space-between">
+          <v-col cols="12" md="6">
+            <v-row justify="start" no-gutters>
+              <v-spacer v-if="$vuetify.breakpoint.smAndDown" />
+              <TOSDialog />
+              |
+              <PrivacyPolicyDialog />
+              <v-spacer />
+            </v-row>
+          </v-col>
+          <v-col cols="12" md="3">
+            {{ new Date().getFullYear() }} — <strong>Two Cents</strong>
+          </v-col>
+        </v-row>
       </v-card>
     </v-flex>
   </v-footer>
 </template>
 
 <script>
+import TOSDialog from '@/components/base/TOSDialog.vue'
+import PrivacyPolicyDialog from '@/components/base/PrivacyPolicyDialog.vue'
+
 export default {
+  components: {
+    TOSDialog,
+    PrivacyPolicyDialog
+  },
   data: () => ({
     icons: [
       {

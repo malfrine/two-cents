@@ -10,30 +10,8 @@
       </v-row>
       <v-row justify="center" align="center">
         <v-col cols="12" lg="9" align-self="center">
-          <div class="font-weight-medium primary--text text-center text-h4 text-sm-h3 text-md-h2">
+          <div class="font-weight-medium primary--text text-center text-h5 text-sm-h4 text-md-h3">
             DIY financial planning powered by AI
-          </div>
-        </v-col>
-      </v-row>
-      <v-row justify="center" align="center">
-        <v-col cols="12" lg="9" align-self="center">
-          <div class="text-center text-h5 text-sm-h5 text-md-h4">
-            Optimize your
-            <client-only>
-                <vue-typer
-                :text="['investments', 'debt', 'taxes', 'retirement', 'financial goals']"
-                :repeat="Infinity"
-                :shuffle="false"
-                initial-action="typing"
-                :pre-type-delay="70"
-                :type-delay="70"
-                :pre-erase-delay="2000"
-                :erase-delay="250"
-                erase-style="clear"
-                :erase-on-complete="false"
-                caret-animation="blink"
-              />
-            </client-only>
           </div>
         </v-col>
       </v-row>
@@ -48,6 +26,44 @@
         </v-col>
       </v-row>
     </div>
+
+    <v-row dark justify="center" align="center" class="mt-13 mb-n10 pt-10 pb-15" style="background: #212121">
+      <v-col cols="12" />
+      <v-container class="">
+        <v-row justify="center" class="mb-3">
+          <div class="text-center text-h4 text-md-h3 my-2 white--text">
+            A game changing approach to <br class="mb-3">
+            <client-only>
+              <vue-typer
+                :text="['investments', 'debt', 'taxes', 'retirement', 'financial goals', 'financial planning']"
+                :repeat="Infinity"
+                :shuffle="false"
+                initial-action="typing"
+                :pre-type-delay="70"
+                :type-delay="70"
+                :pre-erase-delay="2000"
+                :erase-delay="20"
+                erase-style="backspace"
+                :erase-on-complete="false"
+                caret-animation="blink"
+              />
+            </client-only>
+          </div>
+        </v-row>
+        <v-row justify="center">
+          <div class="text-center text-body-1 white--text mb-10">
+            We generate a monthly spending plan for you using algorithms that optimize your complete financial picture
+          </div>
+        </v-row>
+      </v-container>
+    </v-row>
+    <v-container>
+      <v-row class="mt-n8 mb-15">
+        <v-col v-for="(featurePoint, index) in featurePoints" :key="index" cols="12" sm="6">
+          <FeaturePointCard :icon-name="featurePoint.iconName" :title="featurePoint.title" :text="featurePoint.text" />
+        </v-col>
+      </v-row>
+    </v-container>
     <v-container>
       <v-row justify="center" align="center">
         <v-col cols="12" sm="6">
@@ -103,28 +119,6 @@
               <PersonalGoalsSvg />
             </v-sheet>
           </v-sheet>
-        </v-col>
-      </v-row>
-    </v-container>
-    <v-spacer style="height: 10vh" />
-    <v-row dark justify="center" align="center" class="mt-15 mb-n10 pt-10 pb-15" style="background: #212121">
-      <v-container class="px-8">
-        <v-row justify="center">
-          <div class="text-center text-h4 text-md-h3 my-2 white--text">
-            A <span class="primary--text">game-changing</span> approach to financial planning
-          </div>
-        </v-row>
-        <v-row justify="center">
-          <div class="text-center text-body-1 white--text">
-            We generate a monthly spending plan for you using algorithms that optimize your financial picture
-          </div>
-        </v-row>
-      </v-container>
-    </v-row>
-    <v-container>
-      <v-row class="mt-n8 mb-15">
-        <v-col v-for="(featurePoint, index) in featurePoints" :key="index" cols="12" sm="6">
-          <FeaturePointCard :icon-name="featurePoint.iconName" :title="featurePoint.title" :text="featurePoint.text" />
         </v-col>
       </v-row>
     </v-container>
@@ -211,5 +205,9 @@ export default {
 .vue-typer .custom.char {
   color: #25b245;
   font-weight: bold;
+}
+
+.vue-typer .custom.caret {
+  background-color: #ffffff;
 }
 </style>

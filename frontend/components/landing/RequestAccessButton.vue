@@ -10,9 +10,9 @@
           :rules="emailRules"
         />
       </v-row>
-      <v-row justify="center" align="center">
+      <v-row justify="center" align="center" class="mt-2">
         <v-btn x-large color="primary" :small="$vuetify.breakpoint.smAndDown" @click="postEmail()">
-          Request Access
+          Join Waitlist
         </v-btn>
       </v-row>
     </v-form>
