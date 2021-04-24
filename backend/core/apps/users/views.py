@@ -9,6 +9,7 @@ from django.contrib.auth import authenticate, get_user, login, logout
 from django.contrib.sessions.models import Session
 from django.conf import settings
 from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 
 from rest_framework import mixins, views, viewsets, status
@@ -74,5 +75,17 @@ class WaitlistUserViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     def perform_create(self, serializer):
         waitlist_user = serializer.save()
         waitlist_user.email = BaseUserManager.normalize_email(waitlist_user.email)
+        waitlist_user.referral_id = waitlist_user.id
+        
+        text_content = render_to_string("mail/welcome.txt")
+        msg = EmailMultiAlternatives(
+            subject="Welcome to the Two Cents waitlist",
+            from_email="Malfy from Two Cents <malfy@two-cents.ca>",
+            body=text_content,
+            to=(waitlist_user.email,)
+        )
+        html_content = render_to_string("mail/welcome.html")
+        msg.attach_alternative(html_content, "text/html")
+        msg.send()
         waitlist_user.save()
 
