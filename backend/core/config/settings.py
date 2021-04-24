@@ -26,7 +26,7 @@ DJANGO_APPS = [
     "django.contrib.admin",
 ]
 
-THIRD_PARTY_APPS = ["rest_framework", "django_extensions", "whitenoise"]
+THIRD_PARTY_APPS = ["rest_framework", "django_extensions", "whitenoise", "anymail"]
 
 LOCAL_APPS = [
     "core.apps.users",
@@ -61,9 +61,14 @@ DOMAIN = env.str("DOMAIN")
 
 # EMAIL CONFIGURATION
 # ------------------------------------------------------------------------------
-EMAIL_PORT = env.int("EMAIL_PORT", default="1025")
-EMAIL_HOST = env.str("EMAIL_HOST", default="mailhog")
-
+if DEBUG:
+    EMAIL_PORT = env.int("EMAIL_PORT", default="1025")
+    EMAIL_HOST = env.str("EMAIL_HOST", default="mailhog")
+else:
+    EMAIL_BACKEND = "anymail.backends.sendinblue.EmailBackend"
+    ANYMAIL = {
+        "SENDINBLUE_API_KEY": env.str("SENDINBLUE_API_KEY"),
+    }
 
 # MANAGER CONFIGURATION
 # ------------------------------------------------------------------------------
@@ -292,3 +297,7 @@ LOGGING = {
 }
 
 RAVEN_CONFIG = {"DSN": SENTRY_DSN}
+
+# Hashid Field Settings
+HASHID_FIELD_ALLOW_INT_LOOKUP = True
+HASHID_FIELD_SALT = env.str("DJANGO_HASHID_FIELD_SALT")

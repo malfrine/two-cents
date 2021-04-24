@@ -1,4 +1,4 @@
-from uuid import uuid4
+from hashid_field import HashidField
 
 from django.contrib.auth.models import (
     BaseUserManager,
@@ -8,13 +8,8 @@ from django.contrib.auth.models import (
 from django.db import models
 from django.utils import timezone
 
+UNINITIALIZED_POSITION = -1
 
-class WaitlistUser(models.Model):
-    email = models.EmailField(verbose_name="Email", unique=True, max_length=255)
-    can_register = models.BooleanField(default=False, verbose_name="Can Register")
-    waitlist_join_dt = models.DateTimeField(
-        verbose_name="Waitlist Joined Datetime", auto_now_add=timezone.now
-    )
 
 class UserManager(BaseUserManager):
     def _create_user(self, email, password, is_staff, is_superuser, **extra_fields):
@@ -56,7 +51,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         verbose_name="Last name", max_length=30, default="last"
     )
     avatar = models.ImageField(verbose_name="Avatar", blank=True)
-    token = models.UUIDField(verbose_name="Token", default=uuid4, editable=False)
 
     is_admin = models.BooleanField(verbose_name="Admin", default=False)
     is_active = models.BooleanField(verbose_name="Active", default=True)
@@ -95,3 +89,15 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.full_name
+
+
+
+class WaitlistUser(models.Model):
+    email = models.EmailField(verbose_name="Email", unique=True, max_length=255)
+    can_register = models.BooleanField(default=False, verbose_name="Can Register")
+    waitlist_join_dt = models.DateTimeField(
+        verbose_name="Waitlist Joined Datetime", auto_now_add=timezone.now,
+    )
+    current_position = models.IntegerField(verbose_name="Current Position on Waitlist", default=UNINITIALIZED_POSITION)
+    referral_id = HashidField(null=True, blank=True)
+    referrer_id = models.IntegerField(verbose_name="Primary Key of Referrer", default=None, blank=True, null=True)

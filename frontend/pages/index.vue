@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div style="min-height: 100vh;">
+    <div style="min-height: 75vh;">
       <v-row justify="center" align="center" class="mb-n5">
         <v-col cols="12" lg="9" align-self="center">
           <div class="text-center">
@@ -15,15 +15,11 @@
           </div>
         </v-col>
       </v-row>
+      <v-row align="center" justify="center" class="mt-15 mb-7">
+        <JoinWaitlistDialogue />
+      </v-row>
       <v-row align="center" justify="center" class="mt-2">
-        <v-col cols="12">
-          <RequestAccessButton />
-        </v-col>
-        <v-col cols="12">
-          <div class="text-center">
-            <DashboardExampleSvg style="max-height: 800px" />
-          </div>
-        </v-col>
+        <DashboardExampleSvg style="max-height: 800px" />
       </v-row>
     </div>
 
@@ -123,15 +119,13 @@
       </v-row>
     </v-container>
     <v-spacer style="height: 5vh" />
-    <div class="text-center text-h3 primary--text mt-15">
+    <div class="text-center text-h4 primary--text mt-15">
       Save thousands in just 15 minutes!
     </div>
-    <v-row justify="center" align="center" no-gutters class="py-0">
-      <v-col cols="6">
-        <RequestAccessButton />
-      </v-col>
+    <v-row justify="center" align="center" class="mt-5">
+      <JoinWaitlistDialogue />
     </v-row>
-    <v-spacer style="height: 15vh" />
+    <v-spacer style="height: 10vh" />
   </div>
 </template>
 
@@ -141,8 +135,8 @@ import PersonalGoalsSvg from '@/components/landing/PersonalGoalsSvg.vue'
 import SuccessFactorsSvg from '@/components/landing/SuccessFactorsSvg.vue'
 import FeaturePointCard from '@/components/landing/FeaturePointCard.vue'
 import BigLogoSvg from '@/components/logo/BigLogoSvg.vue'
-import RequestAccessButton from '@/components/landing/RequestAccessButton.vue'
 import DashboardExampleSvg from '@/components/landing/DashboardExampleSvg.vue'
+import JoinWaitlistDialogue from '@/components/waitlist/JoinWaitlistDialogue.vue'
 
 export default {
   layout: 'landing',
@@ -152,8 +146,8 @@ export default {
     SuccessFactorsSvg,
     BigLogoSvg,
     FeaturePointCard,
-    RequestAccessButton,
-    DashboardExampleSvg
+    DashboardExampleSvg,
+    JoinWaitlistDialogue
   },
   data () {
     return {
