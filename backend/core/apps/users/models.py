@@ -91,8 +91,10 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.full_name
 
 
-
 class WaitlistUser(models.Model):
+    first_name = models.CharField(
+        verbose_name="First name", max_length=30, default=None, null=True, blank=True
+    )
     email = models.EmailField(verbose_name="Email", unique=True, max_length=255)
     can_register = models.BooleanField(default=False, verbose_name="Can Register")
     waitlist_join_dt = models.DateTimeField(
@@ -101,3 +103,21 @@ class WaitlistUser(models.Model):
     current_position = models.IntegerField(verbose_name="Current Position on Waitlist", default=UNINITIALIZED_POSITION)
     referral_id = HashidField(null=True, blank=True)
     referrer_id = models.IntegerField(verbose_name="Primary Key of Referrer", default=None, blank=True, null=True)
+
+def create_waitlist_user(email: str, referree_id: str, first_name: str):
+    waitlist_user = WaitlistUser.objects.create(
+        email=BaseUserManager.normalize_email(email),
+        first_name=first_name
+    )
+    waitlist_user.referral_id = waitlist_user.id
+    if referree_id:
+        try:
+            referral_user = WaitlistUser.objects.get(referral_id=referree_id)
+            waitlist_user.referree_id = referral_user.id
+            print(f"referree_id {referree_id} was found; referree was {referral_user.email}")
+        except WaitlistUser.DoesNotExist:
+            print(f"Given referree_id {referree_id} can not be found")
+            pass
+    waitlist_user.save()
+    return waitlist_user
+        

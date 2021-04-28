@@ -1,7 +1,7 @@
 <template>
   <div class="mx-5">
     <a
-      class="text-decoration-underline white--text"
+      class="text-decoration-underline white--text small-text"
       @click.stop="dialog = true"
     >
       Terms and Conditions
@@ -15,7 +15,7 @@
         <v-container>
           <v-card-text class="mt-4">
             <h1>Terms and Conditions</h1><p>Last updated: March 08, 2021</p><p>Please read these terms and conditions carefully before using Our Service.</p><h1>Interpretation and Definitions</h1><h2>Interpretation</h2><p>The words of which the initial letter is capitalized have meanings definedunder the following conditions. The following definitions shall have the same meaning regardless of whether they appear in singular or in plural.</p><h2>Definitions</h2><p>For the purposes of these Terms and Conditions:</p><ul>
-              <li><p><strong>Affiliate</strong> means an entity that controls, is controlled by or is under common control with a party, where &quot;control&quot; means ownership of 50% or more of the shares, equity interest or other securities entitled to vote for election of directors or other managing authority.</p></li><li><p><strong>Country</strong> refers to: Canada</p></li><li><p><strong>Company</strong> (referred to as either &quot;the Company&quot;, &quot;We&quot;, &quot;Us&quot; or &quot;Our&quot; in this Agreement) refers to Two Cents.</p></li><li><p><strong>Device</strong> means any device that can access the Service such as a computer, a cellphone or a digital tablet.</p></li><li><p><strong>Service</strong> refers to the Website.</p></li><li><p><strong>Terms and Conditions</strong> (also referred as &quot;Terms&quot;) mean these Terms and Conditions that form the entire agreement between You and the Company regarding the use of the Service. This Terms and Conditions agreement has been created with the help of the <a href="https://www.termsfeed.com/terms-conditions-generator/" target="_blank">Terms and Conditions Generator</a>.</p></li><li>
+              <li><p><strong>Affiliate</strong> means an entity that controls, is controlled by or is under common control with a party, where &quot;control&quot; means ownership of 50% or more of the shares, equity interest or other securities entitled to vote for election of directors or other managing authority.</p></li><li><p><strong>Country</strong> refers to: Canada</p></li><li><p><strong>Company</strong> (referred to as either &quot;the Company&quot;, &quot;We&quot;, &quot;Us&quot; or &quot;Our&quot; in this Agreement) refers to Two Cents.</p></li><li><p><strong>Device</strong> means any device that can access the Service such as a computer, a cellphone or a digital tablet.</p></li><li><p><strong>Service</strong> refers to the Website.</p></li><li><p><strong>Terms and Conditions</strong> (also referred as &quot;Terms&quot;) mean these Terms and Conditions that form the entire agreement between You and the Company regarding the use of the Service. </p></li><li>
                 <p>
                   <strong>Third-party Social Media Service</strong> means any servicesor content (including data, information, products or services) provided by a
                   third-party that may be displayed, included or made available by the Service.
@@ -60,5 +60,8 @@ export default {
 h1, h2, h3 {
     margin-top: 1rem;
     margin-bottom: 1rem;
+}
+.small-text {
+  font-size: 0.8rem;
 }
 </style>

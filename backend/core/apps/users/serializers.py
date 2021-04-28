@@ -39,4 +39,4 @@ class UserWriteSerializer(serializers.ModelSerializer):
 class WaitlistUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = WaitlistUser
-        fields = ["email"]
+        fields = ["email", "referral_id"]

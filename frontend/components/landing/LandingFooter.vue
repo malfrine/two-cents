@@ -61,6 +61,10 @@ export default {
       {
         iconName: 'mdi-linkedin',
         link: 'https://www.linkedin.com/company/two-cents-canada'
+      },
+      {
+        iconName: 'mdi-instagram',
+        link: 'https://www.instagram.com/twocents_ca/'
       }
     ]
   })
