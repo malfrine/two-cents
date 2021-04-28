@@ -1,0 +1,93 @@
+<template>
+  <v-container fill-height>
+    <v-row justify="center" class="mt-n16">
+      <v-col cols="12" md="7" lg="6">
+        <v-card align="center">
+          <v-container class="py-7">
+            <div class="text-h6">
+              Join the Two Cents Waitlist
+            </div>
+            <v-divider class="my-5" />
+            <v-form ref="form">
+              <v-text-field
+                v-model="firstName"
+                outlined
+                label="First Name"
+                style="max-width: 350px;"
+                :rules="[v => !!v || 'First name is required']"
+              />
+              <v-text-field
+                v-model="lastName"
+                outlined
+                label="Last Name (Optional)"
+                style="max-width: 350px;"
+              />
+              <v-text-field
+                v-model="email"
+                outlined
+                label="Your Email"
+                style="max-width: 350px;"
+                :rules="emailRules"
+              />
+              <v-card-actions class="justify-center">
+                <v-btn x-large color="primary" :small="$vuetify.breakpoint.smAndDown" @click="postEmail()">
+                  Join Waitlist
+                </v-btn>
+              </v-card-actions>
+            </v-form>
+          </v-container>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
+</template>
+
+<script>
+
+export default {
+  layout: 'landing',
+  data () {
+    return {
+      firstName: null,
+      lastName: null,
+      email: null,
+      emailRules: [
+        v => !!v || 'Email is required',
+        v => /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v) || 'E-mail must be valid'
+      ]
+    }
+  },
+  computed: {
+    referreeCode () {
+      return this.$route.query.referralCode || ''
+    }
+  },
+  methods: {
+    postEmail () {
+      const isValid = this.$refs.form.validate()
+      if (!isValid) {
+        return
+      }
+      const payload = {
+        email: this.email,
+        referree_id: this.referreeCode,
+        first_name: this.firstName
+      }
+      this.$axios.$post('/api/waitlist', payload)
+        .then(
+          (response) => {
+            this.$store.commit('waitlist/SET_REFERRAL_CODE', response.referral_id)
+            this.$router.push({ path: '/waitlist/share' })
+            this.$refs.form.reset()
+          }
+        )
+        .catch(
+          (e) => {
+            this.$toast.error('Sorry, we were not able to add you to the waitlist')
+          }
+        )
+    }
+
+  }
+}
+</script>

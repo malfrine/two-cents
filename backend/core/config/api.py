@@ -8,7 +8,7 @@ from core.apps.finances.views import (
     PenniesRequestViewset,
 )
 from core.apps.plan.views import UserPlanViewSet
-from core.apps.users.views import AccountViewSet, SessionAPIView, WaitlistUserViewSet
+from core.apps.users.views import AccountViewSet, SessionAPIView
 
 # Settings
 api = routers.DefaultRouter()
@@ -23,4 +23,4 @@ api.register(r"my/finances/investments", InvestmentViewset)
 api.register(r"my/finances/profile", FinancialProfileView, basename="financial-profile")
 api.register(r"my/plan", UserPlanViewSet, basename="financial-plan")
 api.register(f"finances/enums", FinancesEnumsViewset, basename="financial-enums")
-api.register(f"waitlist", WaitlistUserViewSet, basename="waitlist")
+# api.register(f"waitlist", WaitlistUserViewSet, basename="waitlist")

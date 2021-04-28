@@ -8,8 +8,8 @@
     >
       <div class="d-flex justify-center align-center">
         <v-img
-          max-width="150"
-          max-height="65"
+          max-width="120"
+          max-height="50"
           src="/logo-white.png"
         />
       </div>

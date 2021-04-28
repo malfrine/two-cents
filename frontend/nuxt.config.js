@@ -75,6 +75,10 @@ export default {
     }
   },
 
+  env: {
+    baseUrl: process.env.DOMAIN || 'http://localhost:8000'
+  },
+
   // Vuetify module configuration (https://go.nuxtjs.dev/config-vuetify)
   vuetify: {
     customVariables: ['~/assets/variables.scss'],

@@ -8,7 +8,7 @@ https://blog.two-cents.ca
 Tired of waiting? Hump the queue by inviting your friend! We'll bump you up the waitlist for each friend that joins! 
 
 Here is your invite link:
-https://two-cents.ca/waitlist/some-id 
+{{ domain }}/waitlist/join/?referralCode={{ referral_code }}
 
 Have questions about Two Cents? Email us at admin@two-cents.ca
 

@@ -1,4 +1,5 @@
 # two-cents
+DIY Fiancial Planning Powered by AI
 
 ## Build Setup
 

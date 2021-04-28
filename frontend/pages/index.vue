@@ -16,7 +16,7 @@
         </v-col>
       </v-row>
       <v-row align="center" justify="center" class="mt-15 mb-7">
-        <JoinWaitlistDialogue />
+        <JoinWaitlistButton />
       </v-row>
       <v-row align="center" justify="center" class="mt-2">
         <DashboardExampleSvg style="max-height: 800px" />
@@ -123,7 +123,7 @@
       Save thousands in just 15 minutes!
     </div>
     <v-row justify="center" align="center" class="mt-5">
-      <JoinWaitlistDialogue />
+      <JoinWaitlistButton />
     </v-row>
     <v-spacer style="height: 10vh" />
   </div>
@@ -136,7 +136,7 @@ import SuccessFactorsSvg from '@/components/landing/SuccessFactorsSvg.vue'
 import FeaturePointCard from '@/components/landing/FeaturePointCard.vue'
 import BigLogoSvg from '@/components/logo/BigLogoSvg.vue'
 import DashboardExampleSvg from '@/components/landing/DashboardExampleSvg.vue'
-import JoinWaitlistDialogue from '@/components/waitlist/JoinWaitlistDialogue.vue'
+import JoinWaitlistButton from '@/components/landing/JoinWaitlistButton.vue'
 
 export default {
   layout: 'landing',
@@ -147,7 +147,7 @@ export default {
     BigLogoSvg,
     FeaturePointCard,
     DashboardExampleSvg,
-    JoinWaitlistDialogue
+    JoinWaitlistButton
   },
   data () {
     return {

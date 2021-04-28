@@ -17,8 +17,9 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import serializers
 
-from core.apps.users.models import User, WaitlistUser
+from core.apps.users.models import User, WaitlistUser, create_waitlist_user
 from core.apps.users.serializers import UserWriteSerializer, WaitlistUserSerializer
+from core.apps.users.utilities import send_welcome_email
 
 
 class SessionAPIView(views.APIView):
@@ -69,23 +70,46 @@ class AccountViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
         user.save()
 
 
-class WaitlistUserViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
-    serializer_class = WaitlistUserSerializer
+# class WaitlistUserViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,  viewsets.GenericViewSet):
+#     serializer_class = WaitlistUserSerializer
+#     lookup_field
 
-    def perform_create(self, serializer):
-        waitlist_user = serializer.save()
-        waitlist_user.email = BaseUserManager.normalize_email(waitlist_user.email)
-        waitlist_user.referral_id = waitlist_user.id
+#     def perform_create(self, serializer):
+#         waitlist_user = serializer.save()
+#         waitlist_user.email = BaseUserManager.normalize_email(waitlist_user.email)
+#         waitlist_user.referral_id = waitlist_user.id
         
-        text_content = render_to_string("mail/welcome.txt")
-        msg = EmailMultiAlternatives(
-            subject="Welcome to the Two Cents waitlist",
-            from_email="Malfy from Two Cents <malfy@two-cents.ca>",
-            body=text_content,
-            to=(waitlist_user.email,)
-        )
-        html_content = render_to_string("mail/welcome.html")
-        msg.attach_alternative(html_content, "text/html")
-        msg.send()
-        waitlist_user.save()
+#         text_content = render_to_string("mail/welcome.txt")
+#         msg = EmailMultiAlternatives(
+#             subject="Welcome to the Two Cents waitlist",
+#             from_email="Malfy from Two Cents <malfy@two-cents.ca>",
+#             body=text_content,
+#             to=(waitlist_user.email,)
+#         )
+#         html_content = render_to_string("mail/welcome.html")
+#         msg.attach_alternative(html_content, "text/html")
+#         msg.send()
+#         waitlist_user.save()
+
+class WaitlistUserAPIView(views.APIView):
+
+    def post(self, request, format=None):
+        email = request.data.get("email")
+        first_name = request.data.get("first_name")
+        if email is None or first_name is None:
+            return Response(data={"message": "Email and first name required"}, status=status.HTTP_400_BAD_REQUEST)
+        referree_id = request.data.get("referree_id")
+        try:
+            waitlist_user = WaitlistUser.objects.get(email=email)
+        except WaitlistUser.DoesNotExist:
+            print(f"User with {email} does not exist - making new object")
+            waitlist_user = create_waitlist_user(email, referree_id, first_name)
+            send_welcome_email(waitlist_user.email, waitlist_user.referral_id)
+        return Response(
+            data={
+                "email": waitlist_user.email,
+                "referral_id": str(waitlist_user.referral_id)
+                }
+            )
+        
 
