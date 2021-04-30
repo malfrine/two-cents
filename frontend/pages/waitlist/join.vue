@@ -68,6 +68,7 @@ export default {
       if (!isValid) {
         return
       }
+      this.$fire.analytics.logEvent('join_waitlist')
       const payload = {
         email: this.email,
         referree_id: this.referreeCode,

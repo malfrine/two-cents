@@ -7,14 +7,34 @@
       dark
     >
       <div class="d-flex justify-center align-center">
-        <v-img
-          max-width="120"
-          max-height="50"
-          src="/logo-white.png"
-        />
+        <NuxtLink to="/">
+          <v-img
+            max-width="120"
+            max-height="50"
+            src="/logo-white.png"
+          />
+        </NuxtLink>
       </div>
       <v-spacer />
-      <v-btn outlined large color="primary" to="/login" nuxt>
+      <v-btn
+        outlined
+        large
+        color="primary"
+        href="https://blog.two-cents.ca"
+        nuxt
+        class="mx-3"
+      >
+        Blog
+      </v-btn>
+      <v-btn
+        outlined
+        disabled
+        large
+        color="primary"
+        to="/login"
+        nuxt
+        class="mx-3"
+      >
         Login
       </v-btn>
     </v-app-bar>

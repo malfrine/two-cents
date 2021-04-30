@@ -21,6 +21,7 @@
                 :href="icon.link"
                 target="_blank"
                 class="ma-3"
+                @click="$fire.analytics.logEvent('share_waitlist')"
               >
                 <v-icon size="24px" color="white">
                   {{ icon.iconName }}
@@ -135,6 +136,7 @@ export default {
   },
   methods: {
     async copyText () {
+      this.$fire.analytics.logEvent('share_waitlist')
       copyToClipboard(this.referralLink)
       this.isShowCopiedConfirmation = true
       await delay(2500)

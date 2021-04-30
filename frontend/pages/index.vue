@@ -119,7 +119,7 @@
       </v-row>
     </v-container>
     <v-spacer style="height: 5vh" />
-    <div class="text-center text-h4 primary--text mt-15">
+    <div class="text-center text-h4 primary--text mt-15 mb-8">
       Save thousands in just 15 minutes!
     </div>
     <v-row justify="center" align="center" class="mt-5">
