@@ -32,11 +32,13 @@
       <v-app-bar-nav-icon v-if="!drawer" @click.stop="drawer = !drawer; miniVariant=false" />
       <v-spacer />
       <div class="d-flex justify-center">
-        <v-img
-          max-width="120"
-          max-height="50"
-          src="/logo-white.png"
-        />
+        <NuxtLink to="/">
+          <v-img
+            max-width="120"
+            max-height="50"
+            src="/logo-white.png"
+          />
+        </NuxtLink>
       </div>
       <v-spacer />
       <v-btn icon @click.prevent="$vuetify.theme.isDark = !$vuetify.theme.isDark">

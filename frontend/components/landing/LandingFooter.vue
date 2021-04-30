@@ -16,6 +16,8 @@
             class="mx-4 white--text"
             icon
             :href="icon.link"
+            target="_blank"
+            @click="$fire.analytics.logEvent('social_media_exploration')"
           >
             <v-icon size="24px">
               {{ icon.iconName }}
