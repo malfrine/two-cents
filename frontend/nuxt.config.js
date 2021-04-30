@@ -1,5 +1,31 @@
 import colors from 'vuetify/es5/util/colors'
 
+const isDev = process.env.NODE_ENV === 'development'
+var firebaseConfig
+if (isDev) {
+  console.log("Currently operating in development mode")
+  firebaseConfig = {
+    apiKey: "AIzaSyDXd2TsrIQ2wiwiDsS_Z3dTtakdVH8EJEE",
+    authDomain: "two-cents-canada-dev.firebaseapp.com",
+    projectId: "two-cents-canada-dev",
+    storageBucket: "two-cents-canada-dev.appspot.com",
+    messagingSenderId: "479438313062",
+    appId: "1:479438313062:web:fcc309df61d45908aa3fa7",
+    measurementId: "G-N7E647R6C5"
+  };
+} else {
+  console.log("Currently operating in production mode")
+  firebaseConfig = {
+    apiKey: "AIzaSyAPb1qWmgQ3tFpLAqRUf2Bshqf4FdlwfKE",
+    authDomain: "two-cents-canada.firebaseapp.com",
+    projectId: "two-cents-canada",
+    storageBucket: "two-cents-canada.appspot.com",
+    messagingSenderId: "471669331840",
+    appId: "1:471669331840:web:93ef3e302b6a0257289365",
+    measurementId: "G-F876X8NTHY"
+  };
+}
+
 export default {
   // Global page headers (https://go.nuxtjs.dev/config-head)
   head: {
@@ -61,15 +87,7 @@ export default {
   ],
 
   firebase: {
-    config: {
-      apiKey: process.env.FIREBASE_API_KEY,
-      authDomain: process.env.FIREBASE_AUTH_DOMAIN,
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-      messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
-      appId: process.env.FIREBASE_APP_ID,
-      measurementId: process.env.FIREBASE_MEASUREMENT_ID
-    },
+    config: firebaseConfig,
     onFirebaseHosting: false,
     services: {
       performance: true,
