@@ -4,8 +4,11 @@
       <v-col cols="12" md="7" lg="6">
         <v-card min-height="500" elevation="10">
           <v-container>
-            <div class="text-h5 text-center mt-1">
-              Thanks for joining our waitlist!
+            <v-row justify="center" class="my-3">
+              <BigLogo max-height="35" />
+            </v-row>
+            <div class="text-h5 text-md-h4">
+              Tell your friends
             </div>
             <v-card-subtitle>
               Share your referral link with your friends and we'll bump you up the queue

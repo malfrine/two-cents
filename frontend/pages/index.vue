@@ -1,16 +1,12 @@
 <template>
   <div>
-    <div style="min-height: 75vh;">
-      <v-row justify="center" align="center" class="mb-n5">
-        <v-col cols="12" lg="9" align-self="center">
-          <div class="text-center">
-            <BigLogoSvg class="text-center mt-6 mb-9" style="max-height: 35px" />
-          </div>
-        </v-col>
+    <div>
+      <v-row justify="center" align="center" class="mt-5">
+        <BigLogo class=" mt-6 mb-15" style="max-height: 10px" />
       </v-row>
       <v-row justify="center" align="center">
         <v-col cols="12" lg="9" align-self="center">
-          <div class="font-weight-medium primary--text text-center text-h5 text-sm-h4 text-md-h3">
+          <div class="font-weight-medium text-center text-h5 text-sm-h4 text-md-h3">
             DIY financial planning powered by AI
           </div>
         </v-col>
@@ -18,15 +14,15 @@
       <v-row align="center" justify="center" class="mt-15 mb-7">
         <JoinWaitlistButton />
       </v-row>
-      <v-row align="center" justify="center" class="mt-2">
+      <v-row align="center" justify="center" class="mt-6">
         <DashboardExampleSvg style="max-height: 800px" />
       </v-row>
     </div>
 
     <v-row dark justify="center" align="center" class="mt-13 mb-n10 pt-10 pb-15" style="background: #212121">
       <v-col cols="12" />
-      <v-container class="">
-        <v-row justify="center" class="mb-3">
+      <v-container class="pa-3">
+        <v-row justify="center" class="mb-3 pa-3">
           <div class="text-center text-h4 text-md-h3 my-2 white--text">
             A game changing approach to <br class="mb-3">
             <client-only>
@@ -46,8 +42,8 @@
             </client-only>
           </div>
         </v-row>
-        <v-row justify="center">
-          <div class="text-center text-body-1 white--text mb-10">
+        <v-row justify="center" class="pa-3">
+          <div class="text-center text-body-1 white--text mb-10 pa-3">
             We generate a monthly spending plan for you using algorithms that optimize your complete financial picture
           </div>
         </v-row>
@@ -119,10 +115,12 @@
       </v-row>
     </v-container>
     <v-spacer style="height: 5vh" />
-    <div class="text-center text-h4 primary--text mt-15 mb-8">
-      Save thousands in just 15 minutes!
-    </div>
-    <v-row justify="center" align="center" class="mt-5">
+    <v-row class="pa-3" justify="center">
+      <div class="text-center text-h4 primary--text mt-15 pa-3">
+        Save thousands in just 15 minutes!
+      </div>
+    </v-row>
+    <v-row justify="center" align="center" class="mt-3">
       <JoinWaitlistButton />
     </v-row>
     <v-spacer style="height: 10vh" />
@@ -134,7 +132,7 @@ import MakeItRainSvg from '@/components/landing/MakeItRainSvg.vue'
 import PersonalGoalsSvg from '@/components/landing/PersonalGoalsSvg.vue'
 import SuccessFactorsSvg from '@/components/landing/SuccessFactorsSvg.vue'
 import FeaturePointCard from '@/components/landing/FeaturePointCard.vue'
-import BigLogoSvg from '@/components/logo/BigLogoSvg.vue'
+import BigLogo from '@/components/logo/BigLogo.vue'
 import DashboardExampleSvg from '@/components/landing/DashboardExampleSvg.vue'
 import JoinWaitlistButton from '@/components/landing/JoinWaitlistButton.vue'
 
@@ -144,7 +142,7 @@ export default {
     MakeItRainSvg,
     PersonalGoalsSvg,
     SuccessFactorsSvg,
-    BigLogoSvg,
+    BigLogo,
     FeaturePointCard,
     DashboardExampleSvg,
     JoinWaitlistButton
