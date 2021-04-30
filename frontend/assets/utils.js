@@ -68,6 +68,64 @@ document.getSelection().rangeCount > 0 // Check if there is any content selected
   }
 }
 
+const defaultTitle = 'Two Cents - DIY Financial Planning Powered by AI'
+const defaultDescription = 'Everyone deserves a financial plan. At Two Cents, we help you build a free financial plan based on your complete financial picture. We use state of the art artificial intelligence to build monthly spending plans for you that account for your investments, debt, taxes, retirement, and fiancial goals. Get started today!'
+const defaultTmageUrl = 'https://res.cloudinary.com/two-cents-ca/image/upload/v1619802575/og-image-bannger_dvnpka.png'
+function makeSeoHeaders (title = defaultTitle, description = defaultDescription, imageUrl = defaultTmageUrl) {
+  return [
+    {
+      hid: 'og::site_name',
+      name: 'og::site_name',
+      content: 'https://two-cents.ca'
+    },
+    {
+      hid: 'twitter:title',
+      name: 'twitter:title',
+      content: title
+    },
+    {
+      hid: 'twitter:description',
+      name: 'twitter:description',
+      content: description
+    },
+    {
+      hid: 'twitter:image',
+      name: 'twitter:image',
+      content: imageUrl
+    },
+    {
+      hid: 'twitter:image:alt',
+      name: 'twitter:image:alt',
+      content: title
+    },
+    {
+      hid: 'og:title',
+      property: 'og:title',
+      content: title
+    },
+    {
+      hid: 'og:description',
+      property: 'og:description',
+      content: description
+    },
+    {
+      hid: 'og:image',
+      property: 'og:image',
+      content: imageUrl
+    },
+    {
+      hid: 'og:image:secure_url',
+      property: 'og:image:secure_url',
+      content: imageUrl
+    },
+    {
+      hid: 'og:image:alt',
+      property: 'og:image:alt',
+      content: title
+    }
+  ]
+}
+
 export {
   delay,
   calculateMinimumAmortizedLoanPayment,
@@ -75,5 +133,6 @@ export {
   asDollar,
   debounce,
   mandatoryFieldRule,
-  copyToClipboard
+  copyToClipboard,
+  makeSeoHeaders
 }

@@ -1,17 +1,22 @@
 <template>
   <div>
     <v-img
-      v-if="$vuetify.theme.isDark"
-      :src="darkPath"
-      width="120"
-      height="50"
+      contain
+      :src="$vuetify.theme.isDark ? darkPath : lightPath"
+      :max-height="maxHeight"
+      max-width="220"
     />
-    <v-img v-else :src="lightPath" />
   </div>
 </template>
 
 <script>
 export default {
+  props: {
+    maxHeight: {
+      type: String,
+      default: '110'
+    }
+  },
   data () {
     return {
       darkPath: 'https://res.cloudinary.com/two-cents-ca/image/upload/v1619753012/Big%20Logos/bl-darktheme-450px_lko9ue.png',

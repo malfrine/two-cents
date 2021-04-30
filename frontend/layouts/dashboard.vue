@@ -33,11 +33,7 @@
       <v-spacer />
       <div class="d-flex justify-center">
         <NuxtLink to="/">
-          <v-img
-            max-width="120"
-            max-height="50"
-            src="/logo-white.png"
-          />
+          <SmallLogo />
         </NuxtLink>
       </div>
       <v-spacer />
@@ -62,10 +58,12 @@
 
 <script>
 import BaseFooter from '@/components/base/BaseFooter'
+import SmallLogo from '@/components/logo/SmallLogo.vue'
 
 export default {
   components: {
-    BaseFooter
+    BaseFooter,
+    SmallLogo
   },
   data () {
     return {

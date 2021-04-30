@@ -3,9 +3,7 @@
     <v-row justify="center">
       <v-col cols="12" md="7" lg="5">
         <v-card>
-          <v-img
-            src="/big-logo-dark.png"
-          />
+          <BigLogo />
           <div class="text-subtitle-1 text-center mb-5">
             Uh-oh! Looks like there was an error...
           </div>
@@ -29,8 +27,13 @@
 </template>
 
 <script>
+import BigLogo from '@/components/logo/BigLogo.vue'
+
 export default {
   layout: 'simple',
+  components: {
+    BigLogo
+  },
   props: {
     error: {
       type: Object,

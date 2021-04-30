@@ -8,11 +8,7 @@
     >
       <div class="d-flex justify-center align-center">
         <NuxtLink to="/">
-          <v-img
-            max-width="120"
-            max-height="50"
-            src="/logo-white.png"
-          />
+          <SmallLogo />
         </NuxtLink>
       </div>
       <v-spacer />
@@ -26,7 +22,7 @@
       >
         Blog
       </v-btn>
-      <v-btn
+      <!-- <v-btn
         outlined
         disabled
         large
@@ -36,7 +32,7 @@
         class="mx-3"
       >
         Login
-      </v-btn>
+      </v-btn> -->
     </v-app-bar>
     <v-main>
       <nuxt />
@@ -47,10 +43,12 @@
 
 <script>
 import LandingFooter from '@/components/landing/LandingFooter.vue'
+import SmallLogo from '@/components/logo/SmallLogo.vue'
 
 export default {
   components: {
-    LandingFooter
+    LandingFooter,
+    SmallLogo
   },
   created () {
     this.$vuetify.theme.isDark = false

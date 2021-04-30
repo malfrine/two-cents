@@ -4,8 +4,11 @@
       <v-col cols="12" md="7" lg="6">
         <v-card align="center">
           <v-container class="py-7">
-            <div class="text-h6">
-              Join the Two Cents Waitlist
+            <v-row justify="center" class="my-3">
+              <BigLogo max-height="35" />
+            </v-row>
+            <div class="text-h5 text-md-h4">
+              Join our waitlist
             </div>
             <v-divider class="my-5" />
             <v-form ref="form">
@@ -43,6 +46,7 @@
 </template>
 
 <script>
+import { makeSeoHeaders } from '~/assets/utils.js'
 
 export default {
   layout: 'landing',
@@ -89,6 +93,13 @@ export default {
         )
     }
 
+  },
+  head () {
+    const title = 'Join the Two Cents waitlist today!'
+    return {
+      title: 'Join our Waitlist',
+      meta: makeSeoHeaders(title)
+    }
   }
 }
 </script>

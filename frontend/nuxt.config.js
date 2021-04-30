@@ -1,29 +1,30 @@
 import colors from 'vuetify/es5/util/colors'
+import { makeSeoHeaders } from './assets/utils.js'
 
 const isDev = process.env.NODE_ENV === 'development'
-var firebaseConfig
+let firebaseConfig
 if (isDev) {
-  console.log("Currently operating in development mode")
+  console.log('Currently operating in development mode')
   firebaseConfig = {
-    apiKey: "AIzaSyDXd2TsrIQ2wiwiDsS_Z3dTtakdVH8EJEE",
-    authDomain: "two-cents-canada-dev.firebaseapp.com",
-    projectId: "two-cents-canada-dev",
-    storageBucket: "two-cents-canada-dev.appspot.com",
-    messagingSenderId: "479438313062",
-    appId: "1:479438313062:web:fcc309df61d45908aa3fa7",
-    measurementId: "G-N7E647R6C5"
-  };
+    apiKey: 'AIzaSyDXd2TsrIQ2wiwiDsS_Z3dTtakdVH8EJEE',
+    authDomain: 'two-cents-canada-dev.firebaseapp.com',
+    projectId: 'two-cents-canada-dev',
+    storageBucket: 'two-cents-canada-dev.appspot.com',
+    messagingSenderId: '479438313062',
+    appId: '1:479438313062:web:fcc309df61d45908aa3fa7',
+    measurementId: 'G-N7E647R6C5'
+  }
 } else {
-  console.log("Currently operating in production mode")
+  console.log('Currently operating in production mode')
   firebaseConfig = {
-    apiKey: "AIzaSyAPb1qWmgQ3tFpLAqRUf2Bshqf4FdlwfKE",
-    authDomain: "two-cents-canada.firebaseapp.com",
-    projectId: "two-cents-canada",
-    storageBucket: "two-cents-canada.appspot.com",
-    messagingSenderId: "471669331840",
-    appId: "1:471669331840:web:93ef3e302b6a0257289365",
-    measurementId: "G-F876X8NTHY"
-  };
+    apiKey: 'AIzaSyAPb1qWmgQ3tFpLAqRUf2Bshqf4FdlwfKE',
+    authDomain: 'two-cents-canada.firebaseapp.com',
+    projectId: 'two-cents-canada',
+    storageBucket: 'two-cents-canada.appspot.com',
+    messagingSenderId: '471669331840',
+    appId: '1:471669331840:web:93ef3e302b6a0257289365',
+    measurementId: 'G-F876X8NTHY'
+  }
 }
 
 export default {
@@ -31,10 +32,15 @@ export default {
   head: {
     titleTemplate: 'Two Cents || %s',
     title: 'Two Cents',
+    htmlAttrs: {
+      lang: 'en',
+      amp: true
+    },
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { hid: 'description', name: 'description', content: '' }
+      { hid: 'description', name: 'description', content: 'DIY financial planning powered by AI' },
+      ...makeSeoHeaders()
     ],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/app/favicon.ico' }

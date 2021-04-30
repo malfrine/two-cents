@@ -3,10 +3,11 @@
     <v-container class="pb-9">
       <v-row justify="center">
         <v-col cols="12" md="6" lg="5">
-          <v-card elevation="15">
-            <v-img
-              src="/big-logo-dark.png"
-            />
+          <v-card elevation="15" class="py-2">
+            <v-spacer class="my-5" />
+            <v-row justify="center" class="mb-3 mt-6">
+              <BigLogo />
+            </v-row>
             <div class="text-h5 text-center">
               Register
             </div>
@@ -54,8 +55,13 @@
 </template>
 
 <script>
+import BigLogo from '@/components/logo/BigLogo.vue'
+
 export default {
   layout: 'simple',
+  components: {
+    BigLogo
+  },
   data () {
     return {
       firstname: '',
