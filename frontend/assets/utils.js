@@ -69,7 +69,7 @@ document.getSelection().rangeCount > 0 // Check if there is any content selected
 }
 
 const defaultTitle = 'Two Cents - DIY Financial Planning Powered by AI'
-const defaultDescription = 'Everyone deserves a financial plan. At Two Cents, we help you build a free financial plan based on your complete financial picture. We use state of the art artificial intelligence to build monthly spending plans for you that account for your investments, debt, taxes, retirement, and fiancial goals. Get started today!'
+const defaultDescription = 'Everyone deserves a financial plan. At Two Cents, we help you build a free financial plan using AI. Get started today!'
 const defaultTmageUrl = 'https://res.cloudinary.com/two-cents-ca/image/upload/v1619802575/og-image-bannger_dvnpka.png'
 function makeSeoHeaders (title = defaultTitle, description = defaultDescription, imageUrl = defaultTmageUrl) {
   return [

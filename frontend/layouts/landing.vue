@@ -2,7 +2,7 @@
   <v-app>
     <v-app-bar
       fixed
-      hide-on-scroll
+      :hide-on-scroll="!$vuetify.breakpoint.mobile"
       app
       dark
     >
@@ -18,7 +18,6 @@
         color="primary"
         href="https://blog.two-cents.ca"
         nuxt
-        class="mx-3"
       >
         Blog
       </v-btn>

@@ -3,23 +3,26 @@
     <v-row justify="center">
       <v-col cols="12" md="7" lg="5">
         <v-card>
-          <BigLogo />
-          <div class="text-subtitle-1 text-center mb-5">
-            Uh-oh! Looks like there was an error...
-          </div>
-          <div v-if="error.statusCode === 404" class="text-h5 text-center">
-            {{ pageNotFound }}
-          </div>
-          <div v-else class="text-h5 text-center">
-            {{ otherError }}
-          </div>
-          <v-divider class="my-9" />
-          <NuxtLink to="/">
-            <div class="text-subtitle1 text-center">
-              Home page
+          <v-container class="py-7">
+            <v-row justify="center" class="my-3">
+              <BigLogo max-height="35" />
+            </v-row>
+            <div class="text-subtitle-1 text-center mb-5">
+              Uh-oh! Looks like there was an error...
             </div>
-          </NuxtLink>
-          <v-divider class="mt-6" />
+            <div v-if="error.statusCode === 404" class="text-h5 text-center">
+              {{ pageNotFound }}
+            </div>
+            <div v-else class="text-h5 text-center">
+              {{ otherError }}
+            </div>
+            <v-divider class="my-9" />
+            <NuxtLink to="/">
+              <div class="text-subtitle1 text-center">
+                Home page
+              </div>
+            </NuxtLink>
+          </v-container>
         </v-card>
       </v-col>
     </v-row>

@@ -4,7 +4,6 @@
       contain
       :src="$vuetify.theme.isDark ? darkPath : lightPath"
       :max-height="maxHeight"
-      max-width="220"
     />
   </div>
 </template>

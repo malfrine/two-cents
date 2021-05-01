@@ -3,6 +3,7 @@ import { makeSeoHeaders } from './assets/utils.js'
 
 const isDev = process.env.NODE_ENV === 'development'
 let firebaseConfig
+let domain
 if (isDev) {
   console.log('Currently operating in development mode')
   firebaseConfig = {
@@ -14,6 +15,7 @@ if (isDev) {
     appId: '1:479438313062:web:fcc309df61d45908aa3fa7',
     measurementId: 'G-N7E647R6C5'
   }
+  domain = 'http://localhost:8000'
 } else {
   console.log('Currently operating in production mode')
   firebaseConfig = {
@@ -25,6 +27,7 @@ if (isDev) {
     appId: '1:471669331840:web:93ef3e302b6a0257289365',
     measurementId: 'G-F876X8NTHY'
   }
+  domain = 'https://two-cents.ca'
 }
 
 export default {
@@ -88,7 +91,8 @@ export default {
     // https://go.nuxtjs.dev/pwa
     '@nuxtjs/pwa',
     'vue-toastification/nuxt',
-    '@nuxtjs/firebase'
+    '@nuxtjs/firebase',
+    'nuxt-user-agent'
 
   ],
 
@@ -119,7 +123,7 @@ export default {
   },
 
   env: {
-    baseUrl: process.env.DOMAIN || 'http://localhost:8000'
+    baseUrl: domain
   },
 
   // Vuetify module configuration (https://go.nuxtjs.dev/config-vuetify)
