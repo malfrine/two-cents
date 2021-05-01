@@ -1,46 +1,49 @@
 <template>
   <div>
-    <div>
-      <v-row justify="center" align="center" class="mt-5">
-        <BigLogo class=" mt-6 mb-15" style="max-height: 10px" />
-      </v-row>
-      <v-row justify="center" align="center">
-        <v-col cols="12" lg="9" align-self="center">
-          <div class="font-weight-medium text-center text-h5 text-sm-h4 text-md-h3">
-            DIY financial planning powered by AI
-          </div>
-        </v-col>
-      </v-row>
-      <v-row align="center" justify="center" class="mt-15 mb-7">
-        <JoinWaitlistButton />
-      </v-row>
-      <v-row align="center" justify="center" class="mt-6">
-        <DashboardExampleSvg style="max-height: 800px" />
-      </v-row>
-    </div>
+    <v-row justify="center" align="center" class="mt-5">
+      <v-col cols="11">
+        <BigLogo class="mt-6" :max-height="$vuetify.breakpoint.mobile ? '70' : '110'" />
+      </v-col>
+    </v-row>
+    <v-row justify="center" align="center" class="mt-n4">
+      <v-col cols="11" lg="9" align-self="center">
+        <div class="font-weight-medium text-center text-h5 text-md-h4">
+          DIY financial planning powered by AI
+        </div>
+      </v-col>
+    </v-row>
+    <v-row align="center" justify="center" class="mt-8 mb-7">
+      <JoinWaitlistButton />
+    </v-row>
+    <v-row align="center" justify="center" class="mt-6 mb-4">
+      <v-col>
+        <DashboardExample max-height="800" />
+      </v-col>
+    </v-row>
 
-    <v-row dark justify="center" align="center" class="mt-13 mb-n10 pt-10 pb-15" style="background: #212121">
-      <v-col cols="12" />
+    <v-row dark justify="center" align="center" class="mt-13 mb-n10 pt-8 pb-15" style="background: #212121">
       <v-container class="pa-3">
-        <v-row justify="center" class="mb-3 pa-3">
-          <div class="text-center text-h4 text-md-h3 my-2 white--text">
-            A game changing approach to <br class="mb-3">
-            <client-only>
-              <vue-typer
-                :text="['investments', 'debt', 'taxes', 'retirement', 'financial goals', 'financial planning']"
-                :repeat="Infinity"
-                :shuffle="false"
-                initial-action="typing"
-                :pre-type-delay="70"
-                :type-delay="70"
-                :pre-erase-delay="2000"
-                :erase-delay="20"
-                erase-style="backspace"
-                :erase-on-complete="false"
-                caret-animation="blink"
-              />
-            </client-only>
-          </div>
+        <v-row justify="center" class="mb-3">
+          <v-col cols="11">
+            <div class="text-center text-h4 text-sm-h4 text-md-h3 my-2 white--text">
+              A game changing approach to <br class="mb-3">
+              <client-only>
+                <vue-typer
+                  :text="['investments', 'debt', 'taxes', 'retirement', 'financial goals', 'financial planning']"
+                  :repeat="Infinity"
+                  :shuffle="false"
+                  initial-action="typing"
+                  :pre-type-delay="70"
+                  :type-delay="70"
+                  :pre-erase-delay="2000"
+                  :erase-delay="20"
+                  erase-style="backspace"
+                  :erase-on-complete="false"
+                  caret-animation="blink"
+                />
+              </client-only>
+            </div>
+          </v-col>
         </v-row>
         <v-row justify="center" class="pa-3">
           <div class="text-center text-body-1 white--text mb-10 pa-3">
@@ -74,7 +77,7 @@
         </v-col>
       </v-row>
     </v-container>
-    <v-container>
+    <!-- <v-container>
       <v-row justify="center" align="center">
         <v-col cols="12" sm="6" :order="$vuetify.breakpoint.xsOnly ? 1 : 0">
           <SuccessFactorsSvg />
@@ -91,10 +94,17 @@
           </div>
         </v-col>
       </v-row>
-    </v-container>
+    </v-container> -->
     <v-container>
       <v-row justify="center" align="center">
-        <v-col cols="12" sm="6">
+        <v-col cols="12" sm="6" :order="$vuetify.breakpoint.xsOnly ? 1 : 0">
+          <v-sheet dark class="pa-10">
+            <v-sheet outlined light class="pa-2">
+              <PersonalGoalsSvg />
+            </v-sheet>
+          </v-sheet>
+        </v-col>
+        <v-col cols="12" sm="6" :order="$vuetify.breakpoint.xsOnly ? 0 : 1">
           <div class="text-center text-sm-left text-h4 my-3">
             A plan built just
             <span class="purple--text font-weight-bold">
@@ -102,22 +112,15 @@
             </span>
           </div>
           <div class="text-center text-sm-left text-body-1">
-            You are unique so your financial plan should be unique to you. Our AI builds a bespoke plan based on your loans, investments, and financial goals while accounting for your risk tolerance and spending habits.
+            You are unique so your financial plan should be unique too. Our AI builds a bespoke plan based on your loans, investments, and financial goals while accounting for your risk tolerance and spending habits.
           </div>
-        </v-col>
-        <v-col cols="12" sm="6">
-          <v-sheet dark class="pa-10">
-            <v-sheet outlined light class="pa-2">
-              <PersonalGoalsSvg />
-            </v-sheet>
-          </v-sheet>
         </v-col>
       </v-row>
     </v-container>
     <v-spacer style="height: 5vh" />
     <v-row class="pa-3" justify="center">
       <div class="text-center text-h4 primary--text mt-15 pa-3">
-        Save thousands in just 15 minutes!
+        Get a head start on your financial planning journey!
       </div>
     </v-row>
     <v-row justify="center" align="center" class="mt-3">
@@ -130,10 +133,10 @@
 <script>
 import MakeItRainSvg from '@/components/landing/MakeItRainSvg.vue'
 import PersonalGoalsSvg from '@/components/landing/PersonalGoalsSvg.vue'
-import SuccessFactorsSvg from '@/components/landing/SuccessFactorsSvg.vue'
+// import SuccessFactorsSvg from '@/components/landing/SuccessFactorsSvg.vue'
 import FeaturePointCard from '@/components/landing/FeaturePointCard.vue'
 import BigLogo from '@/components/logo/BigLogo.vue'
-import DashboardExampleSvg from '@/components/landing/DashboardExampleSvg.vue'
+import DashboardExample from '@/components/landing/DashboardExample.vue'
 import JoinWaitlistButton from '@/components/landing/JoinWaitlistButton.vue'
 
 export default {
@@ -141,10 +144,10 @@ export default {
   components: {
     MakeItRainSvg,
     PersonalGoalsSvg,
-    SuccessFactorsSvg,
+    // SuccessFactorsSvg,
+    DashboardExample,
     BigLogo,
     FeaturePointCard,
-    DashboardExampleSvg,
     JoinWaitlistButton
   },
   data () {

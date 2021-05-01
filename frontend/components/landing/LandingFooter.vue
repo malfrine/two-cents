@@ -58,7 +58,7 @@ export default {
     icons: [
       {
         iconName: 'mdi-twitter',
-        link: 'https://twitter.com/TwoCents_Canada'
+        link: 'https://twitter.com/TwoCents_CA'
       },
       {
         iconName: 'mdi-linkedin',

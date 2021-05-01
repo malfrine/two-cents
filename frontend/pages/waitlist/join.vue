@@ -1,8 +1,8 @@
 <template>
   <v-container fill-height>
-    <v-row justify="center" class="mt-n16">
+    <v-row justify="center">
       <v-col cols="12" md="7" lg="6">
-        <v-card align="center">
+        <v-card align="center" elevation="10">
           <v-container class="py-7">
             <v-row justify="center" class="my-3">
               <BigLogo max-height="35" />

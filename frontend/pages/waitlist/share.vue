@@ -2,7 +2,7 @@
   <v-container fill-height>
     <v-row justify="center">
       <v-col cols="12" md="7" lg="6">
-        <v-card min-height="500" elevation="10">
+        <v-card min-height="500" elevation="10" align="center">
           <v-container>
             <v-row justify="center" class="my-3">
               <BigLogo max-height="35" />
@@ -73,6 +73,8 @@ export default {
   data () {
     const referralCode = this.$store.state.waitlist.referralCode || ''
 
+    const smsArgumentDelimiter = this.$ua.isFromIos() ? '&' : '?'
+
     let linkQuery
     if (referralCode) {
       linkQuery = `/?referralCode=${referralCode}`
@@ -80,7 +82,7 @@ export default {
       linkQuery = ''
     }
     const url = `${process.env.baseUrl}/waitlist/join${linkQuery}`
-    const title = 'Join the Two Cents waitlist and build to AI powered financial plan for free!'
+    const title = 'Join the Two Cents waitlist to build free AI powered financial plan!'
     const hashtags = 'PersonalFinance,finance,AI'
 
     return {
@@ -89,7 +91,7 @@ export default {
       mobileOnlyIcons: [
         {
           iconName: 'mdi-cellphone',
-          link: encodeURI(`sms:?body=${url}${title}`),
+          link: encodeURI(`sms:${smsArgumentDelimiter}body=${url}${title}`),
           color: '#131418',
           mobileOnly: true
         },
