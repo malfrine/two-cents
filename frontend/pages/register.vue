@@ -2,52 +2,54 @@
   <div>
     <v-container class="pb-9">
       <v-row justify="center">
-        <v-col cols="12" md="6" lg="5">
-          <v-card elevation="15" class="py-2">
-            <v-spacer class="my-5" />
-            <v-row justify="center" class="mb-3 mt-6">
-              <BigLogo />
-            </v-row>
-            <div class="text-h5 text-center">
-              Register
-            </div>
-            <v-divider class="my-6" />
-            <v-container>
+        <v-col
+          cols="12"
+          sm="8"
+          md="6"
+          lg="5"
+        >
+          <BaseFormCard title="Sign Up">
+            <v-form ref="form">
               <v-text-field
                 v-model="firstname"
                 label="First Name"
                 outlined
+                :rules="[v => !!v || 'First name is required']"
               />
               <v-text-field
                 v-model="lastname"
                 label="Last Name"
                 outlined
+                :rules="[v => !!v || 'Last name is required']"
               />
               <v-text-field
                 v-model="email"
                 label="Email"
                 outlined
                 type="email"
+                :rules="[v => !!v || 'Email is required']"
               />
               <v-text-field
                 v-model="password"
                 label="Password"
                 outlined
                 type="password"
+                :rules="[v => !!v || 'Pasword is required']"
               />
               <v-text-field
                 v-model="confirmPassword"
                 label="Confirm Password"
                 outlined
                 type="password"
+                :rules="[v => !!v || 'Password is required']"
               />
-              <v-row justify="center" class="my-3">
-                <v-btn color="primary" @click.prevent="handleSubmit">
-                  Register
-                </v-btn>
-              </v-row>
-            </v-container>
-          </v-card>
+            </v-form>
+            <v-row justify="center" class="my-3">
+              <v-btn x-large color="primary" @click.prevent="registerUser">
+                Register
+              </v-btn>
+            </v-row>
+          </BaseFormCard>
         </v-col>
       </v-row>
     </v-container>
@@ -55,12 +57,12 @@
 </template>
 
 <script>
-import BigLogo from '@/components/logo/BigLogo.vue'
+import BaseFormCard from '@/components/base/BaseFormCard.vue'
 
 export default {
   layout: 'simple',
   components: {
-    BigLogo
+    BaseFormCard
   },
   data () {
     return {
@@ -68,19 +70,34 @@ export default {
       lastname: '',
       email: '',
       password: '',
-      confirmPassword: '',
-      submitted: false
+      confirmPassword: ''
     }
   },
   methods: {
-    validData () {
+    validateForm () {
+      if (!this.$refs.form.validate()) {
+        return false
+      }
       return (this.email && this.password.trim() === this.confirmPassword.trim())
     },
-    handleSubmit (e) {
-      this.submitted = true
-      if (this.validData()) {
+    registerUser () {
+      if (this.validateForm()) {
         const { email, password, firstname, lastname } = this
-        this.$store.dispatch('auth/postRegister', { email, password, first_name: firstname, last_name: lastname })
+        const payload = { email, password: password.trim(), first_name: firstname, last_name: lastname }
+        try {
+          this.$axios.$post('/api/my/account/', payload)
+            .then((response) => {
+              if (response.status === 210) {
+                // Internal server error
+                this.$toast.error('Sorry, could not register your account')
+              } else {
+                this.$router.push('/login')
+              }
+            })
+            .catch((e) => { this.$toast.error('Sorry, could not register your account') })
+        } catch (e) {
+          alert(e)
+        }
       }
     }
   }

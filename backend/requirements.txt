@@ -13,6 +13,7 @@ django-hashid-field==3.2.1
 django-redis==4.12.1
 django-slack==5.16.0
 djangorestframework==3.12.1
+firebase-admin==5.0.0
 flake8==3.8.4
 flake8-commas==2.0.0
 flake8-mypy==17.8.0

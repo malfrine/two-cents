@@ -52,18 +52,36 @@
         <nuxt />
       </v-container>
     </v-main>
-    <BaseFooter />
+    <!-- <v-footer
+      fixed
+      app
+    >
+      <v-row>
+        <v-col>
+          <PrivacyPolicyDialog /> | <TOSDialog />
+        </v-col>
+
+        <v-spacer />
+        <v-col>
+          <span>&copy; {{ new Date().getFullYear() }}</span>
+        </v-col>
+      </v-row>
+    </v-footer> -->
+    <BaseFooter :show-social-links="false" :app="true" />
   </v-app>
 </template>
 
 <script>
-import BaseFooter from '@/components/base/BaseFooter'
+// import TOSDialog from '@/components/base/TOSDialog.vue'
+// import PrivacyPolicyDialog from '@/components/base/PrivacyPolicyDialog.vue'
 import SmallLogo from '@/components/logo/SmallLogo.vue'
 
 export default {
   components: {
-    BaseFooter,
+    // BaseFooter,
     SmallLogo
+    // TOSDialog,
+    // PrivacyPolicyDialog
   },
   data () {
     return {
@@ -93,9 +111,9 @@ export default {
   },
   methods: {
     onLogoutClick () {
-      this.$store.dispatch('auth/postLogout')
       this.$store.dispatch('finances/resetUserFinances')
       this.$store.dispatch('plan/resetPlans')
+      this.$fire.auth.signOut()
       this.$router.push('/')
     }
   }

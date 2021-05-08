@@ -1,5 +1,6 @@
 import re
 
+import firebase_admin.auth
 from django.contrib.auth.base_user import BaseUserManager
 from django.db.models.query import QuerySet
 import requests
@@ -12,14 +13,17 @@ from django.core.mail import send_mail
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 
-from rest_framework import mixins, views, viewsets, status
+from rest_framework import mixins, views, viewsets, status, generics
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import serializers
 
+from core.apps.finances.models.financial_profile import FinancialProfile
+from core.apps.finances.models.loans import Loan
 from core.apps.users.models import User, WaitlistUser, create_waitlist_user
 from core.apps.users.serializers import UserWriteSerializer, WaitlistUserSerializer
 from core.apps.users.utilities import send_welcome_email
+from core.config.settings import DEBUG
 
 
 class SessionAPIView(views.APIView):
@@ -57,17 +61,36 @@ class AccountViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     queryset = User.objects.none()
 
     def perform_create(self, serializer):
+        print("creating user")
+        email = self.request.data.get("email")
+        password = self.request.data.get("password")
+
+        if email is None or password is None:
+            raise serializers.ValidationError("Email and/or password required", status.HTTP_400_BAD_REQUEST)
+        if not DEBUG:
+            # check waitlist only in prod
+            try:
+                waitlist_user = WaitlistUser.objects.get(email=email)
+            except WaitlistUser.DoesNotExist:
+                print("it's the user")
+                raise serializers.ValidationError("Given email is not in waitlist - please request access",
+                                                  code=status.HTTP_404_NOT_FOUND)
+            if not waitlist_user.can_register:
+                raise serializers.ValidationError("Given email is on waitlist but not authorized to register account",
+                                                  code=status.HTTP_403_FORBIDDEN)
         try:
-            waitlist_user = WaitlistUser.objects.get(email=self.request.data.get("email"))
-        except WaitlistUser.DoesNotExist:
-            raise serializers.ValidationError("Given email is not in waitlist - please request access", code=status.HTTP_404_NOT_FOUND)
-        if not waitlist_user.can_register:
-            raise serializers.ValidationError("Given email is on waitlist but not authorized to register account", code=status.HTTP_403_FORBIDDEN)
-        if self.request.data.get("password") is None:
-            raise serializers.ValidationError("Password is required.")
+            firebase_admin.auth.create_user(
+                email=email,
+                password=password
+            )
+        except Exception:
+            raise serializers.ValidationError("Firebase error", code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
         user = serializer.save()
-        user.set_password(self.request.data.get("password"))
         user.save()
+        FinancialProfile.objects.create_default(user)
+        print("finished creating user")
+        # TODO: make default user finances
 
 
 # class WaitlistUserViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,  viewsets.GenericViewSet):
@@ -78,7 +101,7 @@ class AccountViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
 #         waitlist_user = serializer.save()
 #         waitlist_user.email = BaseUserManager.normalize_email(waitlist_user.email)
 #         waitlist_user.referral_id = waitlist_user.id
-        
+
 #         text_content = render_to_string("mail/welcome.txt")
 #         msg = EmailMultiAlternatives(
 #             subject="Welcome to the Two Cents waitlist",
@@ -109,7 +132,5 @@ class WaitlistUserAPIView(views.APIView):
             data={
                 "email": waitlist_user.email,
                 "referral_id": str(waitlist_user.referral_id)
-                }
-            )
-        
-
+            }
+        )
