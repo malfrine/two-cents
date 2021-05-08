@@ -100,6 +100,13 @@ export default {
     config: firebaseConfig,
     onFirebaseHosting: false,
     services: {
+      auth: {
+        initialize: {
+          onAuthStateChangedAction: 'firebase-auth/onAuthStateChanged'
+        },
+        ssr: true,
+        emulatorPort: null
+      },
       performance: true,
       analytics: true
     }

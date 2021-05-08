@@ -36,17 +36,17 @@
     <v-main>
       <nuxt />
     </v-main>
-    <LandingFooter />
+    <BaseFooter />
   </v-app>
 </template>
 
 <script>
-import LandingFooter from '@/components/landing/LandingFooter.vue'
+import BaseFooter from '@/components/base/BaseFooter.vue'
 import SmallLogo from '@/components/logo/SmallLogo.vue'
 
 export default {
   components: {
-    LandingFooter,
+    BaseFooter,
     SmallLogo
   },
   created () {

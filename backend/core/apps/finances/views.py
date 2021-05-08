@@ -1,3 +1,4 @@
+from firebase_admin.auth import UserRecord as FirebaseUserRecord
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -23,6 +24,7 @@ from core.apps.finances.serializers.views.loan import LoanSerializer
 
 
 # Create your views here.
+from core.apps.users.models import User
 
 
 class LoanViewset(viewsets.ModelViewSet):
@@ -100,7 +102,10 @@ class UserFinancesViewset(viewsets.GenericViewSet):
     serializer_class = UserFinancesSerializer
 
     def list(self, request):
-        return Response(self.get_serializer(request.user).data)
+        if isinstance(request.user, User):
+            return Response(self.get_serializer(request.user).data)
+        else:
+            return None
 
 
 class PenniesRequestViewset(viewsets.GenericViewSet):

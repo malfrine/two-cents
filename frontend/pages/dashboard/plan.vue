@@ -48,8 +48,8 @@
           </v-row>
         </v-container>
       </v-card>
-      <v-row>
-        <v-col cols="12" md="8" lg="9" class="mr-n3">
+      <v-row justify="center">
+        <v-col cols="12" md="8" lg="9">
           <v-expansion-panels
             v-model="panel"
             multiple

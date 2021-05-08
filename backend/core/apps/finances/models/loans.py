@@ -119,6 +119,11 @@ class Loan(models.Model):
     def is_instalment_loan(cls, loan_type: LoanType):
         return loan_type in INSTALMENT_LOANS
 
+    @classmethod
+    def create_default_personal_loan(cls, user: AuthUser):
+        pass
+
+
 
 
 

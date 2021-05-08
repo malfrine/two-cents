@@ -1,9 +1,10 @@
+import rest_framework.authtoken.apps
 from hashid_field import HashidField
 
 from django.contrib.auth.models import (
     BaseUserManager,
     AbstractBaseUser,
-    PermissionsMixin,
+    PermissionsMixin, AnonymousUser,
 )
 from django.db import models
 from django.utils import timezone
@@ -11,8 +12,9 @@ from django.utils import timezone
 UNINITIALIZED_POSITION = -1
 
 
+
 class UserManager(BaseUserManager):
-    def _create_user(self, email, password, is_staff, is_superuser, **extra_fields):
+    def _create_user(self, email, is_staff, is_superuser, **extra_fields):
         """
         Creates and saves a User with the given username, email and password.
         """
@@ -25,15 +27,15 @@ class UserManager(BaseUserManager):
             registered_at=timezone.now(),
             **extra_fields,
         )
-        user.set_password(password)
+        user.set_unusable_password() # password is managed by firebase so we don't store a password
         user.save(using=self._db)
         return user
 
-    def create_user(self, email=None, password=None, **extra_fields):
+    def create_user(self, email=None, **extra_fields):
         is_staff = extra_fields.pop("is_staff", False)
         is_superuser = extra_fields.pop("is_superuser", False)
         return self._create_user(
-            email, password, is_staff, is_superuser, **extra_fields
+            email, is_staff, is_superuser, **extra_fields
         )
 
     def create_superuser(self, email, password, **extra_fields):
@@ -120,4 +122,3 @@ def create_waitlist_user(email: str, referree_id: str, first_name: str):
             pass
     waitlist_user.save()
     return waitlist_user
-        

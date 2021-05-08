@@ -1,8 +1,11 @@
+from datetime import datetime
+
 from django.db import models
 from core.apps.users.models import User as AuthUser
 from core.utilities import get_current_age
 from core.apps.finances.models.loans import Loan
 
+DEFAULT_BIRTH_DATE = datetime(year=1985, month=1, day=1)
 
 class Province(models.TextChoices):
     AB = "AB", "Alberta"
@@ -17,13 +20,20 @@ class Province(models.TextChoices):
     SK = "SK", "Saskatchewan"
     YK = "YK", "Yukon"
 
+class FinancialProfileManager(models.Manager):
+
+    def create_default(self, user: AuthUser):
+        profile = self.model(user=user)
+        profile.save()
+        return profile
+
 
 class FinancialProfile(models.Model):
     user = models.OneToOneField(
         AuthUser, on_delete=models.CASCADE, related_name="financial_profile"
     )
-    birth_date = models.DateField(verbose_name="Birth Date")
-    retirement_age = models.IntegerField(verbose_name="Retirement Age")
+    birth_date = models.DateField(default=DEFAULT_BIRTH_DATE, verbose_name="Birth Date")
+    retirement_age = models.IntegerField(default=65, verbose_name="Retirement Age")
     risk_tolerance = models.FloatField(default=50.0, verbose_name="Risk Tolerance")
     monthly_salary_before_tax = models.FloatField(default=8000, verbose_name="Monthly Salary Before Tax")
     percent_salary_for_spending = models.FloatField(default=25.0, verbose_name="Percent of Salary Allocated for Finances")
@@ -54,3 +64,5 @@ class FinancialProfile(models.Model):
 
     def __str__(self):
         return "Profile" + " - " + str(self.user.pk)
+
+    objects = FinancialProfileManager()

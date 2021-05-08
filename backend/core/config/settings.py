@@ -26,7 +26,7 @@ DJANGO_APPS = [
     "django.contrib.admin",
 ]
 
-THIRD_PARTY_APPS = ["rest_framework", "django_extensions", "whitenoise", "anymail"]
+THIRD_PARTY_APPS = ["rest_framework", "django_extensions", "whitenoise", "anymail",]
 
 LOCAL_APPS = [
     "core.apps.users",
@@ -226,6 +226,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.SessionAuthentication",
         "rest_framework.authentication.BasicAuthentication",
+        "apps.firebase.authentication.FirebaseAuthentication"
     ],
     "DEFAULT_PERMISSION_CLASSES": [],
     "DEFAULT_PARSER_CLASSES": [

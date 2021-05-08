@@ -22,7 +22,7 @@
         <nuxt />
       </v-container>
     </v-main>
-    <BaseFooter />
+    <BaseFooter :show-social-links="false" />
   </v-app>
 </template>
 
