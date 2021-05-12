@@ -1,0 +1,86 @@
+{
+   "financial_profile": {
+      "risk_tolerance": 50.0,
+      "monthly_salary_before_tax": 8000.0,
+      "percent_salary_for_spending": 12.0,
+      "years_to_retirement": 29,
+      "province_of_residence": "AB",
+      "starting_rrsp_contribution_limit": 0.0,
+      "starting_tfsa_contribution_limit": 0.0,
+      "current_age": 36,
+      "years_to_death": 54
+   },
+   "loans": [
+      {
+         "id_": "5a3f185b-81a2-4356-ab92-07fac16ba7be",
+         "name": "Visa",
+         "interest_rate": {
+            "interest_type": "Fixed",
+            "apr": 22.0,
+            "volatility": 0
+         },
+         "current_balance": -1000.0,
+         "final_month": null,
+         "loan_type": "Credit Card"
+      },
+      {
+         "id_": "f8ea1f0f-b193-4d0a-9ef6-5ac21e7f77a1",
+         "name": "Mastercard",
+         "interest_rate": {
+            "interest_type": "Fixed",
+            "apr": 19.0,
+            "volatility": 0
+         },
+         "current_balance": -3000.0,
+         "final_month": null,
+         "loan_type": "Credit Card"
+      },
+      {
+         "id_": "c606e63d-2700-4d72-a4fd-8c48ebc5ee04",
+         "name": "Student Loan (LOC)",
+         "interest_rate": {
+            "interest_type": "Fixed",
+            "apr": 2.5,
+            "volatility": 0
+         },
+         "current_balance": -10000.0,
+         "final_month": null,
+         "loan_type": "Student Line of Credit"
+      }
+   ],
+   "investments": [
+      {
+         "name": "Dividend Funds",
+         "investment_type": "GIC",
+         "account_type": "Non-Registered",
+         "roi": 3.0,
+         "volatility": 0.0,
+         "current_balance": 0.0,
+         "prime_modifier": null,
+         "pre_authorized_monthly_contribution": 0.0,
+         "principal_investment_amount": 10000.0,
+         "start_month": -12,
+         "final_month": 1,
+         "interest_type": "Fixed"
+      },
+      {
+         "name": "Mutual Fund",
+         "investment_type": "Mutual Fund",
+         "account_type": "Non-Registered",
+         "roi": 3.5,
+         "volatility": 2.5,
+         "current_balance": 15000.0,
+         "prime_modifier": null,
+         "pre_authorized_monthly_contribution": 100.0,
+         "principal_investment_amount": 10000.0,
+         "start_month": null,
+         "final_month": null,
+         "interest_type": "Fixed"
+      }
+   ],
+   "strategies": [
+      "Two Cents Plan",
+      "Avalanche Plan",
+      "Snowball Plan"
+   ]
+}

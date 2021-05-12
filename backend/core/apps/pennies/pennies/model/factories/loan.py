@@ -8,7 +8,7 @@ from pennies.model.loan import (
     StudentLineOfCredit,
     StudentLoan,
     LineOfCredit,
-    CreditCardLoan,
+    CreditCard,
     CarLoan,
 )
 from pennies.model.request import RequestLoan, RequestLoanType, InterestType
@@ -21,7 +21,7 @@ class LoanFactory:
         RequestLoanType.STUDENT_LOAN: StudentLoan,
         RequestLoanType.STUDENT_LINE_OF_CREDIT: StudentLineOfCredit,
         RequestLoanType.LINE_OF_CREDIT: LineOfCredit,
-        RequestLoanType.CREDIT_CARD: CreditCardLoan,
+        RequestLoanType.CREDIT_CARD: CreditCard,
         RequestLoanType.CAR_LOAN: CarLoan,
     }
 

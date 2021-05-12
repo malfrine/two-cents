@@ -12,6 +12,7 @@ from pennies.utilities.finance import DiscountFactorCalculator
 class ProblemInputFactory:
     @classmethod
     def from_request(cls, request: PenniesRequest) -> ProblemInput:
+        print(request.json(indent=3))
         instruments = dict()
         for loan in request.loans:
             instruments[loan.id_] = loan
