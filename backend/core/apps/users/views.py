@@ -61,7 +61,6 @@ class AccountViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     queryset = User.objects.none()
 
     def perform_create(self, serializer):
-        print("creating user")
         email = self.request.data.get("email")
         password = self.request.data.get("password")
 
@@ -72,7 +71,6 @@ class AccountViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
             try:
                 waitlist_user = WaitlistUser.objects.get(email=email)
             except WaitlistUser.DoesNotExist:
-                print("it's the user")
                 raise serializers.ValidationError("Given email is not in waitlist - please request access",
                                                   code=status.HTTP_404_NOT_FOUND)
             if not waitlist_user.can_register:
@@ -89,8 +87,6 @@ class AccountViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
         user = serializer.save()
         user.save()
         FinancialProfile.objects.create_default(user)
-        print("finished creating user")
-        # TODO: make default user finances
 
 
 # class WaitlistUserViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,  viewsets.GenericViewSet):

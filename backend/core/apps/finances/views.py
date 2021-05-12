@@ -1,3 +1,4 @@
+from django.contrib.auth.models import AnonymousUser
 from firebase_admin.auth import UserRecord as FirebaseUserRecord
 from rest_framework import status
 from rest_framework.response import Response
@@ -104,8 +105,13 @@ class UserFinancesViewset(viewsets.GenericViewSet):
     def list(self, request):
         if isinstance(request.user, User):
             return Response(self.get_serializer(request.user).data)
+        elif isinstance(request.user, FirebaseUserRecord):
+            user = User.objects.create_user(email=request.user.email)
+            FinancialProfile.objects.create_default(user)
+            return Response(self.get_serializer(user).data)
         else:
-            return None
+            print(request.user)
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 class PenniesRequestViewset(viewsets.GenericViewSet):
