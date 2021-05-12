@@ -68,8 +68,8 @@ class LineOfCredit(RevolvingLoan):
     loan_type: Literal['Line of Credit'] = 'Line of Credit'
 
 
-class CreditCardLoan(RevolvingLoan):
-    loan_type: Literal['Credit Card Loan'] = 'Credit Card Loan'
+class CreditCard(RevolvingLoan):
+    loan_type: Literal['Credit Card'] = 'Credit Card'
 
 
 class PersonalLoan(InstalmentLoan):
@@ -93,6 +93,7 @@ class Mortgage(Loan):
 
     @root_validator
     def calculate_current_balance(cls, values):
+        print(values)
         start_month = values["start_month"]
         current_balance = values["purchase_price"] - values["downpayment_amount"]
         interest_rate: InterestRateTerms = values["interest_rate"]
@@ -106,4 +107,4 @@ class Mortgage(Loan):
 
 
 
-AllLoanTypes = Union[CarLoan, StudentLoan, StudentLineOfCredit, LineOfCredit, CreditCardLoan, PersonalLoan, Mortgage]
+AllLoanTypes = Union[CarLoan, StudentLoan, StudentLineOfCredit, LineOfCredit, CreditCard, PersonalLoan, Mortgage]

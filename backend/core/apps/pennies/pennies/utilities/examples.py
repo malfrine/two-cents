@@ -5,7 +5,7 @@ from pennies.model.factories.problem_input import ProblemInputFactory
 from pennies.model.factories.request_loan import RequestLoanFactory
 from pennies.model.financial_profile import FinancialProfile
 from pennies.model.interest_rate import FixedLoanInterestRate, VariableLoanInterestRate, InterestRate
-from pennies.model.loan import Loan, PersonalLoan, LineOfCredit, StudentLineOfCredit, StudentLoan, CreditCardLoan
+from pennies.model.loan import Loan, PersonalLoan, LineOfCredit, StudentLineOfCredit, StudentLoan, CreditCard
 from pennies.model.portfolio import Portfolio
 from pennies.model.problem_input import ProblemInput
 from pennies.model.request import (
@@ -76,7 +76,7 @@ def all_possible_loans() -> List[Loan]:
 
     return [
         make_loan(loan_class, interest_class)
-        for loan_class in [CreditCardLoan, StudentLoan]
+        for loan_class in [CreditCard, StudentLoan]
         for interest_class in [FixedLoanInterestRate, VariableLoanInterestRate]
     ]
 

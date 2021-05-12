@@ -36,20 +36,21 @@ class InvestmentFactory:
     def from_request_investment(
         cls, request_investment: RequestInvestment
     ) -> Investment:
-        if request_investment.interest_type is None:
-            if request_investment.investment_type == RequestInvestmentType.CASH:
-                interest_rate = ZeroGrowthRate()
-            else:
-                interest_rate = InvestmentReturnRate(
-                    roi=request_investment.roi, volatility=request_investment.volatility
-                )
-        else:
+        if request_investment.investment_type in [RequestInvestmentType.GIC, RequestInvestmentType.TERM_DEPOSIT]:
+            print(request_investment.investment_type)
+            print(request_investment.interest_type)
             internal_interest_rate = cls._INTEREST_RATE_MAP[
                 request_investment.interest_type
             ].parse_obj(request_investment.dict())
             interest_rate = GuaranteedInvestmentReturnRate(
                 interest_rate=internal_interest_rate,
                 final_month=request_investment.final_month,
+            )
+        elif request_investment.investment_type == RequestInvestmentType.CASH:
+            interest_rate = ZeroGrowthRate()
+        else:
+            interest_rate = InvestmentReturnRate(
+                roi=request_investment.roi, volatility=request_investment.volatility
             )
         return cls._INVESTMENT_MAP[request_investment.investment_type].parse_obj(
             dict(request_investment.dict(), interest_rate=interest_rate)
