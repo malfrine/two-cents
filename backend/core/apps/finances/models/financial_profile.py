@@ -5,7 +5,7 @@ from core.apps.users.models import User as AuthUser
 from core.utilities import get_current_age
 from core.apps.finances.models.loans import Loan
 
-DEFAULT_BIRTH_DATE = datetime(year=1985, month=1, day=1)
+DEFAULT_BIRTH_DATE = datetime(year=1985, month=1, day=1).date()
 
 class Province(models.TextChoices):
     AB = "AB", "Alberta"

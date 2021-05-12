@@ -11,6 +11,7 @@ from rest_framework.authentication import get_authorization_header
 from rest_framework.exceptions import AuthenticationFailed
 
 from core.apps.users.models import User
+from pennies.model.financial_profile import FinancialProfile
 
 cred = credentials.Certificate({
   "type": "service_account",
@@ -26,12 +27,8 @@ cred = credentials.Certificate({
 })
 default_app = firebase_admin.initialize_app(cred)
 
-def make_default_financial_profile(user):
-    pass
-
 class FirebaseAuthentication(authentication.TokenAuthentication):
     def authenticate(self, request):
-
         header = get_authorization_header(request)
 
         try:
@@ -52,6 +49,6 @@ class FirebaseAuthentication(authentication.TokenAuthentication):
         try:
             user = User.objects.get(email=firebase_user.email)
         except User.DoesNotExist:
-            user = None
+            user = firebase_user
 
         return (user, None)
