@@ -1,12 +1,15 @@
+import itertools
 from dataclasses import dataclass
-from typing import List, Set, Dict
+from typing import List, Set, Dict, Tuple
+from uuid import UUID
 
 from pennies.model import taxes
+from pennies.model.goal import BaseSavingsGoal, BasePurchaseGoal
 from pennies.model.instrument import Instrument
 from pennies.model.investment import (
     Investment,
     Cash,
-    GuaranteedInvestment,
+    GuaranteedInvestment, BaseInvestment,
 )
 from pennies.model.constants import InvestmentAccountType
 from pennies.model.loan import Loan, InstalmentLoan, Mortgage
@@ -77,6 +80,19 @@ class MILPSets:
         )
 
     @property
+    def registered_investments(self):
+
+        def is_registered(i):
+            return i.account_type != InvestmentAccountType.NON_REGISTERED
+
+        return list(
+            i.id_
+            for i in self._instruments
+            if isinstance(i, BaseInvestment)
+            and is_registered(i)
+        )
+
+    @property
     def rrsp_investments_and_guaranteed_investments(self):
         return list(
             i.id_
@@ -129,6 +145,50 @@ class MILPSets:
     def years(self):
         return list(sorted(self.decision_periods.grouped_by_years.keys()))
 
+    @property
+    def goals(self):
+        return list(self._user_finances.goals.keys())
+
+    def get_allowed_investments_for_goal(self, goal_id):
+        goal = self._user_finances.goals.get(goal_id)
+        if goal is None:
+            return list()
+        investments = self._user_finances.portfolio.get_investments_of_types(goal.get_allowed_accounts())
+        return list(i.id_ for i in investments)
+
+    def get_goals_and_decision_periods(self, goals) -> List[Tuple[UUID, int]]:
+        return list((
+            (g, t)
+            for g in goals
+            for t in self.decision_periods.get_decision_periods_after_month(
+                self._user_finances.goals[g].due_month
+            )
+        ))
+
+    @property
+    def goals_and_decision_periods(self) -> List[Tuple[UUID, int]]:
+        """all goal uids and their correpsonding decision periods that come after their due month"""
+        return self.get_goals_and_decision_periods(self.goals)
+
+    @property
+    def purchase_goals(self):
+        def is_purchase_goal(g):
+            return isinstance(self._user_finances.goals[g], BasePurchaseGoal)
+        return list(g for g in self.goals if is_purchase_goal(g))
+
+    @property
+    def savings_goals(self):
+        def is_savings_goal(g):
+            return isinstance(self._user_finances.goals[g], BaseSavingsGoal)
+        return list(g for g in self.goals if is_savings_goal(g))
+
+    @property
+    def savings_goals_and_decision_periods(self) -> List[Tuple[UUID, int]]:
+        return self.get_goals_and_decision_periods(self.savings_goals)
+
+    @property
+    def purchase_goals_and_decision_periods(self) -> List[Tuple[UUID, int]]:
+        return self.get_goals_and_decision_periods(self.purchase_goals)
 
     @classmethod
     def create(
@@ -137,21 +197,6 @@ class MILPSets:
         max_months_in_payment_horizon: int,
         start_month: int,
     ) -> "MILPSets":
-        # instruments = set(
-        #     i.name
-        #     for i in user_finances.portfolio.instruments.values()
-        #     # if not isinstance(i, GuaranteedInvestment)
-        # )
-        # investments = set(
-        #     instrument.name
-        #     for instrument in user_finances.portfolio.instruments.values()
-        #     if isinstance(instrument, Investment)
-        # )
-        # loans = set(
-        #     instrument.name
-        #     for instrument in user_finances.portfolio.instruments.values()
-        #     if isinstance(instrument, Loan)
-        # )
         decision_periods = DecisionPeriodsManagerFactory(
             max_months=max_months_in_payment_horizon
         ).from_num_months(
@@ -168,9 +213,6 @@ class MILPSets:
         return MILPSets(
             _instruments=list(user_finances.portfolio.instruments.values()),
             _user_finances=user_finances,
-            # instruments=instruments,
-            # investments=investments,
-            # loans=loans,
             decision_periods=decision_periods,
             income_tax_brackets=income_tax_brackets,
         )

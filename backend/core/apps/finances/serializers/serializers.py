@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from core.apps.finances.models.goals import FinancialGoal
 from core.apps.finances.serializers.views.loan import LoanSerializer
 from core.apps.users.models import User
 from core.apps.finances.models.financial_profile import FinancialProfile
@@ -12,10 +13,10 @@ class InvestmentSerializer(serializers.ModelSerializer):
         exclude = ("user",)
 
 
-# class MortgageSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Mortgage
-#         exclude = ("user",)
+class FinancialGoalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FinancialGoal
+        exclude = ("user",)
 
 
 class FinancialProfileSerializer(serializers.ModelSerializer):
@@ -31,12 +32,15 @@ class UserFinancesSerializer(serializers.ModelSerializer):
 
     loans = LoanSerializer(many=True, read_only=True)
     investments = InvestmentSerializer(many=True, read_only=True)
+    goals = FinancialGoalSerializer(many=True, read_only=True)
     financial_profile = FinancialProfileSerializer(read_only=True)
+
+    DICTIFY_FIELDS = ("loans", "investments", "goals")
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)
-        rep["loans"] = {loan["id"]: loan for loan in rep["loans"]}
-        rep["investments"] = {loan["id"]: loan for loan in rep["investments"]}
+        for field in self.DICTIFY_FIELDS:
+            rep[field] = {el["id"]: el for el in rep[field]}
         return rep
 
     class Meta:
@@ -47,6 +51,7 @@ class UserFinancesSerializer(serializers.ModelSerializer):
             "last_name",
             "loans",
             "investments",
+            "goals",
             "financial_profile",
         )
 

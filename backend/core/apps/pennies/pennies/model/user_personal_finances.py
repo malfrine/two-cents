@@ -1,6 +1,10 @@
+from typing import List, Dict
+from uuid import UUID
+
 from pydantic import BaseModel, root_validator
 
 from pennies.model.financial_profile import FinancialProfile
+from pennies.model.goal import AllGoalTypes
 from pennies.model.portfolio import Portfolio
 
 
@@ -8,6 +12,7 @@ class UserPersonalFinances(BaseModel):
     name: str = "portfolio"
     portfolio: Portfolio
     financial_profile: FinancialProfile = None
+    goals: Dict[UUID, AllGoalTypes]
 
     def __str__(self):
         return "name: {:s}, monthly_allowance ${:,.2f} \n".format(

@@ -3,6 +3,7 @@ from firebase_admin.auth import UserRecord as FirebaseUserRecord
 from rest_framework import status
 from rest_framework.response import Response
 
+from core.apps.finances.models.goals import FinancialGoal
 from core.apps.finances.models.loans import LOAN_REQUIRED_FIELDS_MAP, LOAN_INTEREST_REQUIRED_FIELDS_MAP
 from core.apps.finances.models.constants import InterestTypes
 from core.apps.finances.models.financial_profile import FinancialProfile, Province
@@ -18,7 +19,7 @@ from rest_framework import viewsets
 from core.apps.finances.serializers.serializers import (
     FinancialProfileSerializer,
     InvestmentSerializer,
-    UserFinancesSerializer,
+    UserFinancesSerializer, FinancialGoalSerializer,
 )
 from core.apps.finances.serializers.pennies.request import PenniesRequestSerializer
 from core.apps.finances.serializers.views.loan import LoanSerializer
@@ -57,20 +58,18 @@ class InvestmentViewset(viewsets.ModelViewSet):
         return serializer.save(user=self.request.user)
 
 
-# class MortgageViewset(viewsets.ModelViewSet):
-#     queryset = Mortgage.objects.none()
-#     serializer_class = MortgageSerializer
-#
-#     def get_queryset(self):
-#         if self.request.user.is_anonymous:
-#             return Mortgage.objects.none()
-#         else:
-#             return self.request.user.mortgages.all()
-#
-#     def perform_create(self, serializer):
-#         # TODO: check if anonymous users can actually add investments
-#         return serializer.save(user=self.request.user)
+class FinancialGoalViewset(viewsets.ModelViewSet):
+    queryset = FinancialGoal.objects.none()
+    serializer_class = FinancialGoalSerializer
 
+    def get_queryset(self):
+        if self.request.user.is_anonymous:
+            return FinancialGoal.objects.none()
+        else:
+            return self.request.user.goals.all()
+
+    def perform_create(self, serializer):
+        return serializer.save(user=self.request.user)
 
 class FinancialProfileView(viewsets.GenericViewSet):
     serializer_class = FinancialProfileSerializer

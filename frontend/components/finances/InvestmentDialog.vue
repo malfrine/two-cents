@@ -152,7 +152,8 @@ export default {
         prime_modifier: investment.prime_modifier,
         expected_roi: investment.expected_roi,
         symbol: investment.symbol,
-        volatility_choice: investment.volatility_choice
+        volatility_choice: investment.volatility_choice,
+        account_type: investment.account_type
       }
     } else {
       return {
@@ -169,7 +170,8 @@ export default {
         prime_modifier: null,
         expected_roi: null,
         symbol: null,
-        volatility_choice: null
+        volatility_choice: null,
+        account_type: null
       }
     }
   },
@@ -255,7 +257,8 @@ export default {
         prime_modifier: this.prime_modifier,
         expected_roi: this.expected_roi,
         symbol: this.symbol,
-        volatility_choice: this.volatility_choice
+        volatility_choice: this.volatility_choice,
+        account_type: this.account_type
       }
     },
     mandatoryFieldRule (fieldName, verboseName) {

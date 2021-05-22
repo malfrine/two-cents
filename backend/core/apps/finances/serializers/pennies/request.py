@@ -3,6 +3,7 @@ from collections import defaultdict
 from rest_framework import serializers
 
 from core.apps.finances.models.financial_profile import FinancialProfile
+from core.apps.finances.models.goals import FinancialGoal
 from core.apps.finances.models.investments import Investment
 from core.apps.finances.models.loans import LoanType
 from core.apps.finances.serializers.pennies.loan import LoanSerializer as PenniesLoanSerializer
@@ -50,26 +51,28 @@ class PenniesFinancialProfileSerializer(serializers.ModelSerializer):
         )
 
 
+class PenniesFinancialGoalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FinancialGoal
+        fields = (
+            "name",
+            "type",
+            "amount",
+            "due_month"
+        )
+
+
 class PenniesRequestSerializer(base.ReadOnlyModelSerializer):
     loans = PenniesLoanSerializer(many=True, read_only=True)
     investments = PenniesInvestmentSerializer(many=True, read_only=True)
+    goals = PenniesFinancialGoalSerializer(many=True, read_only=True)
     financial_profile = PenniesFinancialProfileSerializer(read_only=True)
     strategies = serializers.ReadOnlyField(
         default=["Two Cents Plan", "Avalanche Plan", "Snowball Plan"]
     )
 
-    def to_representation(self, instance):
-        rep = super(PenniesRequestSerializer, self).to_representation(instance)
-        # loans = rep.pop("loans", list())
-        # loans_dict = defaultdict(list)
-        # for loan in loans:
-        #     loans_dict[loan["loan_type"]].append(loan)
-        # rep["loans"] = loans_dict
-        # TODO: group by loan type
-        return rep
-
 
     class Meta:
         model = User
-        fields = ("loans", "investments", "financial_profile", "strategies")
+        fields = ("loans", "investments", "goals", "financial_profile", "strategies")
         depth = 1

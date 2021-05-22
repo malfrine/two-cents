@@ -1,3 +1,5 @@
+from typing import Union, Literal
+
 from pydantic import validator, root_validator
 
 from pennies.errors.validation_errors import BadDomainException
@@ -46,10 +48,11 @@ class GuaranteedInvestment(BaseInvestment):
 
 
 class GIC(GuaranteedInvestment):
+    # investment_type: Literal['GIC'] = 'GIC'
     ...
 
-
 class TermDeposit(GuaranteedInvestment):
+    # investment_type: Literal['Term Deposit'] = 'Term Deposit'
     ...
 
 
@@ -68,20 +71,30 @@ class Investment(BaseInvestment):
 
 
 class MutualFund(Investment):
+    # investment_type: Literal['Mutual Fund'] = 'Mutual Fund'
     ...
 
 
 class ETF(Investment):
+    # investment_type: Literal['ETF'] = 'ETF'
     ...
 
 
 class Stock(Investment):
+    # investment_type: Literal['Stock'] = 'Stock'
     ...
 
 
 class Cash(Investment):
+    # investment_type: Literal['Cash'] = 'Cash'
+
     # add validator to make sure no growth rate
     @validator("interest_rate")
     def validate_zero_interest_rate(cls, v):
         assert isinstance(v, ZeroGrowthRate)
         return v
+
+
+ALL_NON_GUARANTEED_INVESTMENTS = [MutualFund, ETF, Stock, Cash]
+ALL_GUARANTEED_INVESTMENTS = [TermDeposit, GIC]
+AllNonGuaranteedInvestments = Union[MutualFund, ETF, Stock, Cash]

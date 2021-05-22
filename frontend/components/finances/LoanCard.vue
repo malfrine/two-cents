@@ -1,58 +1,12 @@
 <template>
-  <base-instrument-card>
-    <template v-slot:fixed>
-      <v-row class="mx-3">
-        <v-card-subtitle class="mb-n7">
-          <div class="text-h6">
-            {{ loan.name }}
-          </div>
-        </v-card-subtitle>
-        <v-spacer />
-        <v-speed-dial
-          v-model="fab"
-          direction="bottom"
-          class="mt-2"
-        >
-          <template v-slot:activator>
-            <v-btn
-              v-model="fab"
-              icon
-              fab
-              small
-            >
-              <v-icon v-if="fab">
-                mdi-close
-              </v-icon>
-              <v-icon v-else>
-                mdi-dots-horizontal
-              </v-icon>
-            </v-btn>
-          </template>
-          <v-btn
-            fab
-            small
-            color="blue"
-            @click.stop="showLoanDialog=true"
-          >
-            <v-icon>mdi-pencil</v-icon>
-          </v-btn>
-          <v-btn
-            fab
-            small
-            color="red"
-            @click.prevent="deleteLoan(loan)"
-          >
-            <v-icon>mdi-delete</v-icon>
-          </v-btn>
-        </v-speed-dial>
-
-        <LoanDialog :visible="showLoanDialog" :loan-id="loan.id" @close="showLoanDialog=false" />
-      </v-row>
-      <v-card-title>
-        <div class="text-h2 primary--text" color="primary">
-          {{ summaryValue }}
-        </div>
-      </v-card-title>
+  <BaseExpandableObjectCard
+    :name="loan.name"
+    :summary-value="summaryValue"
+    @open-dialog="showLoanDialog = true"
+    @delete-object="deleteLoan(loan)"
+  >
+    <template v-slot:dialog>
+      <LoanDialog :visible="showLoanDialog" :loan-id="loan.id" @close="showLoanDialog=false" />
     </template>
     <template v-slot:hidden>
       <v-card-text>
@@ -70,7 +24,7 @@
         </p>
       </v-card-text>
     </template>
-  </base-instrument-card>
+  </BaseExpandableObjectCard>
 </template>
 
 <script>

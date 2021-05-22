@@ -6,6 +6,7 @@ from pydantic.main import BaseModel
 
 from pennies.model.constants import InvestmentAccountType
 from pennies.model.financial_profile import FinancialProfile
+from pennies.model.goal import AllGoalTypes
 from pennies.model.loan import Loan, AllLoanTypes
 
 
@@ -80,6 +81,7 @@ class RequestInvestment(BaseModel):
 class PenniesRequest(BaseModel):
     financial_profile: FinancialProfile
     loans: List[AllLoanTypes]
+    goals: List[AllGoalTypes]
     investments: List[RequestInvestment]
     strategies: List[str]
 

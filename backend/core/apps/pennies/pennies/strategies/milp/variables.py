@@ -30,6 +30,8 @@ class MILPVariables:
     neg_withdrawal_differences: pe.Var
     withdrawal_fluctuation_violation: pe.Var
     max_monthly_payment_violations: pe.Var
+    savings_goal_violations: pe.Var
+    purchase_goal_violations: pe.Var
 
     @classmethod
     def create(
@@ -103,7 +105,8 @@ class MILPVariables:
         neg_withdrawal_differences = pe.Var(sets.all_decision_periods_as_set, domain=pe.NonNegativeReals)
         withdrawal_fluctuation_violation = pe.Var(domain=pe.NonNegativeReals)
         max_monthly_payment_violations = pe.Var(sets.instruments, sets.all_decision_periods_as_set, domain=pe.NonNegativeReals, initialize=0)
-
+        savings_goal_violations = pe.Var(sets.savings_goals_and_decision_periods, domain=pe.NonNegativeReals)
+        purchase_goal_violations = pe.Var(sets.purchase_goals, domain=pe.NonNegativeReals)
         return MILPVariables(
             allocations=allocations,
             balances=balances,
@@ -125,6 +128,8 @@ class MILPVariables:
             pos_withdrawal_differences=pos_withdrawal_differences,
             withdrawal_fluctuation_violation=withdrawal_fluctuation_violation,
             max_monthly_payment_violations=max_monthly_payment_violations,
+            savings_goal_violations=savings_goal_violations,
+            purchase_goal_violations=purchase_goal_violations
         )
 
     def get_allocation(self, instrument: UUID, month: int):
@@ -198,3 +203,9 @@ class MILPVariables:
 
     def get_max_monthly_payment_violation(self, instrument, decision_period_index):
         return self.max_monthly_payment_violations[instrument, decision_period_index]
+
+    def get_savings_goal_violation(self, goal, decision_period_index):
+        return self.savings_goal_violations[goal, decision_period_index]
+
+    def get_purchase_goal_violation(self, goal):
+        return self.purchase_goal_violations[goal]

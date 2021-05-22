@@ -36,10 +36,6 @@ class MILP:
             parameters.max_months_in_payment_horizon,
             parameters.starting_month,
         )
-        m.instruments = sets.instruments
-        m.months = sets.all_decision_periods_as_set
-        m.loans = sets.loans
-        m.investments = sets.investments
 
         milp_parameters = MILPParameters(user_finances, sets)
 
@@ -67,6 +63,8 @@ class MILP:
         m.neg_withdrawal_differences = variables.neg_withdrawal_differences
         m.withdrawal_fluctuation_violation = variables.withdrawal_fluctuation_violation
         m.max_monthly_payment_violations = variables.max_monthly_payment_violations
+        m.savings_goal_violations = variables.savings_goal_violations
+        m.purchase_goal_violations = variables.purchase_goal_violations
 
         cls._fix_final_allocation_to_zero(sets, variables)
 
@@ -90,10 +88,12 @@ class MILP:
         m.c17 = constraints.set_minimum_rrif_withdrawals
         m.c18 = constraints.define_tfsa_deduction_limits
         m.c19 = constraints.set_withdrawal_limits
-        m.c20 = constraints.define_surplus_withdrawal_differences
+        # m.c20 = constraints.define_surplus_withdrawal_differences
         # m.c21 = constraints.limit_surplus_withdrawal_fluctuations
         m.c22 = constraints.limit_monthly_payment
         m.c23 = constraints.same_mortgage_payments
+        m.c24 = constraints.penalize_purchase_goal_violations
+        m.c25 = constraints.penalize_savings_goal_violations
 
         objective = MILPObjective.create(sets, milp_parameters, variables, discount_factor=parameters.discount_factor)
         m.obj = objective.obj
@@ -149,7 +149,7 @@ class MILP:
         ]
 
     def solve(self) -> Optional["MILP"]:
-        results = pe.SolverFactory("cbc").solve(self.pyomodel, tee=True)
+        results = pe.SolverFactory("cbc").solve(self.pyomodel)
         if not self._is_valid_solution(results):
             print("It is not a valid solution")
             print(results.solver.status)

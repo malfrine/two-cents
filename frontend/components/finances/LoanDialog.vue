@@ -83,7 +83,7 @@
 
 <script>
 import LoanDetailsMixin from '@/mixins/LoanDetailsMixin.js'
-import { calculateMinimumAmortizedLoanPayment, asDollar } from '~/assets/utils.js'
+import { calculateMinimumAmortizedLoanPayment } from '~/assets/utils.js'
 
 export default {
   mixins: [LoanDetailsMixin],
@@ -178,7 +178,7 @@ export default {
         type: 'number',
         prefix: '$',
         rules: [
-          v => this.validateMinPayment(v) || `Minimum payment must at least $${asDollar(this.minimumMonthlyPaymentLowerBound)}`,
+          // v => this.validateMinPayment(v) || `Minimum payment must at least ${asDollar(this.minimumMonthlyPaymentLowerBound)}`,
           v => v >= 0 || 'Minimum monthly payment cannot be a negative number'
         ]
       }
@@ -370,7 +370,6 @@ export default {
       if (startDate && numYears) {
         const d = new Date(startDate)
         d.setFullYear(Number(startDate.getFullYear()) + Number(numYears))
-        console.log(d)
         return d
       } else {
         return null
