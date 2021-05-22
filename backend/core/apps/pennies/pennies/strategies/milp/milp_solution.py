@@ -101,12 +101,12 @@ class MILPSolution:
         print(
             f"Loan due date violation costs: {pe.value(c.get_loan_due_date_violation_costs())}"
         )
+        print(f"Purchase goal violation costs: {pe.value(c.get_purchase_goal_violation_cost())}")
+        print(f"Savings goal violation costs: {pe.value(c.get_savings_goal_violation_cost())}")
         print(f"Taxes paid: {pe.value(c.get_taxes_paid())}")
         print(f"Taxes overflow costs: {pe.value(c.get_taxes_overflow_cost())}")
-        # print(f"Withdrawal differences costs: {pe.value(c.get_withdrawal_differences_cost())}")
         print(f"Interest Earned: {pe.value(c.get_interest_earned())}")
         print(f"Final net worth: {pe.value(c.get_final_net_worth())}")
-        print(f"Withdrawals: {pe.value(c.get_extra_spending_money())}")
         print(f"Total: {pe.value(c.get_obj())}")
 
     def get_milp_monthly_solutions(self) -> Dict[int, MonthlySolution]:

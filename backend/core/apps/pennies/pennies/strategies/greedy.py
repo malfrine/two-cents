@@ -5,6 +5,7 @@ from uuid import UUID
 
 from pennies.model.factories.financial_plan import FinancialPlanFactory
 from pennies.model.financial_profile import FinancialProfile
+from pennies.model.goal import AllGoalTypes
 from pennies.model.instrument import Instrument
 from pennies.model.investment import Investment
 from pennies.model.loan import Loan
@@ -60,6 +61,7 @@ class GreedyAllocationStrategy(AllocationStrategy):
             cur_portfolio,
             user_finances.financial_profile,
             parameters,
+            user_finances.goals
         )
         monthly_solutions.extend(milp_monthly_solutions)
         return FinancialPlan(monthly_solutions=monthly_solutions)
@@ -82,12 +84,13 @@ class GreedyAllocationStrategy(AllocationStrategy):
         portfolio: Portfolio,
         financial_profile: FinancialProfile,
         parameters: Parameters,
+        goals: List[AllGoalTypes]
     ) -> List[MonthlySolution]:
         milp_parameters = Parameters.parse_obj(
             dict(parameters.dict(), starting_month=start_month)
         )
         user_finances = UserPersonalFinances(
-            portfolio=portfolio, financial_profile=financial_profile
+            portfolio=portfolio, financial_profile=financial_profile, goals=goals
         )
         financial_plan = MILPStrategy().create_solution(
             user_finances=user_finances, parameters=milp_parameters

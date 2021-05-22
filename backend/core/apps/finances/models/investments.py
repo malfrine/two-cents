@@ -224,7 +224,3 @@ class Investment(models.Model):
 
     def __str__(self):
         return " - ".join(("Investment", str(self.pk), str(self.name)))
-
-    @classmethod
-    def create_default_investment(cls, user: AuthUser):
-        pass

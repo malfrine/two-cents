@@ -103,7 +103,7 @@ class _ConstraintMaker:
         def rule(_, t):
             return sum(
                 self.vars.get_allocation(i, t) for i in self.sets.instruments
-            ) + self.vars.get_allocation_slack(t) == self.pars.get_monthly_allowance(t)
+            ) == self.pars.get_monthly_allowance(t)
 
         return pe.Constraint(self.sets.all_decision_periods_as_set, rule=rule)
 
@@ -161,7 +161,6 @@ class _ConstraintMaker:
 
             final_payment_order = self.pars.get_final_work_period_index()
             min_const_volatility = self.pars.get_min_investment_volatility()
-            # fixed_volatility = self.pars.get_fixed_volatility(t)
 
             if self.pars.has_loans():
                 min_volatility = min_const_volatility * (
@@ -173,7 +172,7 @@ class _ConstraintMaker:
             volatility_limit = (
                 min_volatility
                 + self.pars.get_user_risk_profile_as_fraction()
-                * (self.pars.get_max_volatility() - min_volatility)
+                * (self.pars.get_max_investment_volatility() - min_volatility)
             )
             allocation_volatility = self._get_allocation_volatility(t)
             violation = self.vars.get_total_risk_violation(t)
@@ -191,29 +190,33 @@ class _ConstraintMaker:
             return pe.Constraint.NoConstraint
 
     def make_limit_investment_risk(self) -> pe.Constraint:
-        def rule(_, t):
-            min_volatility = self.pars.get_min_investment_volatility()
 
-            volatility_limit = (
-                min_volatility
-                + self.pars.get_user_risk_profile_as_fraction()
-                * (self.pars.get_max_volatility() - min_volatility)
-            )
+        min_volatility = self.pars.get_min_investment_volatility()
+
+        volatility_limit = (
+            min_volatility
+            + self.pars.get_user_risk_profile_as_fraction()
+            * (self.pars.get_max_investment_volatility() - min_volatility)
+        )
+
+
+        def rule(_, t):
 
             total_investment_allocations = sum(
-                self.vars.get_allocation(i, t) for i in self.sets.non_cash_investments
+                self.vars.get_allocation(i, t) for i in self.sets.investments
             )
 
             allocation_volatility = sum(
                 self.vars.get_allocation(i, t) * self.pars.get_volatility(i)
-                for i in self.sets.non_cash_investments
+                for i in self.sets.investments
             )
+
+            actual_volatility = allocation_volatility
+            allowed_volatility = total_investment_allocations * volatility_limit
 
             violation = self.vars.get_investment_risk_violation(t)
             return (
-                violation
-                >= allocation_volatility
-                - volatility_limit * total_investment_allocations
+                violation >= actual_volatility - allowed_volatility
             )
 
         if self.pars.has_investments():
@@ -498,6 +501,34 @@ class _ConstraintMaker:
             rule=rule
         )
 
+    def make_penalize_savings_goal_violations(self):
+        def rule(_, g, t):
+            investments = self.sets.get_allowed_investments_for_goal(g)
+            total_balance = sum(self.vars.get_balance(i, t) for i in investments)
+            goal_violation = self.vars.get_savings_goal_violation(g, t)
+            expected_balance = self.pars.get_goal_amount(g, t)
+            return goal_violation >= expected_balance - total_balance
+
+        return pe.Constraint(
+            self.sets.savings_goals_and_decision_periods,
+            rule=rule
+        )
+
+    def make_penalize_purchase_goal_violations(self):
+        def rule(_, g):
+            investments = self.sets.get_allowed_investments_for_goal(g)
+            m = self.pars.get_goal_due_month(g)
+            t = self.sets.decision_periods.get_corresponding_period_or_closest(m).index
+            num_months_in_dp = self.sets.get_num_months_in_decision_period(t)
+            withdrawal = sum(self.vars.get_withdrawal(i, t) for i in investments)
+            goal_violation = self.vars.get_purchase_goal_violation(g)
+            expected_withdrawal = self.pars.get_goal_amount(g, t)
+            return goal_violation >= expected_withdrawal / num_months_in_dp - withdrawal
+
+        return pe.Constraint(
+            self.sets.purchase_goals,
+            rule=rule
+        )
 
 @dataclass
 class MILPConstraints:
@@ -525,6 +556,8 @@ class MILPConstraints:
     limit_surplus_withdrawal_fluctuations: pe.Constraint
     limit_monthly_payment: pe.Constraint
     same_mortgage_payments: pe.Constraint
+    penalize_purchase_goal_violations: pe.Constraint
+    penalize_savings_goal_violations: pe.Constraint
 
     @classmethod
     def create(
@@ -554,5 +587,7 @@ class MILPConstraints:
             define_surplus_withdrawal_differences=cm.make_define_surplus_withdrawal_differences(),
             limit_surplus_withdrawal_fluctuations=cm.make_limit_surplus_withdrawal_fluctuations(),
             limit_monthly_payment=cm.make_limit_monthly_payment(),
-            same_mortgage_payments=cm.make_same_mortgage_payments()
+            same_mortgage_payments=cm.make_same_mortgage_payments(),
+            penalize_purchase_goal_violations=cm.make_penalize_purchase_goal_violations(),
+            penalize_savings_goal_violations=cm.make_penalize_savings_goal_violations()
         )

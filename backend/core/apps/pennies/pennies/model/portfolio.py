@@ -115,3 +115,6 @@ class Portfolio(BaseModel):
 
     def __str__(self):
         return "\n\t".join(str(instrument) for instrument in self.instruments.values())
+
+    def get_investments_of_types(self, types: List):
+        return list(i for i in self.investments() if isinstance(i, tuple(types)))

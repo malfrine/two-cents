@@ -111,6 +111,7 @@
             "account_type": "Non-Registered"
         }
     ],
+    "goals": [],
     "financial_profile": {
         "monthly_salary_before_tax": 8000.0,
         "years_to_retirement": 38,

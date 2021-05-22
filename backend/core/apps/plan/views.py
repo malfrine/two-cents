@@ -13,6 +13,7 @@ from pennies.model.status import PenniesStatus
 class UserPlanViewSet(viewsets.GenericViewSet):
     def list(self, request, format=None):
         pennies_request = PenniesRequestSerializer(request.user)
+        print(pennies_request)
         pennies_response = solve_request(pennies_request.data)
         if pennies_response["status"] == PenniesStatus.SUCCESS:
             return Response(status=status.HTTP_200_OK, data=pennies_response["result"])

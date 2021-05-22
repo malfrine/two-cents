@@ -24,6 +24,7 @@ class ProblemInputFactory:
             user_finances=UserPersonalFinances(
                 financial_profile=request.financial_profile,
                 portfolio=portfolio,
+                goals={g.id_: g for g in request.goals}
             ),
             strategies=request.strategies,
         )

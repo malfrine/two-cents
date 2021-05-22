@@ -19,16 +19,18 @@ class ObjectiveComponents:
     vars: MILPVariables
     discount_factor: float
 
-    def get_discount_factor(self, instrument, month):
-        dp_index = self.sets.decision_periods.month_to_period_dict[month].index
-        growth_rate = self.pars.get_average_interest_rate(instrument, dp_index) + 1
-        discount_rate = ANNUALIZED_DISCOUNT_FACTOR / 12 + 1
-        factor = (growth_rate / discount_rate) ** month
-        return factor
+    GOAL_VIOLATION_COST = 100
 
-    def get_npv_weighting(self, month: int):
-        w = 1 / (1 + self.discount_factor) ** month
-        return w
+    # def get_discount_factor(self, instrument, month):
+    #     dp_index = self.sets.decision_periods.month_to_period_dict[month].index
+    #     growth_rate = self.pars.get_average_interest_rate(instrument, dp_index) + 1
+    #     discount_rate = ANNUALIZED_DISCOUNT_FACTOR / 12 + 1
+    #     factor = (growth_rate / discount_rate) ** month
+    #     return factor
+    #
+    # def get_npv_weighting(self, month: int):
+    #     w = 1 / (1 + self.discount_factor) ** month
+    #     return w
 
     def get_risk_violation_costs(self):
         return (
@@ -115,6 +117,25 @@ class ObjectiveComponents:
             for i, t in itertools.product(self.sets.instruments, self.sets.all_decision_periods_as_set)
         )
 
+    def get_savings_goal_violation_cost(self):
+        return (self.GOAL_VIOLATION_COST + 10) * sum(
+            self.vars.get_savings_goal_violation(g, t)
+            for g, t in self.sets.savings_goals_and_decision_periods
+        )
+
+    def get_purchase_goal_violation_cost(self):
+        max_month = self.sets.decision_periods.max_month
+        return max_month * self.GOAL_VIOLATION_COST * sum(
+            self.vars.get_purchase_goal_violation(g)
+            for g in self.sets.purchase_goals
+        )
+
+    def get_registered_account_incentive(self):
+        return 0.01 * sum(
+            self.vars.get_allocation(i, t)
+            for i, t in itertools.product(self.sets.registered_investments, self.sets.working_periods_as_set)
+        )
+
     def get_obj(self):
         obj = (
             - self.get_risk_violation_costs()
@@ -123,9 +144,11 @@ class ObjectiveComponents:
             - self.get_taxes_overflow_cost()
             - self.get_retirement_spending_violation_cost()
             - self.get_max_payment_violation_cost()
+            - self.get_savings_goal_violation_cost()
+            - self.get_purchase_goal_violation_cost()
         )
         if self.pars.has_investments():
-            obj += self.get_extra_spending_money() + self.get_final_net_worth()
+            obj += self.get_final_net_worth() + self.get_registered_account_incentive()
         else:
             obj += self.get_interest_earned()
         return obj

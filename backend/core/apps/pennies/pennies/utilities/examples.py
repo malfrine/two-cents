@@ -4,6 +4,7 @@ from pennies.model.constants import Province, InvestmentAccountType
 from pennies.model.factories.problem_input import ProblemInputFactory
 from pennies.model.factories.request_loan import RequestLoanFactory
 from pennies.model.financial_profile import FinancialProfile
+from pennies.model.goal import NestEgg, BigPurchase
 from pennies.model.interest_rate import FixedLoanInterestRate, VariableLoanInterestRate, InterestRate
 from pennies.model.loan import Loan, PersonalLoan, LineOfCredit, StudentLineOfCredit, StudentLoan, CreditCard
 from pennies.model.portfolio import Portfolio
@@ -22,13 +23,13 @@ from pennies.strategies import StrategyName
 def financial_profile():
     return FinancialProfile(
         years_to_retirement=40,
-        risk_tolerance=50,
+        risk_tolerance=0,
         province_of_residence=Province.AB,
         starting_rrsp_contribution_limit=0,
         starting_tfsa_contribution_limit=0,
         current_age=25,
         monthly_salary_before_tax=5000,
-        percent_salary_for_spending=25,
+        percent_salary_for_spending=50,
         years_to_death=65
     )
 
@@ -36,19 +37,19 @@ def financial_profile():
 def simple_request_loans() -> List[Loan]:
     return [
         PersonalLoan(
-            name="loan1",
+            name="3.5 APR Personal Loan",
             interest_rate=FixedLoanInterestRate(apr=3.5),
             current_balance=-20000,
             final_month=12 * 10,
             minimum_monthly_payment=50
         ),
         LineOfCredit(
-            name="loan2",
+            name="4.1 APR LOC",
             interest_rate=FixedLoanInterestRate(apr=4.1),
             current_balance=-10000,
         ),
         StudentLineOfCredit(
-            name="loan3",
+            name="3.5 APR Student LOC",
             interest_rate=FixedLoanInterestRate(apr=3.5),
             current_balance=-200000,
         )
@@ -83,21 +84,21 @@ def all_possible_loans() -> List[Loan]:
 
 def simple_investments() -> List[RequestInvestment]:
     return [
+        # RequestInvestment(
+        #     name="medium risk (non-registered)",
+        #     roi=5.0,
+        #     current_balance=0,
+        #     pre_authorized_monthly_contribution=0,
+        #     volatility=5.0,
+        #     investment_type=RequestInvestmentType.MUTUAL_FUND,
+        #     account_type=InvestmentAccountType.NON_REGISTERED
+        # ),
         RequestInvestment(
-            name="medium risk (non-registered)",
+            name="medium risk (rrsp)",
             roi=5.0,
             current_balance=0,
             pre_authorized_monthly_contribution=0,
             volatility=5.0,
-            investment_type=RequestInvestmentType.MUTUAL_FUND,
-            account_type=InvestmentAccountType.NON_REGISTERED
-        ),
-        RequestInvestment(
-            name="low risk (rrsp)",
-            roi=3.0,
-            current_balance=0,
-            pre_authorized_monthly_contribution=0,
-            volatility=1.0,
             investment_type=RequestInvestmentType.MUTUAL_FUND,
             account_type=InvestmentAccountType.RRSP
         ),
@@ -194,12 +195,21 @@ def all_strategies() -> List[str]:
     ]
 
 
+def simple_goals():
+    return [
+        NestEgg(name="nest egg", amount=100_000, due_month=1),
+        BigPurchase(name="boat", amount=15000, due_month=40),
+        BigPurchase(name="car", amount=75000, due_month=80)
+    ]
+
+
 def simple_request() -> PenniesRequest:
     return PenniesRequest(
         financial_profile=financial_profile(),
         loans=simple_request_loans(),
         investments=simple_investments(),
         strategies=all_strategies(),
+        goals=simple_goals()
     )
 
 
@@ -209,6 +219,7 @@ def all_instrument_types_request() -> PenniesRequest:
         loans=all_possible_loans(),
         investments=all_possible_investments(),
         strategies=all_strategies(),
+        goals=simple_goals()
     )
 
 
@@ -218,6 +229,7 @@ def only_investments_request() -> PenniesRequest:
         loans=[],
         investments=simple_investments(),
         strategies=all_strategies(),
+        goals=[]
     )
 
 

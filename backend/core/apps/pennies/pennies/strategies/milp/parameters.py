@@ -5,7 +5,7 @@ from uuid import UUID
 import pyomo.environ as pe
 
 from pennies.model.instrument import Instrument
-from pennies.model.investment import Investment, GuaranteedInvestment
+from pennies.model.investment import Investment, GuaranteedInvestment, Cash
 from pennies.model.constants import InvestmentAccountType
 from pennies.model.loan import Loan, RevolvingLoan
 from pennies.model.rrsp import RRSPAnnualLimitGetter
@@ -20,6 +20,7 @@ class MILPParameters:
     user_finances: UserPersonalFinances
     sets: MILPSets
     _instrument_bounds: Dict[str, float] = None
+    MAX_VOLATILITY = 100
 
     def __post_init__(self):
         self._instrument_bounds = dict()
@@ -40,12 +41,16 @@ class MILPParameters:
         ) / len(months)
 
     def get_volatility(self, id) -> float:
-        return self._get_investment(id).volatility
+        investment = self._get_investment(id)
+        if isinstance(investment, Cash):
+            return self.MAX_VOLATILITY
+        else:
+            return investment.volatility
 
-    def get_max_volatility(self):
+    def get_max_investment_volatility(self):
         return max(
             list(
-                i.volatility for i in self.user_finances.portfolio.non_cash_investments
+                self.get_volatility(i) for i in self.sets.non_cash_investments
             ),
             default=0,
         )
@@ -53,7 +58,7 @@ class MILPParameters:
     def get_min_investment_volatility(self):
         return min(
             list(
-                i.volatility for i in self.user_finances.portfolio.non_cash_investments
+                self.get_volatility(i) for i in self.sets.non_cash_investments
             ),
             default=0,
         )
@@ -232,5 +237,8 @@ class MILPParameters:
             default=None
         )
 
+    def get_goal_amount(self, g, t):
+        return self.user_finances.goals[g].amount
 
-
+    def get_goal_due_month(self, g):
+        return self.user_finances.goals[g].due_month

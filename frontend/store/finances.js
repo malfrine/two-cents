@@ -44,6 +44,12 @@ const getters = {
   },
   getFinancesUpdateSinceLastPlanBuilt (state) {
     return state.finances_updated_since_plan_built
+  },
+  getGoals (state) {
+    return state.user_finances.goals
+  },
+  getGoalById: state => (id) => {
+    return state.user_finances.goals[id]
   }
 }
 
@@ -70,6 +76,14 @@ const mutations = {
   },
   DELETE_INVESTMENT: (state, payload) => {
     Vue.delete(state.user_finances.investments, payload.id)
+    state.finances_updated_since_plan_built = true
+  },
+  SET_GOAL: (state, payload) => {
+    Vue.set(state.user_finances.goals, payload.id, payload)
+    state.finances_updated_since_plan_built = true
+  },
+  DELETE_GOAL: (state, payload) => {
+    Vue.delete(state.user_finances.goals, payload.id)
     state.finances_updated_since_plan_built = true
   },
   SET_FINANCIAL_PROFILE: (state, payload) => {
@@ -125,7 +139,6 @@ const actions = {
         }
       )
   },
-
   createOrUpdateInvestment (context, payload) {
     if (payload.id == null) {
       this.$axios.$post('/api/my/finances/investments', payload)
@@ -163,6 +176,46 @@ const actions = {
       .catch(
         (e) => {
           this.$toast.error('Could not delete investment')
+        }
+      )
+  },
+  createOrUpdateGoal (context, payload) {
+    if (payload.id == null) {
+      this.$axios.$post('/api/my/finances/goals', payload)
+        .then(
+          (response) => {
+            context.commit('SET_GOAL', response)
+          }
+        )
+        .catch(
+          (e) => {
+            this.$toast.error('Could not create goal')
+          }
+        )
+    } else {
+      this.$axios.$put(`/api/my/finances/goals/${payload.id}`, payload)
+        .then(
+          (response) => {
+            context.commit('SET_GOAL', response)
+          }
+        )
+        .catch(
+          (e) => {
+            this.$toast.error('Could not update goal')
+          }
+        )
+    }
+  },
+  deleteGoal (context, payload) {
+    this.$axios.$delete(`/api/my/finances/goals/${payload.id}`)
+      .then(
+        (response) => {
+          context.commit('DELETE_GOAL', payload)
+        }
+      )
+      .catch(
+        (e) => {
+          this.$toast.error('Could not delete goal')
         }
       )
   }

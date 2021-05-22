@@ -19,7 +19,6 @@ export default {
   },
   async fetch () {
     if (!this.$store.getters['finances/getUserFinancesExists']) {
-      console.log('no user finances available - going to fetch it')
       this.isLoading = true
       const response = await this.$axios.$get('/api/my/finances')
         .then((response) => {

@@ -19,6 +19,12 @@
         </v-icon>
         Investments
       </v-tab>
+      <v-tab>
+        <v-icon class="mr-1">
+          mdi-trophy
+        </v-icon>
+        Goals
+      </v-tab>
 
       <v-tab-item>
         <tab-container>
@@ -35,6 +41,11 @@
           <ProfileInvestmentsTab />
         </tab-container>
       </v-tab-item>
+      <v-tab-item>
+        <tab-container>
+          <ProfileGoalsTab />
+        </tab-container>
+      </v-tab-item>
     </v-tabs>
   </div>
 </template>
@@ -43,6 +54,7 @@
 import ProfileProfileTab from '@/components/dashboard/ProfileProfileTab.vue'
 import ProfileInvestmentsTab from '@/components/dashboard/ProfileInvestmentsTab.vue'
 import ProfileLoansTab from '@/components/dashboard/ProfileLoansTab.vue'
+import ProfileGoalsTab from '@/components/dashboard/ProfileGoalsTab.vue'
 import TabContainer from '@/components/base/TabContainer.vue'
 
 export default {
@@ -50,7 +62,8 @@ export default {
     ProfileProfileTab,
     ProfileInvestmentsTab,
     ProfileLoansTab,
-    TabContainer
+    TabContainer,
+    ProfileGoalsTab
   }
 }
 </script>

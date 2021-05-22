@@ -106,6 +106,10 @@ class WaitlistUser(models.Model):
     referral_id = HashidField(null=True, blank=True)
     referrer_id = models.IntegerField(verbose_name="Primary Key of Referrer", default=None, blank=True, null=True)
 
+    def __str__(self):
+        return " - ".join(("Waitlist User", str(self.pk), str(self.email)))
+
+
 def create_waitlist_user(email: str, referree_id: str, first_name: str):
     waitlist_user = WaitlistUser.objects.create(
         email=BaseUserManager.normalize_email(email),

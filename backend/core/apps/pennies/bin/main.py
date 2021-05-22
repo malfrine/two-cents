@@ -21,13 +21,13 @@ def main():
     pr.enable()
     json_dao = JsonDao(data_dir=Path("data"))
     request = json_dao.read_request("fail.json")
-    # request = simple_request()
+    request = simple_request()
     sp = ProblemInputFactory.from_request(request).user_finances
     mi = ProblemInput(
         user_finances=sp,
         strategies=[
             # StrategyName.snowball.value,
-            StrategyName.avalanche.value,
+            # StrategyName.avalanche.value,
             # StrategyName.avalanche_ball.value,
             StrategyName.lp.value,
         ],
@@ -46,7 +46,7 @@ def main():
     pr.disable()
     # pr.print_stats(sort="cumulative")
     for strategy_name, plan in solution.plans.items():
-        visualize_solution(plan)
+        visualize_solution(plan, suffix=strategy_name)
 
 
 if __name__ == "__main__":
