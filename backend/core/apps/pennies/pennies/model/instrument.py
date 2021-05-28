@@ -10,6 +10,7 @@ from pennies.utilities.datetime import MONTHS_IN_YEAR
 
 class Instrument(BaseModel):
     id_: UUID = Field(default_factory=uuid4)
+    db_id: int = -1
     name: str
     interest_rate: CompoundingRate
     current_balance: float = None

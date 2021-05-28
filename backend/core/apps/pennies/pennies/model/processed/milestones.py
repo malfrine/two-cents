@@ -27,6 +27,8 @@ class Milestone(BaseModel):
     date: date
     header: str
     text: str
+    instrument_id: Optional[int] = None
+    instrument_type: Optional[str] = None
 
 
 PlanMilestones = NewType("PlanMilestones", Dict[str, Milestone])
@@ -50,6 +52,8 @@ class MilestoneFactory:
             date=payoff_date,
             header=f"Pay off {loan.name}",
             text=text,
+            instrument_id=loan.db_id,
+            instrument_type='loan'
         )
 
     @classmethod

@@ -13,9 +13,11 @@ from core.config import base
 
 class PenniesInvestmentSerializer(serializers.ModelSerializer):
 
-    # final_month = serializers.IntegerField(
-    #     source="user.financial_profile.months_to_retirement", read_only=True
-    # )
+    db_id = serializers.SerializerMethodField(source="get_db_id")
+
+    def get_db_id(self, obj: Investment):
+        print(obj.pk)
+        return obj.pk
 
     class Meta:
         model = Investment
@@ -31,7 +33,8 @@ class PenniesInvestmentSerializer(serializers.ModelSerializer):
             "start_month",
             "prime_modifier",
             "interest_type",
-            "account_type"
+            "account_type",
+            "db_id"
         )
 
 

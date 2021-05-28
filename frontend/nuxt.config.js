@@ -69,6 +69,7 @@ export default {
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
   plugins: [
     '~/plugins/axios.js',
+    '~/plugins/instrument-colors.js',
     { src: '~/plugins/vue-toastification.js', mode: 'client' },
     { src: '~/plugins/typed.js', mode: 'client' }
   ],

@@ -2,6 +2,8 @@
   <BaseExpandableObjectCard
     :name="loan.name"
     :summary-value="summaryValue"
+    :summary-color="$instrument.colors.getColor('loan', loanId)"
+    :icon="$instrument.icons.getIcon(loanType)"
     @open-dialog="showLoanDialog = true"
     @delete-object="deleteLoan(loan)"
   >
@@ -51,7 +53,7 @@ export default {
       },
       purchase_date: {
         labelName: 'Purchase Date',
-        type: 'dollar'
+        type: 'date'
       },
       amortization_years: {
         labelName: 'Mortgage Length',

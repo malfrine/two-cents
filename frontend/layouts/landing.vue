@@ -50,7 +50,7 @@ export default {
     SmallLogo
   },
   created () {
-    this.$vuetify.theme.isDark = false
+    this.$vuetify.theme.isDark = true
   }
 }
 </script>

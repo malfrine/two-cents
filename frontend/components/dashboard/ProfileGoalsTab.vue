@@ -34,7 +34,6 @@ export default {
   },
   computed: {
     goals () {
-      console.log(this.$store.state.finances)
       return this.$store.state.finances.user_finances.goals
     }
   }

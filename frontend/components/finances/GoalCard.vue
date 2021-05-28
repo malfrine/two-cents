@@ -2,6 +2,7 @@
   <BaseExpandableObjectCard
     :name="goal.name"
     :summary-value="asDollar(goal.amount)"
+    :icon="$instrument.icons.getIcon(goal.type)"
     @open-dialog="showDialog = true"
     @delete-object="deleteGoal()"
   >

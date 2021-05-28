@@ -22,8 +22,8 @@
           <v-card-title class="text-h5">
             User Information
           </v-card-title>
-          <v-row>
-            <v-col cols="12" md="6">
+          <v-row justify="center">
+            <v-col cols="12" sm="10" md="6">
               <v-text-field
                 v-model="first_name"
                 label="First Name"
@@ -31,7 +31,7 @@
                 disabled
               />
             </v-col>
-            <v-col cols="12" md="6">
+            <v-col cols="12" sm="10" md="6">
               <v-text-field
                 v-model="last_name"
                 label="Last Name"
@@ -40,8 +40,8 @@
               />
             </v-col>
           </v-row>
-          <v-row>
-            <v-col cols="12" md="6">
+          <v-row justify="center">
+            <v-col cols="12" sm="10" md="6">
               <v-text-field
                 v-model="financial_profile.birth_date"
                 label="Birthdate"
@@ -50,7 +50,7 @@
                 type="date"
               />
             </v-col>
-            <v-col cols="12" md="6">
+            <v-col cols="12" sm="10" md="6">
               <v-text-field
                 v-model="email"
                 label="Email"
@@ -59,7 +59,7 @@
                 type="email"
               />
             </v-col>
-            <v-col cols="12" md="6">
+            <v-col cols="12" sm="10" md="6">
               <v-autocomplete
                 v-model="financial_profile.province_of_residence"
                 label="Province"
@@ -74,8 +74,8 @@
           <v-card-title class="text-h5">
             Financial Information
           </v-card-title>
-          <v-row>
-            <v-col cols="12" md="6">
+          <v-row justify="center">
+            <v-col cols="12" sm="10" md="6">
               <v-text-field
                 v-model="financial_profile.monthly_salary_before_tax"
                 label="Pre-Tax Monthly Income"
@@ -84,7 +84,7 @@
                 :disabled="!editMode"
               />
             </v-col>
-            <v-col cols="12" md="6">
+            <v-col cols="12" sm="10" md="6">
               <v-text-field
                 v-model="financial_profile.retirement_age"
                 label="Planned Retirement Age"
@@ -92,7 +92,7 @@
                 :disabled="!editMode"
               />
             </v-col>
-            <v-col cols="12" md="6">
+            <v-col cols="12" sm="10" md="6">
               <v-text-field
                 v-model="financial_profile.starting_rrsp_contribution_limit"
                 label="RRSP Contribution Limit"
@@ -101,7 +101,7 @@
                 :disabled="!editMode"
               />
             </v-col>
-            <v-col cols="12" md="6">
+            <v-col cols="12" sm="10" md="6">
               <v-text-field
                 v-model="financial_profile.starting_tfsa_contribution_limit"
                 label="TFSA Contribution Limit"

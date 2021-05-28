@@ -12,20 +12,40 @@ const COLORS = [
   { name: 'Orange Red', hex: '#f3722c', rgb: [243, 114, 44], cmyk: [0, 53, 82, 5], hsb: [21, 82, 95], hsl: [21, 89, 56], lab: [63, 46, 59] }
 ]
 
+const LOAN_COLORS = [
+  { hex: '#E89005' },
+  { hex: '#EC7505' },
+  { hex: '#D84A05' },
+  { hex: '#F42B03' },
+  { hex: '#AB0B02' }
+]
+
+const INVESTMENT_COLORS = [
+  { hex: '#D9ED92' },
+  { hex: '#99D98C' },
+  { hex: '#52B69A' },
+  { hex: '#168AAD' },
+  { hex: '#1E6091' }
+]
+
 class ColorGetter {
     currentIndex = -1
     numTotalLoops= -1
 
+    constructor (colors = COLORS) {
+      this.colors = colors
+    }
+
     _increment () {
-      this.currentIndex = (this.currentIndex + 1) % COLORS.length
-      if (this.currentIndex % COLORS.length === 0) {
+      this.currentIndex = (this.currentIndex + 1) % this.colors.length
+      if (this.currentIndex % this.colors.length === 0) {
         this.numTotalLoops += 1
       }
     }
 
     getNextColor () {
       this._increment()
-      return COLORS[this.currentIndex].hex // TODO: increase saturation
+      return this.colors[this.currentIndex].hex // TODO: increase saturation
     }
 
     getNextColors (numColors) {
@@ -33,4 +53,4 @@ class ColorGetter {
     }
 }
 
-export { ColorGetter }
+export { COLORS, LOAN_COLORS, INVESTMENT_COLORS, ColorGetter }
