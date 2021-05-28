@@ -2,6 +2,8 @@
   <BaseExpandableObjectCard
     :name="investment.name"
     :summary-value="summaryValue"
+    :summary-color="$instrument.colors.getColor('investment', investmentId)"
+    :icon="$instrument.icons.getIcon(investment.investment_type)"
     @open-dialog="showInvestmentDialog = true"
     @delete-object="deleteInvestment(investment)"
   >
@@ -12,6 +14,9 @@
       <v-card-text>
         <p class="mt-n5">
           <em>Investment Type:</em> {{ investment.investment_type }}
+        </p>
+        <p class="mt-n3">
+          <em>Account Type:</em> {{ investment.account_type }}
         </p>
         <p v-if="requiredFields.includes('risk_level')" class="mt-n3">
           <em>Risk Level:</em> {{ investment.risk_level }}
@@ -27,9 +32,6 @@
         </p>
         <p v-if="requiredFields.includes('symbol')" class="mt-n3">
           <em>Ticker Symbol:</em> {{ investment.symbol }}
-        </p>
-        <p v-if="requiredFields.includes('volatility_choice')" class="mt-n3">
-          <em>Volatility:</em> {{ investment.volatility_choice }}
         </p>
         <p v-if="requiredFields.includes('principal_investment_amount')" class="mt-n3">
           <em>Principal Investment:</em> {{ asDollar(investment.principal_investment_amount) }}

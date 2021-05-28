@@ -1,6 +1,6 @@
 <template>
   <v-hover v-slot="{ hover }">
-    <v-card color="blue-grey lighten-5" :elevation="hover ? 4 : 1">
+    <v-card :elevation="hover ? 4 : 1" style="height: 100%">
       <v-card-title>
         <v-icon large color="primary" class="mr-3">
           {{ iconName }}

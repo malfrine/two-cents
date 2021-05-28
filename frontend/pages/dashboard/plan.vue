@@ -188,7 +188,7 @@ export default {
       })
     console.log(this.$store.getters['plan/getIsPlansAvailable'])
     if (response) {
-      const pm = new PlanMaker()
+      const pm = new PlanMaker(this.$instrument.colors)
       const plans = pm.fromResponseData(response)
       this.$store.commit('plan/SET_PLANS', plans)
       this.$store.commit('finances/REGISTER_PLAN_UPDATED')

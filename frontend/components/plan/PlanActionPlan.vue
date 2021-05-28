@@ -45,7 +45,10 @@ export default {
     }
   },
   methods: {
-    asDollar
+    asDollar,
+    getColor (payment) {
+      return this.$instrument.colors.getColor(payment.instrument_type, payment.id)
+    }
   }
 }
 </script>

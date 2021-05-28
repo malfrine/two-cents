@@ -13,7 +13,9 @@
       </template>
       <v-card elevation="2">
         <v-card-text class="headline">
-          {{ m.header }}
+          <div :style="`color: ${getColor(m)}`">
+            {{ m.header }}
+          </div>
           <v-divider v-if="!$vuetify.breakpoint.smAndUp" class="my-3" />
           <span
             v-if="!$vuetify.breakpoint.smAndUp"
@@ -40,6 +42,13 @@ export default {
   methods: {
     getHeader (m) {
       return this.$vuetify.breakpoint.smAndUp ? m.header : `${new Date(m.date).toDateString()} - ${m.header}`
+    },
+    getColor (milestone) {
+      const instrumentId = milestone.instrument_id
+      const instrumentType = milestone.instrument_type
+      if (instrumentId & instrumentId) {
+        return this.$instrument.colors.getColor(instrumentType, instrumentId)
+      }
     }
   }
 }

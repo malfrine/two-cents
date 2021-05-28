@@ -58,6 +58,7 @@ class RequestInvestmentType(Enum):
 
 class RequestInvestment(BaseModel):
     name: str
+    db_id: int = -1
     investment_type: RequestInvestmentType = RequestInvestmentType.MUTUAL_FUND
     account_type: InvestmentAccountType
     roi: Optional[float] = None

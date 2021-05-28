@@ -1,11 +1,15 @@
-from typing import Dict, List
+from typing import Dict, List, Optional
+from uuid import UUID
 
 from pydantic import BaseModel
 
+from pennies.model.loan import Loan
 from pennies.model.solution import FinancialPlan, MonthlyAllocation, MonthlySolution
 
 
 class Payment(BaseModel):
+    id: int
+    instrument_type: str
     instrument: str
     payment: float
 
@@ -34,12 +38,19 @@ class ActionPlanFactory:
 
     @classmethod
     def get_payments(cls, monthly_solution: MonthlySolution) -> List[Payment]:
-        return [
-            Payment(
-                instrument=monthly_solution.portfolio.get_instrument(
+
+        def make_payment(instrument_id, payment_amount):
+            instrument = monthly_solution.portfolio.get_instrument(
                     instrument_id
-                ).name,
-                payment=payment_amount,
             )
+            return Payment(
+                id=instrument.db_id,
+                instrument=instrument.name,
+                payment=payment_amount,
+                instrument_type='loan' if isinstance(instrument, Loan) else 'investment',
+            )
+
+        return [
+            make_payment(instrument_id, payment_amount)
             for instrument_id, payment_amount in monthly_solution.allocation.payments.items()
         ]

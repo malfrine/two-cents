@@ -1,4 +1,3 @@
-import { ColorGetter } from './colors.js'
 
 class Plans {
     data = null
@@ -33,57 +32,52 @@ class Plan {
 }
 
 export class PlanMaker {
-    colorGetter = null
+  constructor (instrumentColors) {
+    this.instrumentColors = instrumentColors
+  }
 
-    constructor () {
-      this.colorGetter = new ColorGetter()
-    }
+  fromResponseData (responseData) {
+    const strategies = this.makeStrategies(responseData)
+    const instruments = this.makeInstruments(responseData)
+    const plans = this.makePlans(responseData)
 
-    fromResponseData (responseData) {
-      const strategies = this.makeStrategies(responseData)
-      const instruments = this.makeInstruments(responseData)
-      const plans = this.makePlans(responseData, instruments)
+    return new Plans(plans, strategies, instruments)
+  }
 
-      return new Plans(plans, strategies, instruments)
-    }
+  makeStrategies (responseData) {
+    return Object.keys(responseData)
+  }
 
-    makeStrategies (responseData) {
-      return Object.keys(responseData)
-    }
-
-    makeInstruments (responseData) {
-      const instruments = new Set()
-      for (const planName in responseData) {
-        for (const index in responseData[planName].net_worth.datasets) {
-          instruments.add(responseData[planName].net_worth.datasets[index].label)
-        }
+  makeInstruments (responseData) {
+    const instruments = new Set()
+    for (const planName in responseData) {
+      for (const index in responseData[planName].net_worth.datasets) {
+        instruments.add(responseData[planName].net_worth.datasets[index].label)
       }
-      return Array.from(instruments)
     }
+    return Array.from(instruments)
+  }
 
-    makePlans (responseData, instruments) {
-      const instrumentColorMap = {}
-      for (const index in instruments) {
-        instrumentColorMap[instruments[index]] = this.colorGetter.getNextColor()
+  makePlans (responseData) {
+    const plans = []
+    for (const planName in responseData) {
+      const planResponseData = responseData[planName]
+      const netWorthForecastData = planResponseData.net_worth.datasets
+      for (const index in netWorthForecastData) {
+        const datum = netWorthForecastData[index]
+        netWorthForecastData[index].backgroundColor = this.instrumentColors.getColor(datum.instrument_type, datum.instrument_id)
       }
-      const plans = []
-      for (const planName in responseData) {
-        const planResponseData = responseData[planName]
-        const netWorthForecastData = planResponseData.net_worth.datasets
-        for (const index in netWorthForecastData) {
-          netWorthForecastData[index].backgroundColor = instrumentColorMap[netWorthForecastData[index].label]
-        }
-        const plan = new Plan(
-          planResponseData.net_worth,
-          planResponseData.summaries,
-          planResponseData.milestones,
-          planResponseData.action_plan,
-          planName
-        )
-        plans.push(plan)
-      }
-      return plans
+      const plan = new Plan(
+        planResponseData.net_worth,
+        planResponseData.summaries,
+        planResponseData.milestones,
+        planResponseData.action_plan,
+        planName
+      )
+      plans.push(plan)
     }
+    return plans
+  }
 }
 
 export { Plans }

@@ -51,12 +51,16 @@ class LoanSerializer(ReadOnlyModelSerializer):
     mortgage_details = MortgageDetailSerializer(read_only=True)
     current_balance = serializers.SerializerMethodField(source="get_current_balance")
     final_month = serializers.SerializerMethodField(source="get_final_month")
+    db_id = serializers.SerializerMethodField(source="get_db_id")
 
     def get_current_balance(self, obj: Loan):
         return None if obj.current_balance is None else -obj.current_balance
 
     def get_final_month(self, obj: Loan):
         return None if obj.end_date is None else get_months_between(datetime.today().date(), obj.end_date)
+
+    def get_db_id(self, obj: Loan):
+        return obj.pk
 
     def to_representation(self, instance: Loan):
         rep = super().to_representation(instance)

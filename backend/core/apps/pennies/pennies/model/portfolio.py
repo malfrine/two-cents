@@ -36,6 +36,7 @@ class Portfolio(BaseModel):
             if isinstance(instrument, Cash) and instrument.account_type == InvestmentAccountType.NON_REGISTERED:
                 return v
         cash = Cash(
+            db_id=-1,
             name="Generic Cash Account",
             interest_rate=ZeroGrowthRate(),
             current_balance=0,
