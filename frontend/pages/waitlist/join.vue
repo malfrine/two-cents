@@ -5,7 +5,9 @@
         <v-card align="center" elevation="10">
           <v-container class="py-7">
             <v-row justify="center" class="my-3">
-              <BigLogo max-height="35" />
+              <NuxtLink to="/">
+                <BigLogo max-height="35" />
+              </NuxtLink>
             </v-row>
             <div class="text-h5 text-md-h4">
               Join our waitlist
@@ -46,10 +48,14 @@
 </template>
 
 <script>
+import BigLogo from '@/components/logo/BigLogo'
 import { makeSeoHeaders } from '~/assets/utils.js'
 
 export default {
   layout: 'landing',
+  components: {
+    BigLogo
+  },
   data () {
     return {
       firstName: null,
@@ -63,8 +69,15 @@ export default {
   },
   computed: {
     referreeCode () {
-      return this.$route.query.referralCode || ''
+      return this.$store.state.waitlist.referreeCode || ''
     }
+  },
+  created () {
+    const referralCode = this.$route.query.referralCode
+    if (!referralCode) {
+      return
+    }
+    this.$store.commit('waitlist/SET_REFERREE_CODE', referralCode)
   },
   methods: {
     postEmail () {

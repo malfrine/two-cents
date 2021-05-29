@@ -5,7 +5,9 @@
         <v-card min-height="500" elevation="10" align="center">
           <v-container>
             <v-row justify="center" class="my-3">
-              <BigLogo max-height="35" />
+              <NuxtLink to="/">
+                <BigLogo max-height="35" />
+              </NuxtLink>
             </v-row>
             <div class="text-h5 text-md-h4">
               Tell your friends
@@ -66,10 +68,14 @@
 </template>
 
 <script>
+import BigLogo from '@/components/logo/BigLogo'
 import { delay, copyToClipboard } from '~/assets/utils.js'
 
 export default {
   layout: 'landing',
+  components: {
+    BigLogo
+  },
   data () {
     const referralCode = this.$store.state.waitlist.referralCode || ''
 

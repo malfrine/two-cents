@@ -119,7 +119,7 @@ def create_waitlist_user(email: str, referree_id: str, first_name: str):
     if referree_id:
         try:
             referral_user = WaitlistUser.objects.get(referral_id=referree_id)
-            waitlist_user.referree_id = referral_user.id
+            waitlist_user.referrer_id = referral_user.id
             print(f"referree_id {referree_id} was found; referree was {referral_user.email}")
         except WaitlistUser.DoesNotExist:
             print(f"Given referree_id {referree_id} can not be found")
