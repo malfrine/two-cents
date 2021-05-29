@@ -89,7 +89,18 @@
 </template>
 
 <script>
+import Sparkline from '@/components/landing/steps/Sparkline'
+import ImageCarousel from '@/components/landing/steps/ImageCarousel'
+import StepText from '@/components/landing/steps/StepText'
+import ArrowSvg from '@/components/landing/steps/ArrowSvg'
+
 export default {
+  components: {
+    Sparkline,
+    ImageCarousel,
+    StepText,
+    ArrowSvg
+  },
   data () {
     return {
       steps: [

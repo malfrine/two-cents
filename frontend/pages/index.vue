@@ -39,40 +39,43 @@
         <DashboardExample max-height="800" />
       </v-col>
     </v-row>
-
-    <v-row justify="center" align="center" class="mt-13 mb-n10 pt-8 pb-15 gradient">
-      <v-row style="background: #121212" class="mt-n7 mb-n14">
-        <v-container class="pa-3">
-          <v-row justify="center" class="mb-3">
-            <v-col cols="11">
-              <div class="text-center text-h4 text-sm-h4 text-md-h3 my-2 white--text">
-                A game changing approach to <br class="mb-3">
-                <client-only>
-                  <vue-typer
-                    :text="['investments', 'debt', 'taxes', 'retirement', 'financial goals']"
-                    :repeat="Infinity"
-                    :shuffle="false"
-                    initial-action="typing"
-                    :pre-type-delay="70"
-                    :type-delay="70"
-                    :pre-erase-delay="2000"
-                    :erase-delay="20"
-                    erase-style="backspace"
-                    :erase-on-complete="false"
-                    caret-animation="blink"
-                  />
-                </client-only>
-              </div>
-            </v-col>
+    <v-container fluid>
+      <v-row justify="center" align="center" class="mt-13 mb-n10 pt-8 pb-15 gradient">
+        <v-col class="my-n3">
+          <v-row style="background: #121212" class="mt-n7 mb-n14">
+            <v-container class="pa-3">
+              <v-row justify="center" class="mb-3">
+                <v-col cols="11">
+                  <div class="text-center text-h4 text-sm-h4 text-md-h3 my-2 white--text">
+                    A game changing approach to <br class="mb-3">
+                    <client-only>
+                      <vue-typer
+                        :text="['investments', 'debt', 'taxes', 'retirement', 'financial goals']"
+                        :repeat="Infinity"
+                        :shuffle="false"
+                        initial-action="typing"
+                        :pre-type-delay="70"
+                        :type-delay="70"
+                        :pre-erase-delay="2000"
+                        :erase-delay="20"
+                        erase-style="backspace"
+                        :erase-on-complete="false"
+                        caret-animation="blink"
+                      />
+                    </client-only>
+                  </div>
+                </v-col>
+              </v-row>
+              <v-row justify="center" class="pa-3">
+                <div class="text-center text-body-1 white--text mb-10 pa-3">
+                  We generate a monthly spending plan for you using algorithms that optimize your complete financial picture
+                </div>
+              </v-row>
+            </v-container>
           </v-row>
-          <v-row justify="center" class="pa-3">
-            <div class="text-center text-body-1 white--text mb-10 pa-3">
-              We generate a monthly spending plan for you using algorithms that optimize your complete financial picture
-            </div>
-          </v-row>
-        </v-container>
+        </v-col>
       </v-row>
-    </v-row>
+    </v-container>
     <v-container>
       <v-row class="mt-n8 mb-15">
         <v-col v-for="(featurePoint, index) in featurePoints" :key="index" cols="12" sm="6">
@@ -95,24 +98,20 @@
 </template>
 
 <script>
-// import MakeItRainSvg from '@/components/landing/MakeItRainSvg.vue'
-// import PersonalGoalsSvg from '@/components/landing/PersonalGoalsSvg.vue'
-// import SuccessFactorsSvg from '@/components/landing/SuccessFactorsSvg.vue'
 import FeaturePointCard from '@/components/landing/FeaturePointCard.vue'
 import BigLogo from '@/components/logo/BigLogo.vue'
 import DashboardExample from '@/components/landing/DashboardExample.vue'
 import JoinWaitlistButton from '@/components/landing/JoinWaitlistButton.vue'
+import PlanSteps from '@/components/landing/steps/PlanSteps.vue'
 
 export default {
   layout: 'landing',
   components: {
-    // MakeItRainSvg,
-    // PersonalGoalsSvg,
-    // SuccessFactorsSvg,
     DashboardExample,
     BigLogo,
     FeaturePointCard,
-    JoinWaitlistButton
+    JoinWaitlistButton,
+    PlanSteps
   },
   data () {
     return {
