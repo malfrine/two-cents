@@ -34,8 +34,8 @@ export default {
   data () {
     return {
       loaded: false,
-      path: 'https://res.cloudinary.com/two-cents-ca/image/upload/v1619809865/two-cents-dashboard-v1_ydnndl.png',
-      lazyPath: 'https://res.cloudinary.com/two-cents-ca/image/upload/v1622266837/two-cents-dashboard-v1-lazy_qzh2f9.png'
+      path: 'https://res.cloudinary.com/two-cents-ca/image/upload/v1622266448/two-cents-dashboard-v1_hrulw1.png',
+      lazyPath: 'https://res.cloudinary.com/two-cents-ca/image/upload/v1622267421/two-cents-dashboard-v1-lazy_zwumd2.png'
     }
   }
 }
