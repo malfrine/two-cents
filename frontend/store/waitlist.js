@@ -1,7 +1,8 @@
 
 const state = function () {
   return {
-    referralCode: null
+    referralCode: null,
+    referreeCode: null
   }
 }
 
@@ -10,6 +11,9 @@ const getters = {}
 const mutations = {
   SET_REFERRAL_CODE (state, payload) {
     state.referralCode = payload
+  },
+  SET_REFERREE_CODE (state, payload) {
+    state.referreeCode = payload
   }
 }
 
