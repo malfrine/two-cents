@@ -2,7 +2,9 @@
   <v-card align="center" max-width="500px">
     <v-container class="py-7">
       <v-row justify="center" class="mt-3 mb-5">
-        <BigLogo max-height="35" />
+        <NuxtLink to="/">
+          <BigLogo max-height="35" />
+        </NuxtLink>
       </v-row>
       <div class="text-h5 text-center">
         {{ title }}
@@ -19,7 +21,12 @@
 </template>
 
 <script>
+import BigLogo from '@/components/logo/BigLogo'
+
 export default {
+  components: {
+    BigLogo
+  },
   props: {
     title: {
       type: String,

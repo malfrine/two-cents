@@ -17,6 +17,7 @@
             class="mx-4 white--text"
             icon
             :href="icon.link"
+            rel="noreferrer"
             target="_blank"
             @click="$fire.analytics.logEvent('social_media_exploration')"
           >

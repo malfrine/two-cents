@@ -8,6 +8,20 @@
   >
     <template v-slot:form>
       <v-form ref="form">
+        <v-tooltip v-model="show">
+          <template v-slot:activator="{ on }">
+            <v-text-field
+              v-model="name"
+              append-icon="mdi-information-outline"
+              class="my-1"
+              outlined
+              label="Name"
+              :rules="[v => !!v || 'Goal name is required']"
+              @click:append="show = on;"
+            />
+          </template>
+          <span>Goal name</span>
+        </v-tooltip>
         <v-text-field
           v-model="name"
           class="my-1"
@@ -63,14 +77,14 @@ export default {
 
   data () {
     const goal = this.$store.getters['finances/getGoalById'](this.goalId) || {}
-    console.log(goal)
     return {
       id: goal.id,
       type: goal.type,
       name: goal.name,
       date: goal.date,
       amount: goal.amount,
-      goalTypes: ['Nest Egg', 'Big Purchase']
+      goalTypes: ['Nest Egg', 'Big Purchase'],
+      show: false
     }
   },
   computed: {
