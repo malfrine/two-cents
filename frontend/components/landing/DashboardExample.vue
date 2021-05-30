@@ -1,25 +1,13 @@
 <template>
   <div>
-    <v-sheet color="#121212" :height="maxHeight">
-      <v-container v-if="!loaded" :height="maxHeight">
-        <v-card color="#121212" :height="maxHeight">
-          <v-overlay absolute opacity="0">
-            <v-progress-circular
-              color="primary"
-              indeterminate
-            />
-          </v-overlay>
-        </v-card>
-      </v-container>
-      <v-img
-        eager
-        contain
-        :src="path"
-        :lazy-src="lazyPath"
-        :max-height="maxHeight"
-        @load="loaded = true"
-      />
-    </v-sheet>
+    <v-img
+      eager
+      contain
+      :src="path"
+      :lazy-src="lazyPath"
+      :max-height="maxHeight"
+      @load="loaded = true"
+    />
   </div>
 </template>
 

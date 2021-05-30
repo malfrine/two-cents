@@ -23,9 +23,13 @@
 </template>
 
 <script>
+import GoalDialog from '@/components/finances/GoalDialog'
 import { asDollar } from '~/assets/utils.js'
 
 export default {
+  components: {
+    GoalDialog
+  },
   props: {
     goalId: {
       type: Number,

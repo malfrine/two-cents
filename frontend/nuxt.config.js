@@ -46,7 +46,15 @@ export default {
       ...makeSeoHeaders()
     ],
     link: [
-      { rel: 'icon', type: 'image/x-icon', href: '/app/favicon.ico' }
+      { rel: 'icon', type: 'image/x-icon', href: '/app/favicon.ico' },
+      {
+        rel: 'stylesheet',
+        href: 'https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400&display=swap'
+      },
+      {
+        rel: 'link',
+        href: 'https://res.cloudinary.com/two-cents-ca/image/upload/v1622266448/two-cents-dashboard-v1_hrulw1.png'
+      }
     ],
     script: [
     ]
