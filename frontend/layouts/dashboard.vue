@@ -111,10 +111,12 @@ export default {
   },
   methods: {
     onLogoutClick () {
-      this.$store.dispatch('finances/resetUserFinances')
-      this.$store.dispatch('plan/resetPlans')
-      this.$fire.auth.signOut()
       this.$router.push('/')
+
+      this.$fire.auth.signOut()
+      this.$store.dispatch('plan/resetPlans')
+
+      this.$store.dispatch('finances/resetUserFinances')
     }
   }
 }

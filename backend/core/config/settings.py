@@ -224,9 +224,9 @@ AUTH_USER_MODEL = "users.User"
 REST_FRAMEWORK = {
     "UPLOADED_FILES_USE_URL": False,
     "DEFAULT_AUTHENTICATION_CLASSES": [
+        "apps.firebase.authentication.FirebaseAuthentication",
         "rest_framework.authentication.SessionAuthentication",
         "rest_framework.authentication.BasicAuthentication",
-        "apps.firebase.authentication.FirebaseAuthentication"
     ],
     "DEFAULT_PERMISSION_CLASSES": [],
     "DEFAULT_PARSER_CLASSES": [

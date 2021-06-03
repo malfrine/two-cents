@@ -41,11 +41,7 @@ class MILPParameters:
         ) / len(months)
 
     def get_volatility(self, id) -> float:
-        investment = self._get_investment(id)
-        if isinstance(investment, Cash):
-            return self.MAX_VOLATILITY
-        else:
-            return investment.volatility
+        return self._get_investment(id).volatility
 
     def get_max_investment_volatility(self):
         return max(

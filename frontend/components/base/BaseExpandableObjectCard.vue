@@ -22,7 +22,7 @@
             <v-speed-dial
               v-model="fab"
               direction="bottom"
-              class="ml-9"
+              class="ml-4"
             >
               <template v-slot:activator>
                 <v-btn
