@@ -69,9 +69,9 @@
             <v-container fluid>
               <v-expansion-panel class="my-n1">
                 <v-expansion-panel-header>
-                  <div class="text-h5">
-                    Net Worth Projection
-                  </div>
+                  <v-card-title class="text-h5">
+                    Net Worth Projection <TooltipIcon :text="tooltips.netWorthProjection" />
+                  </v-card-title>
                 </v-expansion-panel-header>
                 <v-expansion-panel-content>
                   <v-card>
@@ -85,9 +85,9 @@
             <v-container fluid>
               <v-expansion-panel class="my-n1">
                 <v-expansion-panel-header>
-                  <div class="text-h5">
-                    Current Finances
-                  </div>
+                  <v-card-title class="text-h5">
+                    Current Finances <TooltipIcon :text="tooltips.currentFinances" />
+                  </v-card-title>
                 </v-expansion-panel-header>
                 <v-expansion-panel-content>
                   <PlanCurrentFinances />
@@ -97,9 +97,9 @@
             <v-container fluid>
               <v-expansion-panel class="my-n1">
                 <v-expansion-panel-header>
-                  <div class="text-h5">
-                    Milestones
-                  </div>
+                  <v-card-title class="text-h5">
+                    Milestones <TooltipIcon :text="tooltips.milestones" />
+                  </v-card-title>
                 </v-expansion-panel-header>
                 <v-expansion-panel-content style="max-height: 600px" class="overflow-y-auto">
                   <v-card>
@@ -113,9 +113,9 @@
             <v-container fluid>
               <v-expansion-panel class="my-n1">
                 <v-expansion-panel-header>
-                  <div class="text-h5">
-                    Action Plan
-                  </div>
+                  <v-card-title class="text-h5">
+                    Action Plan <TooltipIcon :text="tooltips.actionPlan" />
+                  </v-card-title>
                 </v-expansion-panel-header>
                 <v-expansion-panel-content style="max-height: 600px" class="overflow-y-auto">
                   <v-container>
@@ -132,15 +132,19 @@
             class="sticky-nav mt-2"
           >
             <v-container>
-              <v-select
-                v-model="selectedStrategy"
-                label="Pick a Financial Plan"
-                solo
-                outlined
-                item-color="primary"
-                :items="strategies"
-                class="mb-n7"
-              />
+              <TCTooltip :text="tooltips.strategies" left>
+                <template v-slot:inner>
+                  <v-select
+                    v-model="selectedStrategy"
+                    label="Pick a Financial Plan"
+                    solo
+                    outlined
+                    item-color="primary"
+                    :items="strategies"
+                    class="mb-n7"
+                  />
+                </template>
+              </TCTooltip>
             </v-container>
             <v-divider class="my-2" />
             <PlanSummary :selected-strategy="selectedStrategy" />
@@ -156,6 +160,8 @@ import NetWorthChart from '@/components/plan/net-worth-chart.js'
 import PlanMilestones from '@/components/plan/PlanMilestones.vue'
 import PlanCurrentFinances from '@/components/plan/PlanCurrentFinances.vue'
 import PlanSummary from '@/components/plan/PlanSummary.vue'
+import TooltipIcon from '@/components/base/TooltipIcon.vue'
+import TCTooltip from '@/components/base/TCTooltip.vue'
 import { PlanMaker } from '~/assets/plans.js'
 import { asDollar } from '~/assets/utils.js'
 
@@ -166,7 +172,9 @@ export default {
     NetWorthChart,
     PlanMilestones,
     PlanCurrentFinances,
-    PlanSummary
+    PlanSummary,
+    TooltipIcon,
+    TCTooltip
   },
   async fetch () {
     if (this.userFinancesValidationError) {
@@ -174,7 +182,6 @@ export default {
     }
     const financesUpdated = this.$store.getters['finances/getFinancesUpdateSinceLastPlanBuilt']
     if (this.planExists & !financesUpdated) {
-      console.log('A plan exists and the finances were not updated - not getting a new plan')
       return null
     }
     this.$store.commit('plan/RESET_PLANS')
@@ -186,7 +193,6 @@ export default {
         // this.$toast.error('Could not get your plan')
         return null
       })
-    console.log(this.$store.getters['plan/getIsPlansAvailable'])
     if (response) {
       const pm = new PlanMaker(this.$instrument.colors)
       const plans = pm.fromResponseData(response)
@@ -197,7 +203,14 @@ export default {
   data () {
     return {
       selectedStrategy: 'Two Cents Plan',
-      panel: [0, 1, 2, 3]
+      panel: [0, 1, 2, 3],
+      tooltips: {
+        netWorthProjection: 'This graph shows how your net worth will change up to retirement. To view your finances at a single point in time, move your cursor until you have reached your desired date. The legend at the top of the graph indicates the different elements of your financial picture.',
+        currentFinances: "This section of your plan shows your loans and investments. These values can be updated by visiting the 'Profile' tab on the left side of the screen.",
+        milestones: 'Keep track of your milestones and financial goals with this timeline. Each milestone contains important information about each event such as interest paid and the time it took to achieve the milestone.',
+        actionPlan: 'This is your payment plan for the next 3 months as caculated by our algorithm. This payment plan is made in consideration of a variety of factors including: principal balances of your loans, interest rates of your loans, term lengths, financial goals, investment types, investment risk tolerance, and monthly allowance (to name a few.)',
+        strategies: 'Select another plan type from this dropdown menu to see how it impacts your retirement net worth, debt-free date, and progress to your financial goals.'
+      }
     }
   },
   computed: {
@@ -246,15 +259,11 @@ export default {
 
       let totalMinimumMonthlyPayments = 0
       for (const loanId in loans) {
-        console.log(loans[loanId].minimum_monthly_payment || 0)
         totalMinimumMonthlyPayments += loans[loanId].minimum_monthly_payment || 0
       }
       for (const investmentId in investments) {
-        console.log(investments[investmentId].pre_authorized_monthly_contribution || 0)
         totalMinimumMonthlyPayments += investments[investmentId].pre_authorized_monthly_contribution || 0
       }
-      console.log(totalMinimumMonthlyPayments)
-      console.log(financialProfile.monthly_allowance)
       if (totalMinimumMonthlyPayments > financialProfile.monthly_allowance) {
         return `Your plan cannot be created because your monthly allowance (${asDollar(financialProfile.monthly_allowance)}) 
                 is less than the required minimum monthly payment (${asDollar(totalMinimumMonthlyPayments)}). Please increase your monthly allowance.`

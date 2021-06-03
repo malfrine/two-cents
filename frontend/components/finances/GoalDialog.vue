@@ -8,26 +8,12 @@
   >
     <template v-slot:form>
       <v-form ref="form">
-        <v-tooltip v-model="show">
-          <template v-slot:activator="{ on }">
-            <v-text-field
-              v-model="name"
-              append-icon="mdi-information-outline"
-              class="my-1"
-              outlined
-              label="Name"
-              :rules="[v => !!v || 'Goal name is required']"
-              @click:append="show = on;"
-            />
-          </template>
-          <span>Goal name</span>
-        </v-tooltip>
         <v-text-field
           v-model="name"
-          class="my-1"
           outlined
           label="Name"
           :rules="[v => !!v || 'Goal name is required']"
+          tooltip-text="The name of your goal"
         />
         <v-autocomplete
           v-model="type"
@@ -47,6 +33,7 @@
             label="Amount Needed"
             type="number"
             :rules="[v => !!v || 'Amount needed to complete goal is required']"
+            tooltip-text="How much money you will need to complete your goal"
           />
           <v-text-field
             v-model="date"
@@ -55,6 +42,7 @@
             label="Completion Date"
             type="date"
             :rules="[v => !!v || 'Completion date is required']"
+            tooltip-text="The date you expect to complete this goal by"
           />
         </div>
       </v-form>

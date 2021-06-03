@@ -48,7 +48,9 @@ class FirebaseAuthentication(authentication.TokenAuthentication):
 
         try:
             user = User.objects.get(email=firebase_user.email)
+            print(f"Firebase recognized the user to be a registered user {(user.pk, user.email)}")
         except User.DoesNotExist:
             user = firebase_user
+            print(f"Firebase recognized the user to be a non-registered user {(user.email)}")
 
         return (user, None)
