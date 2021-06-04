@@ -52,28 +52,11 @@
         <nuxt />
       </v-container>
     </v-main>
-    <!-- <v-footer
-      fixed
-      app
-    >
-      <v-row>
-        <v-col>
-          <PrivacyPolicyDialog /> | <TOSDialog />
-        </v-col>
-
-        <v-spacer />
-        <v-col>
-          <span>&copy; {{ new Date().getFullYear() }}</span>
-        </v-col>
-      </v-row>
-    </v-footer> -->
     <BaseFooter :show-social-links="false" :app="true" />
   </v-app>
 </template>
 
 <script>
-// import TOSDialog from '@/components/base/TOSDialog.vue'
-// import PrivacyPolicyDialog from '@/components/base/PrivacyPolicyDialog.vue'
 import SmallLogo from '@/components/logo/SmallLogo.vue'
 
 export default {
