@@ -22,25 +22,7 @@
           <v-card-title class="text-h5">
             Basic Information
           </v-card-title>
-          <v-row justify="center">
-            <v-col cols="12" sm="10" md="6">
-              <v-text-field
-                v-model="first_name"
-                label="First Name"
-                outlined
-                disabled
-              />
-            </v-col>
-            <v-col cols="12" sm="10" md="6">
-              <v-text-field
-                v-model="last_name"
-                label="Last Name"
-                outlined
-                disabled
-              />
-            </v-col>
-          </v-row>
-          <v-row justify="center">
+          <v-row justify="center" align="center">
             <v-col cols="12" sm="10" md="6">
               <TooltipTextField
                 v-model="financial_profile.birth_date"
@@ -52,16 +34,7 @@
               />
             </v-col>
             <v-col cols="12" sm="10" md="6">
-              <v-text-field
-                v-model="email"
-                label="Email"
-                outlined
-                disabled
-                type="email"
-              />
-            </v-col>
-            <v-col cols="12" sm="10" md="6">
-              <TCTooltip>
+              <TCTooltip text="This is the province to which you pay taxes. This information along with you income is used to determine what tax bracket you fall into">
                 <template v-slot:inner>
                   <v-autocomplete
                     v-model="financial_profile.province_of_residence"
@@ -69,7 +42,6 @@
                     outlined
                     :disabled="!editMode"
                     :items="provinces"
-                    tooltip-text="This is the province to which you pay taxes. This information along with you income is used to determine what tax bracket you fall into"
                   />
                 </template>
               </TCTooltip>
@@ -189,16 +161,6 @@ export default {
     }
   },
   computed: {
-    first_name () {
-      return this.$store.getters['finances/getFirstName']
-    },
-    last_name () {
-      return this.$store.getters['finances/getLastName']
-    },
-    email () {
-      return this.$store.getters['finances/getEmail']
-    },
-
     provinces () {
       return this.$store.getters['enums/getProvinces']
     }
