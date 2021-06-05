@@ -23,6 +23,23 @@
           </v-list-item-content>
         </v-list-item>
       </v-list>
+      <v-divider class="my-3" />
+      <v-list>
+        <v-list-item
+          v-for="(item, i) in bottomItems"
+          :key="i"
+          :to="item.to"
+          router
+          exact
+        >
+          <v-list-item-action>
+            <v-icon>{{ item.icon }} </v-icon>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title v-text="item.title" />
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
     </v-navigation-drawer>
     <v-app-bar
       fixed
@@ -61,20 +78,12 @@ import SmallLogo from '@/components/logo/SmallLogo.vue'
 
 export default {
   components: {
-    // BaseFooter,
     SmallLogo
-    // TOSDialog,
-    // PrivacyPolicyDialog
   },
   data () {
     return {
       drawer: true,
       items: [
-        {
-          icon: 'mdi-apps',
-          title: 'Welcome',
-          to: '/'
-        },
         {
           icon: 'mdi-badge-account-horizontal-outline',
           title: 'Profile',
@@ -84,6 +93,13 @@ export default {
           icon: 'mdi-finance',
           title: 'Plan',
           to: '/dashboard/plan'
+        }
+      ],
+      bottomItems: [
+        {
+          icon: 'mdi-wrench',
+          title: 'Settings',
+          to: '/dashboard/settings'
         }
       ],
       miniVariant: false
