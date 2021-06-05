@@ -69,7 +69,7 @@ class AccountViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
         if not DEBUG:
             # check waitlist only in prod
             try:
-                waitlist_user = WaitlistUser.objects.get(email=email)
+                waitlist_user = WaitlistUser.objects.get(email__iexact=email)
             except WaitlistUser.DoesNotExist:
                 raise serializers.ValidationError("Given email is not in waitlist - please request access",
                                                   code=status.HTTP_404_NOT_FOUND)
@@ -119,7 +119,7 @@ class WaitlistUserAPIView(views.APIView):
             return Response(data={"message": "Email and first name required"}, status=status.HTTP_400_BAD_REQUEST)
         referree_id = request.data.get("referree_id")
         try:
-            waitlist_user = WaitlistUser.objects.get(email=email)
+            waitlist_user = WaitlistUser.objects.get(email__iexact=email)
         except WaitlistUser.DoesNotExist:
             print(f"User with {email} does not exist - making new object")
             waitlist_user = create_waitlist_user(email, referree_id, first_name)
