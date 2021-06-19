@@ -31,18 +31,18 @@ services:
       - two-cents_data:/var/lib/postgresql/data
     env_file: .env
 
-  firebase:
-    build:
-      context: ./frontend
-      dockerfile: firebase_emulators.Dockerfile
-    image: firebase-emulator:firebase-emulator
-    volumes:
-      - ./frontend:/app
-    working_dir: /app
-    ports:
-      - 9099:9099
-      - 3001:3001
-    command: firebase emulators:start --token $FIREBASE_TOKEN
+  # firebase:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: firebase_emulators.Dockerfile
+  #   image: firebase-emulator:firebase-emulator
+  #   volumes:
+  #     - ./frontend:/app
+  #   working_dir: /app
+  #   ports:
+  #     - 9099:9099
+  #     - 3001:3001
+  #   command: firebase emulators:start --token $FIREBASE_TOKEN
 
 
   mailhog:
