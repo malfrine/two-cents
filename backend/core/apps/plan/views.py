@@ -7,7 +7,7 @@ from core.apps.finances.serializers.pennies.request import PenniesRequestSeriali
 from core.apps.pennies.pennies.solver import solve_request
 
 # Create your views here.
-from core.apps.plan.slack import send_failed_request_data_to_slack
+from core.apps.plan.slack import send_failed_request_message
 from core.config.settings import DEBUG
 from pennies.model.status import PenniesStatus
 
@@ -18,13 +18,15 @@ class UserPlanViewSet(viewsets.GenericViewSet):
             'request': pennies_request.data
         })
         pennies_response = solve_request(pennies_request.data)
-        if pennies_response["status"] == PenniesStatus.SUCCESS:
+        if False: # pennies_response["status"] == PenniesStatus.SUCCESS:
             return Response(status=status.HTTP_200_OK, data=pennies_response["result"])
         else:
-            logging.error('Failed to generate a plan with the following request', exc_info=True, extra={
-                # Optionally pass a request and we'll grab any information we can
-                'request': pennies_request.data,
-            })
+            if not DEBUG:
+                logging.error('Failed to generate a plan with the following request', exc_info=True, extra={
+                    # Optionally pass a request and we'll grab any information we can
+                    'request': pennies_request.data,
+                })
+                send_failed_request_message()
             return Response(
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 data=pennies_response["result"],

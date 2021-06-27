@@ -31,9 +31,9 @@
         <v-row justify="space-between">
           <v-col cols="12" md="6" class="d-flex justify-center justify-md-start">
             <v-row no-gutters class="d-flex justify-center justify-md-start">
-              <TOSDialog />
+              <TOSDialog class="mr-2" />
               |
-              <PrivacyPolicyDialog />
+              <PrivacyPolicyDialog class="ml-2" />
             </v-row>
           </v-col>
           <v-col cols="12" md="6" class="d-flex justify-center justify-md-end">
