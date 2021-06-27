@@ -247,13 +247,13 @@ RAVEN_MIDDLEWARE = [
 MIDDLEWARE = RAVEN_MIDDLEWARE + MIDDLEWARE
 
 # Sentry Configuration
-SENTRY_DSN = env.str("SENTRY_DSN")
+SENTRY_DSN = "" if DEBUG else env.str("SENTRY_DSN")
 SENTRY_CLIENT = "raven.contrib.django.raven_compat.DjangoClient"
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": True,
     "root": {
-        "level": "WARNING",
+        "level": "DEBUG",
         "handlers": ["sentry"],
     },
     "formatters": {
@@ -264,7 +264,7 @@ LOGGING = {
     },
     "handlers": {
         "sentry": {
-            "level": "ERROR",
+            "level": "DEBUG",
             "class": "raven.contrib.django.raven_compat.handlers.SentryHandler",
         },
         "console": {

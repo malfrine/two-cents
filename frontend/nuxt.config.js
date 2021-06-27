@@ -101,7 +101,8 @@ export default {
     '@nuxtjs/pwa',
     'vue-toastification/nuxt',
     '@nuxtjs/firebase',
-    'nuxt-user-agent'
+    'nuxt-user-agent',
+    '@nuxtjs/sentry'
 
   ],
 
@@ -140,6 +141,10 @@ export default {
 
   env: {
     baseUrl: domain
+  },
+
+  sentry: {
+    dsn: process.env.SENTRY_DSN || ''
   },
 
   // Vuetify module configuration (https://go.nuxtjs.dev/config-vuetify)
