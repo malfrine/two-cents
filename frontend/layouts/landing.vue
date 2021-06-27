@@ -100,7 +100,7 @@ export default {
     }
   },
   created () {
-    this.$vuetify.theme.isDark = true
+    this.$sentry.captureException('hi')
   }
 }
 </script>
