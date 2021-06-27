@@ -1,5 +1,5 @@
 <template>
-  <div class="mx-5">
+  <div>
     <a
       class="text-decoration-underline white--text small-text"
       @click.stop="dialog = true"
