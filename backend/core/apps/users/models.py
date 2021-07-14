@@ -27,7 +27,11 @@ class UserManager(BaseUserManager):
             registered_at=timezone.now(),
             **extra_fields,
         )
-        user.set_unusable_password() # password is managed by firebase so we don't store a password
+        if is_superuser:
+            password = extra_fields.pop("password")
+            user.set_password(password)
+        else:
+            user.set_unusable_password() # password is managed by firebase so we don't store a password
         user.save(using=self._db)
         return user
 
@@ -38,19 +42,19 @@ class UserManager(BaseUserManager):
             email, is_staff, is_superuser, **extra_fields
         )
 
-    def create_superuser(self, email, password, **extra_fields):
+    def create_superuser(self, email, **extra_fields):
         return self._create_user(
-            email, password, is_staff=True, is_superuser=True, **extra_fields
+            email, is_staff=True, is_superuser=True, **extra_fields
         )
 
 
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(verbose_name="Email", unique=True, max_length=255)
     first_name = models.CharField(
-        verbose_name="First name", max_length=30, default="first"
+        verbose_name="First name", max_length=30, default=""
     )
     last_name = models.CharField(
-        verbose_name="Last name", max_length=30, default="last"
+        verbose_name="Last name", max_length=30, default=""
     )
     avatar = models.ImageField(verbose_name="Avatar", blank=True)
 
@@ -79,7 +83,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @property
     def short_name(self):
-        return f"{self.last_name} {self.first_name[0]}."
+        return f"{self.last_name} {self.first_name}."
 
     short_name.fget.short_description = "Short name"
 

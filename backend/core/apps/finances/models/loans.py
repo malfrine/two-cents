@@ -63,6 +63,24 @@ def get_loan_interest_required_fields_map():
 
 LOAN_INTEREST_REQUIRED_FIELDS_MAP = get_loan_interest_required_fields_map()
 
+def get_default_apr(loan_type: LoanType):
+    if loan_type == LoanType.CREDIT_CARD:
+        return 20
+    elif loan_type == LoanType.LINE_OF_CREDIT:
+        return 4
+    elif loan_type == LoanType.STUDENT_LOAN:
+        return 2.5
+    elif loan_type == LoanType.STUDENT_LINE_OF_CREDIT:
+        return 2.5
+    elif loan_type == LoanType.PERSONAL_LOAN:
+        return 4
+    elif loan_type == LoanType.CAR_LOAN:
+        return 6
+    elif loan_type == LoanType.MORTGAGE:
+        return 3
+    else:
+        raise ValueError(f"{loan_type} is not a recognized loan type")
+
 
 class LoanInterest(models.Model):
     interest_type = models.CharField(
@@ -74,16 +92,10 @@ class LoanInterest(models.Model):
     prime_modifier = models.FloatField(
         default=None, blank=True, null=True, verbose_name="Prime Modifier"
     )
-
-
-class MortgageDetails(models.Model):
-    monthly_payment = models.FloatField(verbose_name="Monthly Payment")
-    purchase_price = models.FloatField(verbose_name="House Purchase Price")
-    purchase_date = models.DateField(verbose_name="Purchase Date")
-    downpayment_amount = models.FloatField(verbose_name="Downpayment")
-    amortization_years = models.FloatField(verbose_name="Amortization Period in Years")
-    current_term_start_date = models.DateField(verbose_name="Current Term Start Date")
-    current_term_years = models.FloatField(verbose_name="Current Term Length in Years")
+    current_term_end_date = models.DateField(
+        default=None, blank=True, null=True, verbose_name="Current Term End Date"
+    )
+    
 
 
 class Loan(models.Model):
@@ -103,7 +115,6 @@ class Loan(models.Model):
         default=None, blank=True, null=True, verbose_name="Final Payment Month"
     )
 
-    mortgage_details = models.OneToOneField(MortgageDetails, default=None, blank=True, null=True, on_delete=models.CASCADE, related_name="mortgage_details")
 
     @property
     def final_month(self):

@@ -54,6 +54,7 @@ class RequestInvestmentType(Enum):
     STOCK = "Stock"
     # BOND = "Bond"
     CASH = "Cash"
+    PORTFOLIO = "Portfolio"
 
 
 class RequestInvestment(BaseModel):
@@ -73,6 +74,7 @@ class RequestInvestment(BaseModel):
 
     @validator("account_type")
     def parse_account_type(cls, v):
+        print(v)
         if not isinstance(v, InvestmentAccountType):
             return InvestmentAccountType[str(v)]
         else:
@@ -86,8 +88,8 @@ class PenniesRequest(BaseModel):
     investments: List[RequestInvestment]
     strategies: List[str]
 
-    @root_validator
-    def validate_instruments_exist(cls, values):
-        if not (values["loans"] or values["investments"]):
-            raise ValueError("No loans or investments exist")
-        return values
+    # @root_validator
+    # def validate_instruments_exist(cls, values):
+    #     if not (values["loans"] or values["investments"]):
+    #         raise ValueError("No loans or investments exist")
+    #     return values

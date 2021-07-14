@@ -1,6 +1,6 @@
 from typing import List, Union, Any, Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, root_validator, validator
 
 from pennies.model.prime import PrimeInterestRateForecast
 from pennies.utilities.datetime import MONTHS_IN_YEAR
@@ -114,54 +114,17 @@ class GuaranteedInvestmentReturnRate(ReturnRate):
     def get_volatility(self):
         return self.interest_rate.get_volatility()
 
+class MortgageInterestRate(InterestRate):
 
-class InterestRateTerm(BaseModel):
-    start_month: int
-    final_month: int
+    interest_type: Literal['Mortgage Interest Rate'] = 'Mortgage Interest Rate'
     interest_rate: Union[FixedLoanInterestRate, VariableLoanInterestRate]
+    current_term_end_month: int
+    default_interest_rate: InterestRate = FixedLoanInterestRate(apr=2.5)
 
     def get_monthly_interest_rate(self, month: int) -> float:
-        if self.start_month <= month <= self.final_month:
+        if month <= self.current_term_end_month:
             return self.interest_rate.get_monthly_interest_rate(month)
         else:
-            raise ValueError(f"Cannot get monthly interest rate for month {month}")
+            return self.default_interest_rate.get_monthly_interest_rate(month)
 
-    def get_volatility(self):
-        return self.interest_rate.get_volatility()
-
-
-class CurrentTermSelector:
-
-    CURRENT_MONTH = 0
-
-    @classmethod
-    def get_term(self, terms: List[InterestRateTerm]):
-        for term in terms:
-            if term.start_month <= self.CURRENT_MONTH <= term.final_month:
-                return term
-        return terms[0]
-
-
-class InterestRateTerms(InterestRate):
-    interest_type: Literal['Interest Rate Terms'] = 'Interest Rate Terms'
-    terms: List[InterestRateTerm]
-    _volatility = 0  # TODO: read from terms but it's a loan so it should all be 0
-    _default_term_selector: CurrentTermSelector = CurrentTermSelector()
-    default_term: InterestRate = None
-
-    def _get_term(self, month: int):
-        for term in self.terms:
-            if term.start_month <= month <= term.final_month:
-                return term
-        if self.default_term is None:
-            self.default_term = self._default_term_selector.get_term(self.terms).interest_rate
-        return self.default_term
-
-    def get_monthly_interest_rate(self, month: int) -> float:
-        return self._get_term(month).get_monthly_interest_rate(month)
-
-    def get_volatility(self):
-        return self._volatility
-
-
-AllLoanInterestTypes = Union[FixedLoanInterestRate, VariableLoanInterestRate, InterestRateTerms]
+AllLoanInterestTypes = Union[FixedLoanInterestRate, VariableLoanInterestRate, MortgageInterestRate]

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from core.apps.finances.models.constants import InterestTypes
-from core.apps.finances.models.loans import LoanInterest, MortgageDetails, Loan, LoanType
+from core.apps.finances.models.loans import LoanInterest, Loan, LoanType
 
 
 class LoanInterestSerializer(serializers.ModelSerializer):
@@ -23,23 +23,24 @@ class LoanInterestSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class MortgageDetailSerializer(serializers.ModelSerializer):
+# class MortgageDetailSerializer(serializers.ModelSerializer):
 
-    class Meta:
-        model = MortgageDetails
-        fields = "__all__"
+#     class Meta:
+#         model = MortgageDetails
+#         fields = "__all__"
 
 
 class LoanSerializer(serializers.ModelSerializer):
     loan_interest = LoanInterestSerializer()
-    mortgage_details = MortgageDetailSerializer(required=False)
+    # mortgage_details = MortgageDetailSerializer(required=False)
 
     class Meta:
         model = Loan
         exclude = ("user",)
 
     def create(self, validated_data):
-        for nested_field in ("loan_interest", "mortgage_details"):
+        print(validated_data)
+        for nested_field in ("loan_interest",):
             serializer = self.fields[nested_field]
             data = validated_data.pop(nested_field, None)
             if data is None:
@@ -49,7 +50,7 @@ class LoanSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
     def update(self, instance: Loan, validated_data):
-        for nested_field in ("loan_interest", "mortgage_details"):
+        for nested_field in ("loan_interest",):
             nested_instance = getattr(instance, nested_field)
             serializer = self.fields[nested_field]
             data = validated_data.pop(nested_field, None)
@@ -60,29 +61,26 @@ class LoanSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
     def validate(self, attrs):
-        # TODO: use required fields map
+        mandatory_fields = tuple()
+        pop_fields = tuple()
         loan_type = attrs["loan_type"]
+
+        # define fields to pop and validate
         if loan_type == LoanType.MORTGAGE:
-            attrs.pop("minimum_monthly_payment", None)
-            attrs.pop("end_date", None)
-            attrs.pop("current_balance", None)
-            if not attrs["mortgage_details"]:
-                raise serializers.ValidationError("Mortgage loans must have mortgage details")
+            mandatory_fields = ("minimum_monthly_payment", "end_date", "current_balance")
         elif Loan.is_instalment_loan(loan_type):
-            if not attrs["minimum_monthly_payment"]:
-                raise serializers.ValidationError("Instalment loans must have a minimum monthly payment")
-            if not attrs["end_date"]:
-                raise serializers.ValidationError("Instalment loans must have an end date")
-            if not attrs["current_balance"]:
-                raise serializers.ValidationError("Instalment loans must have a current balance")
-            attrs.pop("mortgage_details", None)
+            mandatory_fields = ("minimum_monthly_payment", "end_date", "current_balance")
+            pop_fields = ("mortgage_details",)
         else:
-            # revolving loan
-            attrs.pop("minimum_monthly_payment", None)
-            attrs.pop("end_date", None)
-            attrs.pop("mortgage_details", None)
-            if not attrs["current_balance"]:
-                raise serializers.ValidationError("Revolving loans must have a current balance")
+            mandatory_fields = ("current_balance",)
+            pop_fields = ("minimum_monthly_payment", "end_date", "mortgage_details")
+
+        for field in pop_fields:
+            if field in attrs:
+                attrs.pop(field)
+        for field in mandatory_fields:
+            if not attrs[field]:
+                raise serializers.ValidationError(f"Mortgage loans must have '{field}' in input")
         return attrs
 
     def get_loan_interest_serializer(self) -> LoanInterestSerializer:

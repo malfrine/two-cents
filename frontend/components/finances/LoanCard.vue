@@ -18,11 +18,14 @@
         <p class="mt-n3">
           <em> Interest Rate: </em> {{ interestRateValue }}
         </p>
-        <p v-for="(object, fieldName) in mortgageFields" v-show="isMortgage" :key="fieldName" class="mt-n3">
-          <em>{{ object.labelName }}:</em> {{ getDetailString(mortgageDetails, fieldName, object) }}
+        <p v-if="isMortgage" class="mt-n3">
+          <em> Current Term End Date: </em> {{ loanInterest.current_term_end_date }}
+        </p>
+        <p v-for="(object, fieldName) in mortgageFields" :key="fieldName" class="mt-n3">
+          <em>{{ object.labelName }}:</em> {{ getDetailString(fieldName, object) }}
         </p>
         <p v-for="(object, fieldName) in instalmentLoanFields" v-show="isInstalmentLoan" :key="fieldName" class="mt-n3">
-          <em>{{ object.labelName }}:</em> {{ getDetailString(loan, fieldName, object) }}
+          <em>{{ object.labelName }}:</em> {{ getDetailString(fieldName, object) }}
         </p>
       </v-card-text>
     </template>
@@ -40,31 +43,16 @@ export default {
     LoanDialog
   },
   mixins: [LoanDetailsMixin],
-  props: { loanId: Number },
+  props: { loanId: { type: Number, required: true } },
   data () {
     const mortgageFields = {
-      monthly_payment: {
-        labelName: 'Monthly Mortgage Payment',
+      minimum_monthly_payment: {
+        labelName: 'Monthly Payment',
         type: 'dollar'
       },
-      downpayment_amount: {
-        labelName: 'Downpayment',
-        type: 'dollar'
-      },
-      purchase_date: {
-        labelName: 'Purchase Date',
+      end_date: {
+        labelName: 'Mortgage End Date',
         type: 'date'
-      },
-      amortization_years: {
-        labelName: 'Mortgage Length',
-        suffix: ' years'
-      },
-      current_term_start_date: {
-        labelName: 'Current Term Start Date'
-      },
-      current_term_years: {
-        labelName: 'Current Term Length',
-        suffix: ' years'
       }
     }
 
@@ -72,6 +60,10 @@ export default {
       minimum_monthly_payment: {
         labelName: 'Minimum Monthly Payment',
         type: 'dollar'
+      },
+      end_date: {
+        labelName: 'Loan End Date',
+        type: 'date'
       }
     }
 
@@ -89,7 +81,7 @@ export default {
   },
   computed: {
     summaryValue () {
-      return this.isMortgage ? asDollar(this.mortgageDetails.purchase_price) : asDollar(this.loan.current_balance)
+      return asDollar(this.loan.current_balance)
     },
     interestRateValue () {
       let rateStr = ''
@@ -120,8 +112,8 @@ export default {
   methods: {
     ...mapActions('finances', ['deleteLoan']),
     asDollar,
-    getDetailString (dataObject, fieldName, fieldObject) {
-      const value = dataObject[fieldName]
+    getDetailString (fieldName, fieldObject) {
+      const value = this.loan[fieldName]
       const valueStr = fieldObject.type === 'dollar' && value ? asDollar(value) : String(value)
       const suffix = fieldObject.suffix || ''
       return `${valueStr}${suffix}`

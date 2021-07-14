@@ -58,6 +58,15 @@
               :rules="[v => !!v || 'Interest Rate is required']"
             />
             <v-text-field
+              v-if="isMortgage"
+              v-model="current_term_end_date"
+              class="my-1"
+              outlined
+              label="Current Term End Date"
+              type="date"
+              :rules="[v => !!v || 'Current term end date is required', v => new Date(v) > new Date() || 'Mortgage end date cannot be in the past']"
+            />
+            <v-text-field
               v-for="(textField, fieldName) in mandatoryTextFields"
               :key="fieldName"
               v-model="textField.value"
@@ -90,71 +99,13 @@ export default {
   props: ['visible', 'modalName', 'loanId'],
   data () {
     const loan = this.$store.getters['finances/getLoanById'](this.loanId) || {}
-    const mortgageDetails = loan.mortgage_details || {}
+    // const mortgageDetails = loan.mortgage_details || {}
     const loanInterest = loan.loan_interest || {}
 
     const baseLoanFields = {
       name: {
         labelName: 'Loan Name',
         value: loan.name
-      }
-    }
-
-    const mortgageFields = {
-      purchase_price: {
-        labelName: 'Purchase Price',
-        value: mortgageDetails.purchase_price,
-        prefix: '$',
-        type: 'number',
-        rules: [v => v >= 0 || 'Purchase price cannot be a negative number']
-      },
-      downpayment_amount: {
-        labelName: 'Downpayment',
-        value: mortgageDetails.downpayment_amount,
-        prefix: '$',
-        type: 'number',
-        rules: [
-          v => v >= 0 || 'Downpayment cannot be a negative number',
-          v => Number(v) <= this.mortgagePurchasePrice || 'Downpayment must be less than mortage purchase price'
-        ]
-      },
-      monthly_payment: {
-        labelName: 'Monthly Mortgage Payment',
-        value: mortgageDetails.monthly_payment,
-        prefix: '$',
-        type: 'number' // TODO: min payment validation
-      },
-      purchase_date: {
-        labelName: 'Purchase Date',
-        value: mortgageDetails.purchase_date,
-        type: 'date',
-        rules: [v => new Date(v) < new Date() || 'Purchase date cannot be in the future']
-      },
-      amortization_years: {
-        labelName: 'Mortgage Length',
-        value: mortgageDetails.amortization_years,
-        suffix: 'years',
-        type: 'number',
-        rules: [
-          v => this.getDatePlusYears(this.mortgageStartDate, v) > new Date() || 'Mortgage term cannot end in the past',
-          v => v >= 0 || 'Mortgage term length must be greater than 0 years'
-        ]
-      },
-      current_term_start_date: {
-        labelName: 'Current Term Start Date',
-        value: mortgageDetails.current_term_start_date,
-        type: 'date',
-        rules: [v => new Date(v) < new Date() || 'Current term start date cannot be in the future']
-      },
-      current_term_years: {
-        labelName: 'Current Term Length',
-        value: mortgageDetails.current_term_years,
-        type: 'number',
-        suffix: 'years',
-        rules: [
-          v => this.getDatePlusYears(this.currentMortgageTermStartDate, v) > new Date() || 'Current term cannot end in the past',
-          v => v >= 0 || 'Current term length must be greater than 0 years'
-        ]
       }
     }
 
@@ -184,6 +135,32 @@ export default {
       }
     }
 
+    const mortgageFields = {
+      current_balance: {
+        labelName: 'Current Mortgage Balance',
+        value: loan.current_balance,
+        type: 'number',
+        prefix: '$',
+        rules: [v => v >= 0 || 'Current balance cannot be a negative number']
+      },
+      minimum_monthly_payment: {
+        labelName: 'Monthly Payment',
+        value: loan.miimum_monthly_payment,
+        type: 'number',
+        prefix: '$',
+        rules: [
+          // v => this.validateMinPayment(v) || `Minimum payment must at least ${asDollar(this.minimumMonthlyPaymentLowerBound)}`,
+          v => v >= 0 || 'Minimum monthly payment cannot be a negative number'
+        ]
+      },
+      end_date: {
+        labelName: 'Mortgage End Date',
+        value: loan.end_date,
+        type: 'date',
+        rules: [v => new Date(v) > new Date() || 'Mortgage end date cannot be in the past']
+      }
+    }
+
     const revolvingLoanFields = {
       current_balance: {
         labelName: 'Current Balance',
@@ -203,7 +180,8 @@ export default {
       loan_type: loan.loan_type, // needed for mixin
       loanName: loan.name,
       apr: loanInterest.apr,
-      prime_modifier: loanInterest.prime_modifier
+      prime_modifier: loanInterest.prime_modifier,
+      current_term_end_date: loanInterest.current_term_end_date
     }
   },
   computed: {
@@ -319,42 +297,30 @@ export default {
     },
     makeLoanObject () {
       const loan = Object()
-
-      const loanDetails = Object()
       for (const [fieldName, object] of Object.entries(this.mandatoryTextFields)) {
-        loanDetails[fieldName] = object.value
-      }
-
-      if (this.isMortgage) {
-        loan.mortgage_details = loanDetails
-      } else {
-        for (const [fieldName, value] of Object.entries(loanDetails)) {
-          loan[fieldName] = value
-        }
+        loan[fieldName] = object.value
       }
       for (const [fieldName, object] of Object.entries(this.baseLoanFields)) {
         loan[fieldName] = object.value
       }
-
       loan.loan_interest = this.makeLoanInterestObject()
       loan.loan_type = this.loan_type
       loan.id = this.id
       return loan
     },
     makeLoanInterestObject () {
+      const loanInterst = {}
       if (this.isFixedInterestRate) {
-        return {
-          interest_type: this.interest_type,
-          apr: this.apr
-        }
+        loanInterst.interest_type = this.interest_type
+        loanInterst.apr = this.apr
       } else if (this.isVariableInterestRate) {
-        return {
-          interest_type: this.interest_type,
-          prime_modifier: this.prime_modifier
-        }
-      } else {
-        return {}
+        loanInterst.interest_type = this.interest_type
+        loanInterst.prime_modifier = this.prime_modifier
       }
+      if (this.isMortgage) {
+        loanInterst.current_term_end_date = this.current_term_end_date
+      }
+      return loanInterst
     },
     validateMinPayment (v) {
       if (v && this.isInstalmentLoan) {

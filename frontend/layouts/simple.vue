@@ -2,25 +2,20 @@
   <v-app>
     <v-app-bar
       fixed
+      :hide-on-scroll="!$vuetify.breakpoint.mobile"
       app
       dark
-      min-height="78"
-      class="pt-2"
+      flat
+      style="background: #121212"
     >
-      <div class="d-flex justify-center">
+      <div class="d-flex justify-center align-center">
         <NuxtLink to="/">
           <SmallLogo />
         </NuxtLink>
       </div>
-      <v-spacer />
-      <v-btn icon @click.prevent="$vuetify.theme.isDark = !$vuetify.theme.isDark">
-        <v-icon>mdi-theme-light-dark</v-icon>
-      </v-btn>
     </v-app-bar>
     <v-main>
-      <v-container>
-        <nuxt />
-      </v-container>
+      <nuxt />
     </v-main>
     <BaseFooter :show-social-links="false" />
   </v-app>

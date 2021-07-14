@@ -126,6 +126,112 @@ function makeSeoHeaders (title = defaultTitle, description = defaultDescription,
   ]
 }
 
+const RRSP_LIMIT_INCOME_FACTOR = 0.18
+const RRSP_DEFAULT_FUTURE_LIMIT = 25000
+const RRSP_DEFAULT_PAST_LIMIT = 10000
+const RRSP_HISTORICAL_LIMITS = {
+  2022: 29210,
+  2021: 27830,
+  2020: 27230,
+  2019: 26500,
+  2018: 26230,
+  2017: 26010,
+  2016: 25370,
+  2015: 24930,
+  2014: 24270,
+  2013: 23820,
+  2012: 22970,
+  2011: 22450,
+  2010: 22000,
+  2009: 21000,
+  2008: 20000,
+  2007: 19000,
+  2006: 18000,
+  2005: 16500,
+  2004: 15500,
+  2003: 14500,
+  2002: 13500,
+  2001: 13500,
+  2000: 13500,
+  1999: 13500,
+  1998: 13500,
+  1997: 13500,
+  1996: 13500,
+  1995: 14500,
+  1994: 13500,
+  1993: 12500,
+  1992: 12500,
+  1991: 11500
+}
+
+const getRrspLimit = function (year, annualSalary) {
+  let limit = RRSP_DEFAULT_FUTURE_LIMIT
+  if (year > 2022) {
+    limit = RRSP_DEFAULT_FUTURE_LIMIT
+  } else if (year < 1991) {
+    limit = RRSP_DEFAULT_PAST_LIMIT
+  } else {
+    limit = RRSP_HISTORICAL_LIMITS[year]
+  }
+  return Math.min(RRSP_LIMIT_INCOME_FACTOR * annualSalary, limit)
+}
+
+const estimateMaxRrspContributionLimit = function (workStartYear, avgAnnualSalary) {
+  const thisYear = new Date().getFullYear()
+  let curYear = workStartYear
+  let limit = 0
+  while (curYear <= thisYear) {
+    limit += getRrspLimit(curYear, avgAnnualSalary)
+    curYear++
+  }
+  return limit
+}
+
+const FUTURE_TFSA_LIMIT = 6000
+const TFSA_START_AGE = 18
+const HISTORICAL_TFSA_LIMITS = {
+  2009: 5000,
+  2010: 5000,
+  2011: 5000,
+  2012: 5000,
+  2013: 5500,
+  2014: 5500,
+  2015: 10000,
+  2016: 5500,
+  2017: 5500,
+  2018: 5500,
+  2019: 6000,
+  2020: 6000
+}
+
+const getTfsaLimit = function (year) {
+  if (year > 2020) {
+    return FUTURE_TFSA_LIMIT
+  } else if (year < 1991) {
+    return 0
+  } else {
+    return HISTORICAL_TFSA_LIMITS[year]
+  }
+}
+
+const estimateMaxTfsaContributionLimit = function (birthYear) {
+  const thisYear = new Date().getFullYear()
+  const tfsaStartYear = birthYear + TFSA_START_AGE
+  let curYear = tfsaStartYear
+  let limit = 0
+  while (curYear <= thisYear) {
+    limit += getTfsaLimit(curYear)
+    curYear++
+  }
+  return limit
+}
+
+const WORK_START_AGE = 23
+const estimateWorkStartYear = function (birtDate) {
+  const birthYear = birtDate.getFullYear()
+  return birthYear + WORK_START_AGE
+}
+
 export {
   delay,
   calculateMinimumAmortizedLoanPayment,
@@ -134,5 +240,8 @@ export {
   debounce,
   mandatoryFieldRule,
   copyToClipboard,
-  makeSeoHeaders
+  makeSeoHeaders,
+  estimateMaxRrspContributionLimit,
+  estimateMaxTfsaContributionLimit,
+  estimateWorkStartYear
 }

@@ -74,6 +74,9 @@ class MutualFund(Investment):
     # investment_type: Literal['Mutual Fund'] = 'Mutual Fund'
     ...
 
+class Portfolio(Investment):
+    ...
+
 
 class ETF(Investment):
     # investment_type: Literal['ETF'] = 'ETF'
