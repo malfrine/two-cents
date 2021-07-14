@@ -1,3 +1,4 @@
+import logging
 import traceback
 from typing import Dict
 
@@ -13,7 +14,7 @@ from pennies.strategies import get_strategy
 
 def solve_request(request: Dict) -> Dict:
     try:
-        print(request)
+        logging.info(request)
         pennies_request = PenniesRequest.parse_obj(request)
         model_input = ProblemInputFactory.from_request(pennies_request)
         solution = solve(model_input)
@@ -23,7 +24,7 @@ def solve_request(request: Dict) -> Dict:
         ).dict()
 
     except Exception as e:
-        print(traceback.format_exc())
+        logging.error(traceback.format_exc())
         return PenniesResponse(
             result=traceback.format_exc(), status=PenniesStatus.FAILURE
         ).dict()
@@ -40,13 +41,13 @@ def solve(problem_input: ProblemInput) -> Solution:
             raise ValueError(f"{strategy_name} could not solve")
         plans[strategy_name] = plan
     for strategy_name, plan in plans.items():
-        print(f"solution strategy: {strategy_name}")
-        print(f"\t net worth: {plan.get_net_worth()}")
-        print(f"\t interest paid on loans: {plan.get_total_interest_paid_on_loans()}")
-        print(
+        logging.debug(f"solution strategy: {strategy_name}")
+        logging.debug(f"\t net worth: {plan.get_net_worth()}")
+        logging.debug(f"\t interest paid on loans: {plan.get_total_interest_paid_on_loans()}")
+        logging.debug(
             f"\t interest earned on investments: {plan.get_total_interest_earned_on_investments()}"
         )
-        print(f"\t total withdrawals: {plan.get_total_withdrawals()}")
-        print(f"\t total taxes paid: {plan.get_total_income_taxes_paid()}")
+        logging.debug(f"\t total withdrawals: {plan.get_total_withdrawals()}")
+        logging.debug(f"\t total taxes paid: {plan.get_total_income_taxes_paid()}")
 
     return Solution(plans=plans)

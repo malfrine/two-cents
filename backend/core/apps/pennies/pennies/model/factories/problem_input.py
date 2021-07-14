@@ -1,3 +1,4 @@
+import logging
 from pennies.model.factories.investment import InvestmentFactory
 from pennies.model.financial_profile import FinancialProfile
 from pennies.model.parameters import Parameters
@@ -11,7 +12,7 @@ from pennies.utilities.finance import DiscountFactorCalculator
 class ProblemInputFactory:
     @classmethod
     def from_request(cls, request: PenniesRequest) -> ProblemInput:
-        print(request.json(indent=3))
+        logging.info(request.json(indent=3))
         instruments = dict()
         for loan in request.loans:
             instruments[loan.id_] = loan

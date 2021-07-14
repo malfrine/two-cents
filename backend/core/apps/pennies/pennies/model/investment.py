@@ -1,3 +1,4 @@
+import logging
 from typing import Union, Literal
 
 from pydantic import validator, root_validator
@@ -40,7 +41,7 @@ class GuaranteedInvestment(BaseInvestment):
         p: float = values["principal_investment_amount"]
         expected_current_balance = p * (1 + r.get_monthly_interest_rate(0)) ** n
         if v is None or v != expected_current_balance:
-            print(
+            logging.info(
                 "Incorrect current balance for guaranteed return investment - overwriting"
             )
             values["current_balance"] = expected_current_balance

@@ -61,7 +61,6 @@ class NetWorthForecastFactory:
                 return round(instrument.current_balance)
 
         instruments = list(monthly_solutions[0].portfolio.instruments.values())
-        print(instruments)
         return [
             InstrumentForecast(
                 instrument_id=instrument.db_id,

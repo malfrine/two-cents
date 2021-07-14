@@ -8,6 +8,7 @@ from dateutil.parser import parse
 import firebase_admin.auth as firebase_auth
 from requests import request
 from rest_framework import views, serializers, status
+
 from rest_framework.response import Response
 from core.apps.finances.models.constants import InterestTypes
 from core.apps.finances.models.financial_profile import FinancialProfile
@@ -19,7 +20,7 @@ from core.apps.finances.serializers.views.loan import LoanSerializer
 from core.apps.finances.utilities import calculate_instalment_loan_min_payment, calculate_revolving_loan_min_payment
 from core.apps.users.models import User, UserManager, WaitlistUser
 from core.apps.users.serializers import UserWriteSerializer
-from core.apps.users.utilities import create_user
+from core.apps.users.utilities import create_user, delete_user
 from core.apps.users.views import AccountViewSet
 from pennies.model.constants import InvestmentAccountType
 
@@ -54,7 +55,6 @@ def create_goals(user, data):
         )
         cash_account.save()
         financial_profile, _ = FinancialProfile.objects.get_or_create(user=user)
-        print(financial_profile)
         nest_egg_target = financial_profile.monthly_expenses_estimate * NEST_EGG_MONTHS
         nest_egg_goal = FinancialGoal(
             user=user,
@@ -145,7 +145,8 @@ class OnboardingAPIView(views.APIView):
     def post(self, request, format=None):
         data_keys = set(request.data.keys())
         if not self.MANDATORY_DATA_FIELDS.issubset(data_keys):
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_400_BAD_REQUEST, data=f"Missing one of the following mandatory fields: {self.MANDATORY_DATA_FIELDS}")
+        user = None
         try:
             user = create_user(UserWriteSerializer(data=request.data.get("account")))
             create_financial_profile(user, request.data.get("financial_profile"))
@@ -153,8 +154,12 @@ class OnboardingAPIView(views.APIView):
             create_investments(user, request.data.get("investments"))
             create_loans(user, request.data.get("loans"))
         except serializers.ValidationError as e:
-            print(e)
-            return Response(status=e.status_code)
+            if user is not None:
+                delete_user(user)
+            data = None
+            if status.is_client_error(e.status_code):
+                data = e.detail
+            return Response(status=e.status_code, data=data)
         return Response(status=status.HTTP_200_OK)
 
     

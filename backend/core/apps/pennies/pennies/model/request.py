@@ -74,7 +74,6 @@ class RequestInvestment(BaseModel):
 
     @validator("account_type")
     def parse_account_type(cls, v):
-        print(v)
         if not isinstance(v, InvestmentAccountType):
             return InvestmentAccountType[str(v)]
         else:

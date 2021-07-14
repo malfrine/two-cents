@@ -26,7 +26,6 @@ class LoanInterestSerializer(serializers.ModelSerializer):
             d["current_term_end_month"] = rep.pop("current_term_end_month")
             d["interest_rate"] = drop_none_fields(rep)
             d["interest_type"] = 'Mortgage Interest Rate'
-            print(d)
             return drop_none_fields(d)
         else:
             return drop_none_fields(rep)

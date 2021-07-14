@@ -1,3 +1,4 @@
+import logging
 import re
 
 import firebase_admin.auth
@@ -75,7 +76,7 @@ class WaitlistUserAPIView(views.APIView):
         try:
             waitlist_user = WaitlistUser.objects.get(email__iexact=email)
         except WaitlistUser.DoesNotExist:
-            print(f"User with {email} does not exist - making new object")
+            logging.info(f"User with {email} does not exist - making new object")
             waitlist_user = create_waitlist_user(email, referree_id, first_name)
             send_welcome_email(waitlist_user.email, waitlist_user.referral_id)
         return Response(

@@ -109,7 +109,6 @@ class UserFinancesViewset(viewsets.GenericViewSet):
             FinancialProfile.objects.create_default(user)
             return Response(self.get_serializer(user).data)
         else:
-            print(request.user)
             return Response(status=status.HTTP_404_NOT_FOUND)
 
 

@@ -1,3 +1,4 @@
+import logging
 import math
 from typing import Dict, Optional
 
@@ -40,7 +41,7 @@ class PortfolioManager:
                 and not math.isclose(payment, 0)
                 and (payment < mmp)
             ):
-                print(
+                logging.warn(
                     f"Payment of {payment} for {instrument_name} less than minimum monthly payment of {mmp}"
                 )
             cls._execute_payment(instrument, payment)

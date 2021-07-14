@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import logging
 from typing import List, Dict, Optional
 
 from pyomo import environ as pe
@@ -151,8 +152,6 @@ class MILP:
     def solve(self) -> Optional["MILP"]:
         results = pe.SolverFactory("cbc").solve(self.pyomodel)
         if not self._is_valid_solution(results):
-            print("It is not a valid solution")
-            print(results.solver.status)
-            print(results.solver.termination_condition)
+            logging.error(f"Did not get a valid solution; status: {results.solver.status}; termination condition: {results.solver.termination_condition}")
             return None
         return self
