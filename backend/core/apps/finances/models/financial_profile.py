@@ -6,6 +6,7 @@ from core.utilities import get_current_age
 from core.apps.finances.models.loans import Loan
 
 DEFAULT_BIRTH_DATE = datetime(year=1985, month=1, day=1).date()
+DEFAULT_TAX_RATE = 0.3
 
 class Province(models.TextChoices):
     AB = "AB", "Alberta"
@@ -26,6 +27,7 @@ class FinancialProfileManager(models.Manager):
         profile = self.model(user=user)
         profile.save()
         return profile
+
 
 
 class FinancialProfile(models.Model):
@@ -61,6 +63,10 @@ class FinancialProfile(models.Model):
     @property
     def months_to_retirement(self):
         return self.years_to_retirement * 12
+    
+    @property
+    def monthly_expenses_estimate(self):
+        return self.monthly_salary_before_tax * (1 - DEFAULT_TAX_RATE) * (1 - self.percent_salary_for_spending / 100)
 
     def __str__(self):
         return "Profile" + " - " + str(self.user.pk)

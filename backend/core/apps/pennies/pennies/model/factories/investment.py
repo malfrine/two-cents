@@ -9,6 +9,7 @@ from pennies.model.investment import (
     Investment,
     MutualFund,
     ETF,
+    Portfolio,
     Stock,
     Cash,
     GIC,
@@ -25,6 +26,7 @@ class InvestmentFactory:
         RequestInvestmentType.CASH: Cash,
         RequestInvestmentType.GIC: GIC,
         RequestInvestmentType.TERM_DEPOSIT: TermDeposit,
+        RequestInvestmentType.PORTFOLIO: Portfolio
     }
 
     _INTEREST_RATE_MAP = {

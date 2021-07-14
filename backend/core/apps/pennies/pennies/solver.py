@@ -1,8 +1,6 @@
 import traceback
 from typing import Dict
 
-import pyutilib
-
 from pennies.model.factories.problem_input import ProblemInputFactory
 from pennies.model.problem_input import ProblemInput
 from pennies.model.request import PenniesRequest

@@ -22,7 +22,7 @@ from core.apps.finances.models.financial_profile import FinancialProfile
 from core.apps.finances.models.loans import Loan
 from core.apps.users.models import User, WaitlistUser, create_waitlist_user
 from core.apps.users.serializers import UserWriteSerializer, WaitlistUserSerializer
-from core.apps.users.utilities import send_welcome_email
+from core.apps.users.utilities import create_user, send_welcome_email
 from core.config.settings import DEBUG
 
 
@@ -61,54 +61,8 @@ class AccountViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     queryset = User.objects.none()
 
     def perform_create(self, serializer):
-        email = self.request.data.get("email")
-        password = self.request.data.get("password")
+        return create_user(serializer)
 
-        if email is None or password is None:
-            raise serializers.ValidationError("Email and/or password required", status.HTTP_400_BAD_REQUEST)
-        if not DEBUG:
-            # check waitlist only in prod
-            try:
-                waitlist_user = WaitlistUser.objects.get(email__iexact=email)
-            except WaitlistUser.DoesNotExist:
-                raise serializers.ValidationError("Given email is not in waitlist - please request access",
-                                                  code=status.HTTP_404_NOT_FOUND)
-            if not waitlist_user.can_register:
-                raise serializers.ValidationError("Given email is on waitlist but not authorized to register account",
-                                                  code=status.HTTP_403_FORBIDDEN)
-        try:
-            firebase_admin.auth.create_user(
-                email=email,
-                password=password
-            )
-        except Exception:
-            raise serializers.ValidationError("Firebase error", code=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        user = serializer.save()
-        user.save()
-        FinancialProfile.objects.create_default(user)
-
-
-# class WaitlistUserViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,  viewsets.GenericViewSet):
-#     serializer_class = WaitlistUserSerializer
-#     lookup_field
-
-#     def perform_create(self, serializer):
-#         waitlist_user = serializer.save()
-#         waitlist_user.email = BaseUserManager.normalize_email(waitlist_user.email)
-#         waitlist_user.referral_id = waitlist_user.id
-
-#         text_content = render_to_string("mail/welcome.txt")
-#         msg = EmailMultiAlternatives(
-#             subject="Welcome to the Two Cents waitlist",
-#             from_email="Malfy from Two Cents <malfy@two-cents.ca>",
-#             body=text_content,
-#             to=(waitlist_user.email,)
-#         )
-#         html_content = render_to_string("mail/welcome.html")
-#         msg.attach_alternative(html_content, "text/html")
-#         msg.send()
-#         waitlist_user.save()
 
 class WaitlistUserAPIView(views.APIView):
 

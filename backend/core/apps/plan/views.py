@@ -18,7 +18,7 @@ class UserPlanViewSet(viewsets.GenericViewSet):
             'request': pennies_request.data
         })
         pennies_response = solve_request(pennies_request.data)
-        if False: # pennies_response["status"] == PenniesStatus.SUCCESS:
+        if pennies_response["status"] == PenniesStatus.SUCCESS:
             return Response(status=status.HTTP_200_OK, data=pennies_response["result"])
         else:
             if not DEBUG:

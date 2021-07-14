@@ -15,6 +15,7 @@ class InvestmentType(models.TextChoices):
     STOCK = "Stock", "Stock"
     BOND = "Bond", "Bond"  # TODO
     CASH = "Cash", "Cash"
+    PORTFOLIO = "Portfolio", "Portfolio"
 
 class InvestmentAccountType(models.TextChoices):
     NON_REGISTERED = "Non-Registered", "Non-Registered"
@@ -50,6 +51,7 @@ def get_required_fields_map():
         ],
         InvestmentType.CASH: all_non_guaranteed_inv_fields
         + ["pre_authorized_monthly_contribution"],
+        InvestmentType.PORTFOLIO: all_non_guaranteed_inv_fields + ["pre_authorized_monthly_contribution", "risk_level"]
     }
 
 
@@ -95,7 +97,7 @@ class Investment(models.Model):
     # attributes for all investments
     @property
     def roi(self) -> float:
-        if self.investment_type in [InvestmentType.MUTUAL_FUND, InvestmentType.ETF]:
+        if self.investment_type in [InvestmentType.MUTUAL_FUND, InvestmentType.ETF, InvestmentType.PORTFOLIO]:
             return self._RISK_TO_ROI[self.risk_level]
         elif self.investment_type in [
             InvestmentType.TERM_DEPOSIT,
@@ -110,7 +112,7 @@ class Investment(models.Model):
 
     @property
     def volatility(self) -> float:
-        if self.investment_type in [InvestmentType.MUTUAL_FUND, InvestmentType.ETF]:
+        if self.investment_type in [InvestmentType.MUTUAL_FUND, InvestmentType.ETF, InvestmentType.PORTFOLIO]:
             return self._VOLATILITY_AS_FLOAT[self._RISK_TO_VOLATILITY[self.risk_level]]
         elif self.investment_type in [
             InvestmentType.TERM_DEPOSIT,

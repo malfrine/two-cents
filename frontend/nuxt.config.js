@@ -78,6 +78,7 @@ export default {
   plugins: [
     '~/plugins/axios.js',
     '~/plugins/instrument-colors.js',
+    '~/plugins/constants.js',
     { src: '~/plugins/vue-toastification.js', mode: 'client' },
     { src: '~/plugins/typed.js', mode: 'client' }
   ],

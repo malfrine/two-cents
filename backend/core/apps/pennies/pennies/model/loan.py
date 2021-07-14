@@ -5,7 +5,7 @@ from pydantic import validator, root_validator
 
 from pennies.errors.validation_errors import BadDomainException
 from pennies.model.instrument import Instrument
-from pennies.model.interest_rate import InterestRateTerms, AllLoanInterestTypes
+from pennies.model.interest_rate import AllLoanInterestTypes, FixedLoanInterestRate, MortgageInterestRate, VariableLoanInterestRate
 
 MIN_REVOLVING_LOAN_PAYMENT_THRESHOLD = 10 # dollars
 
@@ -29,6 +29,8 @@ class Loan(Instrument):
 
 
 class RevolvingLoan(Loan):
+
+
     def get_minimum_monthly_payment(self, month: int):
         min_payment = abs(self.current_balance) * self.monthly_interest_rate(month)
         return min_payment if min_payment > MIN_REVOLVING_LOAN_PAYMENT_THRESHOLD else 0
@@ -79,31 +81,14 @@ class PersonalLoan(InstalmentLoan):
 class Mortgage(Loan):
     loan_type: Literal['Mortgage'] = 'Mortgage'
 
-    interest_rate: InterestRateTerms
-    monthly_payment: float
-    downpayment_amount: float
-    purchase_price: float
-    start_month: int
+    minimum_monthly_payment: float
+
 
     def get_minimum_monthly_payment(self, month: int):
-        return self.monthly_payment
+        return self.minimum_monthly_payment
 
     def get_maximum_monthly_payment(self, month: int) -> Optional[float]:
         return self.current_balance
-
-    @root_validator
-    def calculate_current_balance(cls, values):
-        print(values)
-        start_month = values["start_month"]
-        current_balance = values["purchase_price"] - values["downpayment_amount"]
-        interest_rate: InterestRateTerms = values["interest_rate"]
-        monthly_payment = values["monthly_payment"]
-        for month in range(start_month, 0):
-            value_change = current_balance * interest_rate.get_monthly_interest_rate(month) - monthly_payment
-            current_balance += value_change
-        values["current_balance"] = min(-current_balance, 0)
-        return values
-
 
 
 

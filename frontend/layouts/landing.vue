@@ -91,7 +91,7 @@ export default {
         {
           icon: 'mdi-account',
           title: 'Register',
-          to: '/register',
+          to: '/onboard',
           outlined: false,
           large: true
         }

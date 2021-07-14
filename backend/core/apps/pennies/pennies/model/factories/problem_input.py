@@ -1,5 +1,4 @@
 from pennies.model.factories.investment import InvestmentFactory
-from pennies.model.factories.loan import LoanFactory
 from pennies.model.financial_profile import FinancialProfile
 from pennies.model.parameters import Parameters
 from pennies.model.portfolio import Portfolio
