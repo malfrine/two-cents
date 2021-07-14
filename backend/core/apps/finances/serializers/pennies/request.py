@@ -16,7 +16,6 @@ class PenniesInvestmentSerializer(serializers.ModelSerializer):
     db_id = serializers.SerializerMethodField(source="get_db_id")
 
     def get_db_id(self, obj: Investment):
-        print(obj.pk)
         return obj.pk
 
     class Meta:

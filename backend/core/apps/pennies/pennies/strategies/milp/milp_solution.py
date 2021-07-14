@@ -1,5 +1,6 @@
 import itertools
 from dataclasses import dataclass
+import logging
 from typing import Dict, List
 
 import pyomo.environ as pe
@@ -94,20 +95,20 @@ class MILPSolution:
 
     def print_objective_components_breakdown(self):
         c = self.objective.components
-        print(f"Risk violation costs: {pe.value(c.get_risk_violation_costs())}")
-        print(
+        logging.debug(f"Risk violation costs: {pe.value(c.get_risk_violation_costs())}")
+        logging.debug(
             f"Retirement spending violation costs: {pe.value(c.get_retirement_spending_violation_cost())}"
         )
-        print(
+        logging.debug(
             f"Loan due date violation costs: {pe.value(c.get_loan_due_date_violation_costs())}"
         )
-        print(f"Purchase goal violation costs: {pe.value(c.get_purchase_goal_violation_cost())}")
-        print(f"Savings goal violation costs: {pe.value(c.get_savings_goal_violation_cost())}")
-        print(f"Taxes paid: {pe.value(c.get_taxes_paid())}")
-        print(f"Taxes overflow costs: {pe.value(c.get_taxes_overflow_cost())}")
-        print(f"Interest Earned: {pe.value(c.get_interest_earned())}")
-        print(f"Final net worth: {pe.value(c.get_final_net_worth())}")
-        print(f"Total: {pe.value(c.get_obj())}")
+        logging.debug(f"Purchase goal violation costs: {pe.value(c.get_purchase_goal_violation_cost())}")
+        logging.debug(f"Savings goal violation costs: {pe.value(c.get_savings_goal_violation_cost())}")
+        logging.debug(f"Taxes paid: {pe.value(c.get_taxes_paid())}")
+        logging.debug(f"Taxes overflow costs: {pe.value(c.get_taxes_overflow_cost())}")
+        logging.debug(f"Interest Earned: {pe.value(c.get_interest_earned())}")
+        logging.debug(f"Final net worth: {pe.value(c.get_final_net_worth())}")
+        logging.debug(f"Total: {pe.value(c.get_obj())}")
 
     def get_milp_monthly_solutions(self) -> Dict[int, MonthlySolution]:
         monthly_payments = self.get_monthly_payments()

@@ -39,8 +39,6 @@ class InvestmentFactory:
         cls, request_investment: RequestInvestment
     ) -> Investment:
         if request_investment.investment_type in [RequestInvestmentType.GIC, RequestInvestmentType.TERM_DEPOSIT]:
-            print(request_investment.investment_type)
-            print(request_investment.interest_type)
             internal_interest_rate = cls._INTEREST_RATE_MAP[
                 request_investment.interest_type
             ].parse_obj(request_investment.dict())

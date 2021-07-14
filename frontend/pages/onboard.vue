@@ -329,6 +329,11 @@
                 type="password"
                 :rules="[mandatoryField('Password')]"
               />
+              <div class="text-caption">
+                <p class="mt-n3">
+                  <em>Note that you can only join if you are an approved beta tester. Please join our <a href="/waitlist/join">waitlist</a> if you are not on it already! </em>
+                </p>
+              </div>
             </v-form>
           </BaseQuestion>
         </v-stepper-content>
@@ -519,7 +524,7 @@ export default {
       userInfo.account = {
         email: this.email,
         password: this.password,
-        first_name: this.firstName
+        first_name: this.firstName || 'hi'
       }
       // add basic info
       userInfo.financial_profile = {
@@ -561,9 +566,15 @@ export default {
       this.$axios.post(
         '/api/my/account/onboard', userInfo
       )
-
-      this.$fire.auth.signOut() // just in case they were signed in as someone else
-      this.$router.push('login')
+        .then(
+          () => {
+            this.$fire.auth.signOut() // just in case they were signed in as someone else
+            this.$router.push('login')
+          }
+        )
+        .catch((e) => {
+          this.$toast.error('Sorry, could not register your account')
+        })
     }
   },
   head () {

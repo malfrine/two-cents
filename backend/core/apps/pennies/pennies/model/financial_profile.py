@@ -61,7 +61,6 @@ class FinancialProfile(BaseModel):
     @validator("province_of_residence", pre=True)
     def parse_province(cls, v):
         if not isinstance(v, Province):
-            print(str(v))
             return Province[str(v)]
         else:
             return v

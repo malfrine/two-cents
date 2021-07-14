@@ -7,7 +7,6 @@ def test_portfolio_diversification():
     request = only_investments_request().dict()
     response = solve_request(request)
     if response["status"] == PenniesStatus.FAILURE:
-        print(response["result"])
         assert False
     assert isinstance(response["result"], dict)
     assert len(response["result"]) == len(request["strategies"])

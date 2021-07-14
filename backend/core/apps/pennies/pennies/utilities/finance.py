@@ -114,7 +114,6 @@ class DiscountFactorCalculator:
         total_weighted_debt = self.get_total_weighted_debt()
         top = investment_capital * expected_roi + total_weighted_debt
         bottom = total_debt + investment_capital
-        print(top / bottom)
         return top / bottom
 
     def get_expected_roi(self):

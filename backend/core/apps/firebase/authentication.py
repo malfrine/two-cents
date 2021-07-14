@@ -1,3 +1,4 @@
+import logging
 import os
 from dataclasses import dataclass
 from pathlib import Path
@@ -48,9 +49,9 @@ class FirebaseAuthentication(authentication.TokenAuthentication):
 
         try:
             user = User.objects.get(email__iexact=firebase_user.email)
-            print(f"Firebase recognized the user to be a registered user {(user.pk, user.email)}")
+            logging.info(f"Firebase recognized the user to be a registered user {(user.pk, user.email)}")
         except User.DoesNotExist:
             user = firebase_user
-            print(f"Firebase recognized the user to be a non-registered user {(user.email)}")
+            logging.info(f"Firebase recognized the user to be a non-registered user {(user.email)}")
 
         return (user, None)

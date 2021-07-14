@@ -1,3 +1,4 @@
+import logging
 import rest_framework.authtoken.apps
 from hashid_field import HashidField
 
@@ -124,9 +125,9 @@ def create_waitlist_user(email: str, referree_id: str, first_name: str):
         try:
             referral_user = WaitlistUser.objects.get(referral_id=referree_id)
             waitlist_user.referrer_id = referral_user.id
-            print(f"referree_id {referree_id} was found; referree was {referral_user.email}")
+            logging.info(f"referree_id {referree_id} was found; referree was {referral_user.email}")
         except WaitlistUser.DoesNotExist:
-            print(f"Given referree_id {referree_id} can not be found")
+            logging.info(f"Given referree_id {referree_id} can not be found")
             pass
     waitlist_user.save()
     return waitlist_user

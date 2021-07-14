@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 from dataclasses import dataclass
 from pathlib import Path
@@ -50,7 +51,7 @@ def test_process_all_example_requests():
     for request in all_requests_as_dicts():
         response = solve_request(request)
         if response["status"] == PenniesStatus.FAILURE:
-            print(response["result"])
+            logging.debug(response["result"])
             assert False
         assert isinstance(response["result"], dict)
         assert len(response["result"]) == len(request["strategies"])
@@ -63,11 +64,11 @@ def test_process_all_failed_requests():
     failed_request_files = os.listdir(PATH_TO_DATA)
     json_dao = JSONDao(data_dir=PATH_TO_DATA)
     for f in failed_request_files:
-        print(f"Testing request from file {f}")
+        logging.debug(f"Testing request from file {f}")
         request = json_dao.read_request(f).dict()
         response = solve_request(request)
         if response["status"] == PenniesStatus.FAILURE:
-            print(response["result"])
+            logging.debug(response["result"])
             assert False
         assert isinstance(response["result"], dict)
         assert len(response["result"]) == len(request["strategies"])

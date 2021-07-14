@@ -39,7 +39,6 @@ class LoanSerializer(serializers.ModelSerializer):
         exclude = ("user",)
 
     def create(self, validated_data):
-        print(validated_data)
         for nested_field in ("loan_interest",):
             serializer = self.fields[nested_field]
             data = validated_data.pop(nested_field, None)
