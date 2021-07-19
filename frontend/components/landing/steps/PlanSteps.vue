@@ -3,8 +3,8 @@
     <v-container>
       <v-card class="pa-5">
         <v-container>
-          <div class="font-weight-bold text-h5 text-center my-5 mb-10 pa-3">
-            Take control of your finances in 4 easy steps
+          <div class="font-weight-bold text-h5 text-md-h4 text-center my-5 mb-10 pa-3">
+            All it takes is 4 easy steps
           </div>
           <v-row justify="center" class="mx-3">
             <v-slide-group>

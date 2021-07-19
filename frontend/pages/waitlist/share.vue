@@ -87,7 +87,7 @@ export default {
     } else {
       linkQuery = ''
     }
-    const url = `${process.env.baseUrl}/waitlist/join${linkQuery}`
+    const url = `${process.env.baseUrl}${linkQuery}`
     const title = 'Join the Two Cents waitlist to build free AI powered financial plan!'
     const hashtags = 'PersonalFinance,finance,AI'
 

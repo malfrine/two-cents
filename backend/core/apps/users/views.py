@@ -69,15 +69,14 @@ class WaitlistUserAPIView(views.APIView):
 
     def post(self, request, format=None):
         email = request.data.get("email")
-        first_name = request.data.get("first_name")
-        if email is None or first_name is None:
+        if email is None:
             return Response(data={"message": "Email and first name required"}, status=status.HTTP_400_BAD_REQUEST)
         referree_id = request.data.get("referree_id")
         try:
             waitlist_user = WaitlistUser.objects.get(email__iexact=email)
         except WaitlistUser.DoesNotExist:
             logging.info(f"User with {email} does not exist - making new object")
-            waitlist_user = create_waitlist_user(email, referree_id, first_name)
+            waitlist_user = create_waitlist_user(email, referree_id)
             send_welcome_email(waitlist_user.email, waitlist_user.referral_id)
         return Response(
             data={
