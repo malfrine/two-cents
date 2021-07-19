@@ -5,7 +5,7 @@
         <v-stepper-content step="1" :class="isSmallView ? 'pa-0 ma-0': ''">
           <BaseQuestion
             question="Are you saving up for a big purchase?"
-            information="This could be a downpayment on a house, a wedding, your child's education, etc."
+            information="This could be a down payment on a house, a wedding, your child's education, etc."
             @continue="isSavingUpForBigPurchase ? goToNext() : goTo(3)"
             @back="goBack"
           >

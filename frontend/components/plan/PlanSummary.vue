@@ -12,7 +12,7 @@
           </TCTooltip>
           <v-divider class="mb-1" />
           <v-container fluid>
-            <div class="text-center text-h3 primary--text">
+            <div class="text-center text-h4 primary--text">
               {{ asDollar(finalNetWorth) }}
             </div>
           </v-container>

@@ -47,6 +47,7 @@
           :href="item.href"
           :to="item.to"
           :outlined="item.outlined"
+          :text="item.text"
           :large="item.large"
           color="primary"
           nuxt
@@ -80,20 +81,24 @@ export default {
           icon: 'mdi-lightbulb-outline',
           title: 'Blog',
           href: 'https://blog.two-cents.ca',
-          outlined: true
+          outlined: false,
+          text: true
         },
         {
           icon: 'mdi-login',
           title: 'Login',
           to: '/login',
-          outlined: true
+          outlined: true,
+          large: true,
+          text: false
         },
         {
           icon: 'mdi-account',
           title: 'Register',
           to: '/onboard',
           outlined: false,
-          large: true
+          large: true,
+          text: false
         }
 
       ]

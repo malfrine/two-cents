@@ -99,9 +99,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class WaitlistUser(models.Model):
-    first_name = models.CharField(
-        verbose_name="First name", max_length=30, default=None, null=True, blank=True
-    )
     email = models.EmailField(verbose_name="Email", unique=True, max_length=255)
     can_register = models.BooleanField(default=False, verbose_name="Can Register")
     waitlist_join_dt = models.DateTimeField(
@@ -115,10 +112,9 @@ class WaitlistUser(models.Model):
         return " - ".join(("Waitlist User", str(self.pk), str(self.email)))
 
 
-def create_waitlist_user(email: str, referree_id: str, first_name: str):
+def create_waitlist_user(email: str, referree_id: str):
     waitlist_user = WaitlistUser.objects.create(
         email=BaseUserManager.normalize_email(email),
-        first_name=first_name
     )
     waitlist_user.referral_id = waitlist_user.id
     if referree_id:
