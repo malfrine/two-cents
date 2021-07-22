@@ -33,7 +33,7 @@
             <v-divider class="mb-4 mt-10" />
             <v-row>
               <v-col cols="12" class="d-flex justify-center">
-                <v-btn to="/register" color="accent">
+                <v-btn to="/onboard" color="accent">
                   Register
                 </v-btn>
               </v-col>

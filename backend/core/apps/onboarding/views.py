@@ -1,4 +1,5 @@
 from datetime import datetime
+import logging
 from os import stat
 from xml.dom import minicompat
 from django.shortcuts import render
@@ -13,7 +14,7 @@ from rest_framework.response import Response
 from core.apps.finances.models.constants import InterestTypes
 from core.apps.finances.models.financial_profile import FinancialProfile
 from core.apps.finances.models.goals import FinancialGoal, GoalType
-from core.apps.finances.models.investments import Investment, InvestmentType, RiskChoices
+from core.apps.finances.models.investments import Investment, InvestmentType, RiskChoices, get_risk_level_map
 from core.apps.finances.models.loans import Loan, LoanInterest, LoanType, get_default_apr
 from core.apps.finances.serializers.serializers import FinancialProfileSerializer
 from core.apps.finances.serializers.views.loan import LoanSerializer
@@ -66,9 +67,19 @@ def create_goals(user, data):
         nest_egg_goal.save()
         
 
+
+def get_default_investment_risk_level(risk_tolerance: float):
+    risk_level_map = get_risk_level_map()
+    risk_tolerance = int(risk_tolerance)
+    for (lower_bound, upper_bound), risk_choice in risk_level_map.items():
+        if lower_bound <= risk_tolerance <= upper_bound:
+            return risk_choice
+    logging.warn(f"Couldn't find default risk choise for risk tolerance: {risk_tolerance}")
+    return RiskChoices.MEDIUM
+
 def create_investments(user, data):
     financial_profile, _ = FinancialProfile.objects.get_or_create(user=user)
-    risk_level = RiskChoices.MEDIUM # TODO: classify from number
+    risk_level = get_default_investment_risk_level(financial_profile.risk_tolerance)
     tfsa = Investment(
         user=user,
         name="TFSA Portfolio",
