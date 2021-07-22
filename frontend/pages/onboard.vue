@@ -85,9 +85,9 @@
             <v-form ref="nest-egg">
               <v-text-field
                 v-model="currentNestEggFundAmount"
-                label="Amount to Save"
+                label="Amount Saved"
                 outlined
-                :rules="[mandatoryField('Amount to save'), nonNegativeNumberRule('Your nest egg amount')]"
+                :rules="[mandatoryField('Amount Saved'), nonNegativeNumberRule('Your nest egg amount')]"
                 type="number"
               />
             </v-form>
@@ -534,7 +534,7 @@ export default {
         monthly_salary_before_tax: this.preTaxMonthlyIncome,
         percent_salary_for_spending: this.savingsPercentage,
         starting_rrsp_contribution_limit: this.rrspContributionLimit,
-        startin_tfsa_contribution_limit: this.tfsaContributionLimit,
+        starting_tfsa_contribution_limit: this.tfsaContributionLimit,
         province_of_residence: this.province
       }
       // add goals
@@ -562,6 +562,8 @@ export default {
           date: this.loanObject[loan].date
         }
       }
+
+      console.log(userInfo)
 
       this.$axios.post(
         '/api/my/account/onboard', userInfo

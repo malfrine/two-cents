@@ -1,4 +1,5 @@
 from datetime import date
+from typing import Dict, Tuple
 
 from django.db import models
 
@@ -62,6 +63,13 @@ class RiskChoices(models.TextChoices):
     LOW = "Low", "Low Risk"
     MEDIUM = "Medium", "Medium Risk"
     HIGH = "High", "High Risk"
+
+def get_risk_level_map() -> Dict[Tuple[int, int], RiskChoices]: 
+    return {
+        (0, 33): RiskChoices.LOW,
+        (34, 67): RiskChoices.MEDIUM,
+        (68, 100): RiskChoices.HIGH
+    }
 
 
 class VolatilityChoices(models.TextChoices):
