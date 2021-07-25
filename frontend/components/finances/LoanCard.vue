@@ -21,9 +21,11 @@
         <p v-if="isMortgage" class="mt-n3">
           <em> Current Term End Date: </em> {{ loanInterest.current_term_end_date }}
         </p>
-        <p v-for="(object, fieldName) in mortgageFields" :key="fieldName" class="mt-n3">
-          <em>{{ object.labelName }}:</em> {{ getDetailString(fieldName, object) }}
-        </p>
+        <div v-if="isMortgage">
+          <p v-for="(object, fieldName) in mortgageFields" :key="fieldName" class="mt-n3">
+            <em>{{ object.labelName }}:</em> {{ getDetailString(fieldName, object) }}
+          </p>
+        </div>
         <p v-for="(object, fieldName) in instalmentLoanFields" v-show="isInstalmentLoan" :key="fieldName" class="mt-n3">
           <em>{{ object.labelName }}:</em> {{ getDetailString(fieldName, object) }}
         </p>

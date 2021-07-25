@@ -34,7 +34,7 @@ class LoanMinimumPaymentCalculator:
 
 def calculate_loan_ending_payment(current_balance, interest_rate, num_months) -> float:
     if interest_rate == 0:
-        return current_balance
+        return current_balance / num_months
     compounded_rate = (1 + interest_rate) ** num_months
     return current_balance * interest_rate * compounded_rate / (compounded_rate - 1)
 

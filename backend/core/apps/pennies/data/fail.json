@@ -1,28 +1,6 @@
 {
     "loans": [
         {
-            "name": "Mortgage",
-            "loan_type": "Mortgage",
-            "interest_rate": {
-                "interest_type": "Interest Rate Terms",
-                "terms": [
-                    {
-                        "interest_rate": {
-                            "interest_type": "Fixed",
-                            "apr": 2.0
-                        },
-                        "start_month": -1,
-                        "final_month": 11
-                    }
-                ]
-            },
-            "start_month": -11,
-            "final_month": 1,
-            "monthly_payment": 1.0,
-            "purchase_price": 10.0,
-            "downpayment_amount": 1.0
-        },
-        {
             "interest_rate": {
                 "interest_type": "Fixed",
                 "apr": 4.1
@@ -37,23 +15,16 @@
             "name": "House",
             "loan_type": "Mortgage",
             "interest_rate": {
-                "interest_type": "Interest Rate Terms",
-                "terms": [
-                    {
-                        "interest_rate": {
-                            "interest_type": "Fixed",
-                            "apr": 3.0
-                        },
-                        "start_month": -1,
-                        "final_month": 119
-                    }
-                ]
+                "interest_type": "Mortgage Interest Rate",
+                "interest_rate": {
+                    "interest_type": "Fixed",
+                    "apr": 2.0
+                },
+                "current_term_end_month": 110
             },
-            "start_month": -1,
+            "minimum_monthly_payment": 400,
             "final_month": 360,
-            "monthly_payment": 1200.0,
-            "purchase_price": 500000.0,
-            "downpayment_amount": 100000.0
+            "current_balance": -400000.0
         },
         {
             "interest_rate": {

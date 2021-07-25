@@ -8,11 +8,11 @@ class LoanInterestSerializer(serializers.ModelSerializer):
     def validate(self, data):
         if data["interest_type"] == InterestTypes.FIXED:
             data.pop("prime_modifier", None)
-            if not data["apr"]:
+            if data.get("apr") is None:
                 raise serializers.ValidationError("Fixed interest loans must have an APR")
         elif data["interest_type"] == InterestTypes.VARIABLE:
             data.pop("apr", None)
-            if not data["prime_modifier"]:
+            if data.get("prime_modifier") is None:
                 raise serializers.ValidationError(
                     "Variable interest loans must have a Prime Modifier"
                 )
