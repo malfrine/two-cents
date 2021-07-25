@@ -2,7 +2,6 @@ from typing import Tuple, Dict, List, ClassVar
 
 from pennies.model.constants import Province, InvestmentAccountType
 from pennies.model.factories.problem_input import ProblemInputFactory
-from pennies.model.factories.request_loan import RequestLoanFactory
 from pennies.model.financial_profile import FinancialProfile
 from pennies.model.goal import NestEgg, BigPurchase
 from pennies.model.interest_rate import FixedLoanInterestRate, VariableLoanInterestRate, InterestRate
