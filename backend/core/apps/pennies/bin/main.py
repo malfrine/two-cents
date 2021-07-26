@@ -12,7 +12,7 @@ from pennies.utilities.examples import (
     all_instrument_types_request,
     simple_request,
 )
-# from pennies.utilities.visualization import visualize_solution
+from pennies.utilities.visualization import visualize_solution
 
 
 def main():
@@ -30,7 +30,7 @@ def main():
             StrategyName.snowball.value,
             # StrategyName.avalanche.value,
             # StrategyName.avalanche_ball.value,
-            # StrategyName.lp.value,
+            StrategyName.lp.value,
         ],
     )
     solution = solve(mi)
@@ -47,8 +47,7 @@ def main():
     pr.disable()
     # pr.print_stats(sort="cumulative")
     for strategy_name, plan in solution.plans.items():
-        # visualize_solution(plan, suffix=strategy_name)
-        pass
+        visualize_solution(plan, suffix=strategy_name)
 
 
 if __name__ == "__main__":
