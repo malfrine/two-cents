@@ -41,7 +41,7 @@ class PortfolioManager:
                 and not math.isclose(payment, 0)
                 and (payment < mmp)
             ):
-                logging.warn(
+                logging.warning(
                     f"Payment of {payment} for {instrument_name} less than minimum monthly payment of {mmp}"
                 )
             cls._execute_payment(instrument, payment)

@@ -119,3 +119,10 @@ class Portfolio(BaseModel):
 
     def get_investments_of_types(self, types: List):
         return list(i for i in self.investments() if isinstance(i, tuple(types)))
+
+    @property
+    def cash_investment(self):
+        for investment in self.investments():
+            if isinstance(investment, Cash):
+                return investment
+        raise ValueError(f"No cash investment exists")
