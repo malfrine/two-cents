@@ -27,6 +27,8 @@ class UserPlanViewSet(viewsets.GenericViewSet):
                     'request': pennies_request.data,
                 })
                 send_failed_request_message()
+            else:
+                print(pennies_response["result"])
             return Response(
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 data=pennies_response["result"],
