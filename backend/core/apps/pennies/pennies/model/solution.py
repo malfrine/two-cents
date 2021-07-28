@@ -4,6 +4,7 @@ from uuid import UUID
 from pydantic import BaseModel
 
 from pennies.model.portfolio import Portfolio
+from pennies.model.problem_input import ProblemInput
 from pennies.utilities.dict import get_value_from_dict
 
 _ALMOST_ZERO_LOWER_BOUND = -1
@@ -95,6 +96,9 @@ class FinancialPlan(BaseModel):
             return 0
         return self.monthly_solutions[-1].get_value()
 
+    def get_net_worth_at(self, month: int):
+        return self.monthly_solutions[month - 1].get_value()
+
     def get_total_interest_paid_on_loans(self):
         return sum(
             ms.get_total_loans_interest(ms.month) for ms in self.monthly_solutions
@@ -146,6 +150,7 @@ class FinancialPlan(BaseModel):
 
 class Solution(BaseModel):
     plans: Dict[str, FinancialPlan]
+    problem_input: ProblemInput
 
     def __getitem__(self, item) -> FinancialPlan:
         return self.plans[item]

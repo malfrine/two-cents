@@ -4,6 +4,7 @@ from textwrap import indent
 from pennies.dao.json_dao import JsonDao
 from pennies.model.factories.problem_input import ProblemInputFactory
 from pennies.model.problem_input import ProblemInput
+from pennies.model.processed.plan import ProcessedFinancialPlan
 from pennies.solution_processor import SolutionProcessor
 from pennies.solver import solve
 from pennies.strategies import StrategyName
@@ -35,6 +36,11 @@ def main():
     )
     solution = solve(mi)
     processed_solution = SolutionProcessor.process(solution)
+    for strategy, plan in processed_solution.items():
+        plan: ProcessedFinancialPlan
+        print(f"Strategy: {strategy}")
+        for milestone in plan.milestones.values():
+            print(f"\t{milestone.text}")
     print(str(mi.user_finances))
     for strategy_name, plan in solution.plans.items():
         print(f"solution strategy: {strategy_name}")

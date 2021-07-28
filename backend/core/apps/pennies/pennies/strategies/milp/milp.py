@@ -5,7 +5,6 @@ from typing import List, Dict, Optional
 from pyomo import environ as pe
 from pyomo.core import ConcreteModel
 
-from core.config.settings import DEBUG
 from pennies.model.parameters import Parameters
 from pennies.model.user_personal_finances import UserPersonalFinances
 from pennies.strategies.milp.constraints import MILPConstraints
@@ -151,7 +150,7 @@ class MILP:
         ]
 
     def solve(self) -> Optional["MILP"]:
-        results = pe.SolverFactory("cbc").solve(self.pyomodel, tee=DEBUG)
+        results = pe.SolverFactory("cbc").solve(self.pyomodel)
         if not self._is_valid_solution(results):
             logging.error(f"Did not get a valid solution; status: {results.solver.status}; termination condition: {results.solver.termination_condition}")
             return None

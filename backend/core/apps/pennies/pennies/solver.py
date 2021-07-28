@@ -50,4 +50,4 @@ def solve(problem_input: ProblemInput) -> Solution:
         logging.debug(f"\t total withdrawals: {plan.get_total_withdrawals()}")
         logging.debug(f"\t total taxes paid: {plan.get_total_income_taxes_paid()}")
 
-    return Solution(plans=plans)
+    return Solution(plans=plans, problem_input=problem_input)

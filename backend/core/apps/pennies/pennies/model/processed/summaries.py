@@ -4,6 +4,7 @@ from typing import NewType, Dict, List, Optional
 
 from pydantic import BaseModel
 
+from pennies.model.problem_input import ProblemInput
 from pennies.model.solution import FinancialPlan
 from pennies.utilities.datetime import get_first_date_of_next_month, get_date_plus_month
 
@@ -24,10 +25,10 @@ class PlanSummaries(BaseModel):
 
 class PlanSummariesFactory:
     @classmethod
-    def from_plan(cls, plan: FinancialPlan) -> PlanSummaries:
-
+    def from_plan(cls, plan: FinancialPlan, problem_input: ProblemInput) -> PlanSummaries:
+        retirement_month = problem_input.user_finances.financial_profile.retirement_month
         return PlanSummaries(
-            net_worth=round(plan.get_net_worth()),
+            net_worth=round(plan.get_net_worth_at(retirement_month)),
             priorities=cls.get_instrument_priorities(plan),
             important_dates=cls.get_important_dates(plan),
         )
