@@ -13,23 +13,16 @@ def get_data():
             "name": "Mortgage",
             "loan_type": "Mortgage",
             "interest_rate": {
-                "interest_type": "Interest Rate Terms",
-                "terms": [
-                    {
-                        "interest_rate": {
-                            "interest_type": "Fixed",
-                            "apr": 2.0
-                        },
-                        "start_month": -1,
-                        "final_month": 11
-                    }
-                ]
+                "interest_type": "Mortgage Interest Rate",
+                "interest_rate": {
+                    "interest_type": "Fixed",
+                    "apr": 2.0
+                },
+                "current_term_end_month": 11,
             },
-            "start_month": -11,
-            "final_month": 1,
-            "monthly_payment": 1.0,
-            "purchase_price": 10.0,
-            "downpayment_amount": 1.0
+            "final_month": 12,
+            "minimum_monthly_payment": 1.0,
+            "current_balance": 10.0
         },
         {
             "interest_rate": {
@@ -46,23 +39,18 @@ def get_data():
             "name": "House",
             "loan_type": "Mortgage",
             "interest_rate": {
-                "interest_type": "Interest Rate Terms",
-                "terms": [
-                    {
-                        "interest_rate": {
-                            "interest_type": "Fixed",
-                            "apr": 3.0
-                        },
-                        "start_month": -1,
-                        "final_month": 119
-                    }
-                ]
+                "interest_type": "Mortgage Interest Rate",
+                "interest_rate": {
+                    "interest_type": "Fixed",
+                    "apr": 3.0
+                },
+                "current_term_end_month": 119,
+
             },
             "start_month": -1,
             "final_month": 323,
-            "monthly_payment": 1200.0,
-            "purchase_price": 500000.0,
-            "downpayment_amount": 100000.0
+            "minimum_monthly_payment": 1200.0,
+            "current_balance": 400000.0,
         },
         {
             "interest_rate": {

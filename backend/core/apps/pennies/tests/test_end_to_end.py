@@ -20,9 +20,6 @@ from pennies.utilities.examples import (
     all_requests_as_dicts,
 )
 
-PATH_TO_DATA = Path("tests", "data")
-
-
 @dataclass
 class JSONDao:
     data_dir: Path
@@ -60,18 +57,18 @@ def test_process_all_example_requests():
         )
 
 
-def test_process_all_failed_requests():
-    failed_request_files = os.listdir(PATH_TO_DATA)
-    json_dao = JSONDao(data_dir=PATH_TO_DATA)
-    for f in failed_request_files:
-        logging.debug(f"Testing request from file {f}")
-        request = json_dao.read_request(f).dict()
-        response = solve_request(request)
-        if response["status"] == PenniesStatus.FAILURE:
-            logging.debug(response["result"])
-            assert False
-        assert isinstance(response["result"], dict)
-        assert len(response["result"]) == len(request["strategies"])
-        assert len(response["result"][StrategyName.lp.value]["milestones"]) >= len(
-            request["loans"]
-        )
+# def test_process_all_failed_requests():
+#     failed_request_files = os.listdir(PATH_TO_DATA)
+#     json_dao = JSONDao(data_dir=PATH_TO_DATA)
+#     for f in failed_request_files:
+#         logging.debug(f"Testing request from file {f}")
+#         request = json_dao.read_request(f).dict()
+#         response = solve_request(request)
+#         if response["status"] == PenniesStatus.FAILURE:
+#             logging.debug(response["result"])
+#             assert False
+#         assert isinstance(response["result"], dict)
+#         assert len(response["result"]) == len(request["strategies"])
+#         assert len(response["result"][StrategyName.lp.value]["milestones"]) >= len(
+#             request["loans"]
+#         )

@@ -1,14 +1,13 @@
 {
    "loans": [
        {
-           "name": "ATB Line of Credit",
-           "current_balance": -1000.0,
-
-           "minimum_monthly_payment": 11.0,
-           "final_month": 119,
+         "name": "ATB Line of Credit",
+         "current_balance": -1000.0,
+         "minimum_monthly_payment": 11.0,
+         "final_month": 119,
          "interest_rate": {
            "interest_type": "Fixed",
-                      "apr": 4.0
+           "apr": 4.0
          }
        }
    ],
@@ -27,5 +26,6 @@
    "strategies": [
        "Two Cents Plan",
        "Avalanche Plan"
-   ]
+   ],
+  "goals": []
 }

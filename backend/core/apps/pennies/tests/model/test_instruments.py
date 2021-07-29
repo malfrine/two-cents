@@ -31,23 +31,6 @@ def test_generic_loan():
     assert isinstance(loan, Loan)
 
 
-def test_bad_loan():
-    try:
-        Loan(
-            name="generic",
-            interest_rate=FixedLoanInterestRate(apr=5),
-            current_balance=200,
-            minimum_monthly_payment=100,
-            final_month=10,
-        )
-        assert False
-    except Exception as e:
-        if isinstance(e, ValidationError):
-            assert True
-        else:
-            assert False
-
-
 def test_guaranteed_investment():
     principal = 100
     roi = 12

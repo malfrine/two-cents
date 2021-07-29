@@ -59,7 +59,7 @@ class ObjectiveComponents:
         return sum(
             self.vars.get_taxes_accrued_in_bracket(t, e, b)
             for t, (e, b) in itertools.product(
-                self.sets.working_periods_as_set, self.sets.taxing_entities_and_brackets
+                self.sets.all_decision_periods_as_set, self.sets.taxing_entities_and_brackets
             ) for m in self.sets.decision_periods.data[t].months
         )
 
@@ -67,9 +67,9 @@ class ObjectiveComponents:
         return sum(
             self.vars.get_pos_overflow_in_bracket(t, e, b)
             for t, (e, b) in itertools.product(
-                self.sets.working_periods_as_set, self.sets.taxing_entities_and_brackets
+                self.sets.all_decision_periods_as_set, self.sets.taxing_entities_and_brackets
             )
-        ) * (1 + 1)
+        ) * (self.pars.get_constraint_violation_penalty())
 
     def get_retirement_spending_violation_cost(self):
         return (
