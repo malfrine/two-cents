@@ -22,7 +22,7 @@ from pennies.strategies.allocation_strategy import AllocationStrategy
 from pennies.strategies.milp.strategy import MILPStrategy
 from pennies.utilities.finance import (
     calculate_loan_ending_payment,
-    calculate_average_monthly_interest_rate,
+    calculate_average_monthly_interest_rate, calculate_monthly_income_tax,
 )
 
 DEFAULT_GOAL_SPEND_IN_DEBT = 0.6
@@ -116,6 +116,25 @@ class GreedyAllocationStrategy(AllocationStrategy):
 
 
 class GreedyHeuristicStrategy(GreedyAllocationStrategy):
+
+    @classmethod
+    def get_monthly_allowance(cls, financial_profile: FinancialProfile, month: int):
+        # this only works if greedy algorithm doesn't make rrsp contributions
+        savings_fraction = financial_profile.percent_salary_for_spending / 100
+        gross_income = financial_profile.get_pre_tax_monthly_income(month)
+        tax = calculate_monthly_income_tax(gross_income, financial_profile.province_of_residence)
+        return (gross_income - tax) * savings_fraction
+
+    @classmethod
+    def get_average_monthly_allowance(cls, financial_profile: FinancialProfile, months: List[int]):
+        if len(months) == 0:
+            return 0
+        total_monthly_allowance = sum(
+            cls.get_monthly_allowance(financial_profile, month)
+            for month in months
+        )
+        return total_monthly_allowance / len(months)
+
     def create_allocation_for_working_period(
         self,
         portfolio: Portfolio,
@@ -125,9 +144,7 @@ class GreedyHeuristicStrategy(GreedyAllocationStrategy):
         working_period: WorkingPeriod,
     ) -> Tuple[List[MonthlyAllocation], Dict, Dict]:
         payments = defaultdict(float)
-        allowance = sum(
-            financial_profile.get_monthly_allowance(m) for m in working_period.months
-        ) / len(working_period.months)
+        allowance = self.get_average_monthly_allowance(financial_profile, working_period.months)
 
         # min loan and investment payments
         min_payments = self.calculate_min_payments(portfolio, working_period.months, allowance)

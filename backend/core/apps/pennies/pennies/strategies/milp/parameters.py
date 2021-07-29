@@ -65,14 +65,6 @@ class MILPParameters:
     def get_user_risk_profile_as_fraction(self) -> float:
         return self.user_finances.financial_profile.risk_tolerance / 100
 
-    def get_monthly_allowance(self, decision_period_index: int):
-        decision_period = self.sets.decision_periods.data[decision_period_index]
-        total_allowance_in_decision_period = sum(
-            self.user_finances.financial_profile.get_monthly_allowance(month)
-            for month in decision_period.months
-        )
-        return total_allowance_in_decision_period / len(decision_period.months)
-
     def get_minimum_monthly_payment(
         self, instrument_id: UUID, payment_horizon_order: int
     ):
@@ -85,7 +77,7 @@ class MILPParameters:
     def get_before_tax_monthly_income(self, decision_period_index: int):
         decision_period = self.sets.decision_periods.data[decision_period_index]
         total_salary_in_decision_period = sum(
-            self.user_finances.financial_profile.get_monthly_income(month)
+            self.user_finances.financial_profile.get_pre_tax_monthly_income(month)
             for month in decision_period.months
         )
         return total_salary_in_decision_period / len(decision_period.months)
@@ -238,3 +230,6 @@ class MILPParameters:
 
     def get_goal_due_month(self, g):
         return self.user_finances.goals[g].due_month
+
+    def get_savings_fraction(self):
+        return self.user_finances.financial_profile.percent_salary_for_spending / 100

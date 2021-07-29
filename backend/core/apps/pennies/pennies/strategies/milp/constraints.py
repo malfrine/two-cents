@@ -19,6 +19,17 @@ class _ConstraintMaker:
     pars: MILPParameters
     vars: MILPVariables
 
+    def get_post_tax_monthly_income(self, t):
+        pre_tax_income = self.pars.get_before_tax_monthly_income(t)
+        tax = sum(
+            self.vars.get_taxes_accrued_in_bracket(t, e, b)
+            for e, b in self.sets.taxing_entities_and_brackets
+        )
+        return pre_tax_income - tax
+
+    def get_monthly_allowance(self, t):
+        return self.pars.get_savings_fraction() * self.get_post_tax_monthly_income(t)
+
     def make_define_loan_paid_off_indicator(self) -> pe.Constraint:
         def rule(_, l, t):
             return (self.vars.get_balance(l, t)) >= (
@@ -42,7 +53,8 @@ class _ConstraintMaker:
                 return self.pars.get_minimum_monthly_payment(i, t) <= allocation
 
             final_payment_order = self.pars.get_final_work_period_index()
-            allocation_slack = self.pars.get_monthly_allowance(t) * (
+            big_m = self.pars.get_before_tax_monthly_income(t) * self.pars.get_savings_fraction()
+            allocation_slack = big_m * (
                 1 - self.vars.get_is_unpaid(i, min(t + 1, final_payment_order))
             )
 
@@ -103,7 +115,7 @@ class _ConstraintMaker:
         def rule(_, t):
             return sum(
                 self.vars.get_allocation(i, t) for i in self.sets.instruments
-            ) == self.pars.get_monthly_allowance(t)
+            ) == self.get_monthly_allowance(t)
 
         return pe.Constraint(self.sets.all_decision_periods_as_set, rule=rule)
 
@@ -176,10 +188,13 @@ class _ConstraintMaker:
             )
             allocation_volatility = self._get_allocation_volatility(t)
             violation = self.vars.get_total_risk_violation(t)
+
+            # allowance is not exact but it is needed to avoid quadratic solution
+            allowance = self.pars.get_before_tax_monthly_income(t) * self.pars.get_savings_fraction()
             return (
                 violation
                 >= allocation_volatility
-                - volatility_limit * self.pars.get_monthly_allowance(t)
+                - volatility_limit * allowance
             )
 
         if self.pars.has_investments() and self.pars.has_loans():
@@ -326,7 +341,7 @@ class _ConstraintMaker:
         def rule(_, y):
             decision_periods = self.sets.decision_periods.grouped_by_years[y]
             annual_income = sum(
-                self.pars.get_monthly_allowance(dp.index) for dp in decision_periods
+                self.pars.get_before_tax_monthly_income(dp.index) for dp in decision_periods
             )
             rrsp_limit = self.pars.get_rrsp_limit(y)
             rrsp_investments = sum(
