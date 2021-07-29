@@ -48,7 +48,7 @@ class MilestoneFactory:
         start_date = get_first_date_of_next_month(datetime.today())
         months = get_months_difference(payoff_date, start_date)
 
-        interest_paid_str = "${:,.2f}".format(interest_paid)
+        interest_paid_str = "${:,.0f}".format(interest_paid)
         text = (
             f"You will pay off {loan.name} on {str(payoff_date)}. You will have paid {interest_paid_str} in interest "
             f"over {months} months"
@@ -82,7 +82,7 @@ class MilestoneFactory:
 
     @classmethod
     def make_retirement_milestone(cls, retirement_date: date, net_worth: float):
-        net_worth_str = "${:,.2f}".format(net_worth)
+        net_worth_str = "${:,.0f}".format(net_worth)
         return Milestone(
             name="Retirement",
             date=retirement_date,
@@ -94,9 +94,9 @@ class MilestoneFactory:
     def make_nest_egg_completed_milestone(cls, completion_date: date, goal_due_date: date, goal: NestEgg):
         is_on_time = completion_date <= goal_due_date
         if is_on_time:
-            text = f"Woo! You will be able to build your nest egg on time. You will be able to save ${goal.amount:,.2f} by {completion_date}"
+            text = f"Woo! You will be able to build your nest egg on time. You will be able to save ${goal.amount:,.0f} by {completion_date}"
         else:
-            text = f"Unfortunately, you will not be able to build your nest egg on time. You will only be able to save ${goal.amount:,.2f} by {completion_date}"
+            text = f"Unfortunately, you will not be able to build your nest egg on time. You will only be able to save ${goal.amount:,.0f} by {completion_date}"
 
         return Milestone(
             name=f"Complete Goal: {goal.name}",
@@ -116,13 +116,13 @@ class MilestoneFactory:
         is_success = actual_purchase_amount >= goal.amount
         if not is_success:
             name = f"Unable to purchase {goal.name}"
-            header = f"Only able to save ${actual_purchase_amount:,.2f} for {goal.name}"
+            header = f"Only able to save ${actual_purchase_amount:,.0f} for {goal.name}"
         else:
             name = f"Successfully purchase {goal.name}"
-            header = f"Complete {goal.name} big purchase for ${actual_purchase_amount:,.2f}"
+            header = f"Complete {goal.name} big purchase for ${actual_purchase_amount:,.0f}"
         if actual_purchase_amount >= 0:
-            withdrawal_text = ", ".join((f"{name}: ${amount}" for (name, amount) in withdrawals))
-            text = f"Your ${actual_purchase_amount:,.2f} can be withdrawn from the following: {withdrawal_text}"
+            withdrawal_text = ", ".join((f"{name}: ${amount:,.0f}" for (name, amount) in withdrawals))
+            text = f"Your ${actual_purchase_amount:,.0f} can be withdrawn from the following: {withdrawal_text}"
         else:
             text = ""
         return Milestone(

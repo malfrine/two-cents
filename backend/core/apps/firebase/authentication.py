@@ -12,7 +12,6 @@ from rest_framework.authentication import get_authorization_header
 from rest_framework.exceptions import AuthenticationFailed
 
 from core.apps.users.models import User
-from pennies.model.financial_profile import FinancialProfile
 
 cred = credentials.Certificate({
   "type": "service_account",

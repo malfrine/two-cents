@@ -28,15 +28,12 @@ class FinancialProfile(BaseModel):
     def death_month(self):
         return self.years_to_death * MONTHS_IN_YEAR
 
-    def get_monthly_income(self, month: int):
+    def get_pre_tax_monthly_income(self, month: int):
         return (
             self.monthly_salary_before_tax
             if month < self.retirement_month
             else 0
         )
-
-    def get_monthly_allowance(self, month: int):
-        return self.get_monthly_income(month) * self.percent_salary_for_spending / 100
 
     @property
     def monthly_retirement_spending(self):

@@ -32,19 +32,18 @@ class FinancialPlanFactory:
             )
             month = index + parameters.starting_month
             income_in_month = (
-                user_personal_finances.financial_profile.get_monthly_income(month)
+                user_personal_finances.financial_profile.get_pre_tax_monthly_income(month)
                 + non_tfsa_withdrawals
                 - sum(
                     mp.get(i.id_, 0)
                     for i in cur_portfolio.rrsp_investments_and_guaranteed_investments
                 )
             )
-            monthly_allowance = (
-                user_personal_finances.financial_profile.get_monthly_allowance(month)
-            )
             taxes_paid = calculate_monthly_income_tax(
                 income=income_in_month, province=province
             )
+            savings_fraction = user_personal_finances.financial_profile.percent_salary_for_spending / 100
+            monthly_allowance = (income_in_month - taxes_paid) * savings_fraction
             monthly_solutions.append(
                 MonthlySolution(
                     allocation=MonthlyAllocation(

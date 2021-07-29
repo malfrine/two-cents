@@ -93,6 +93,17 @@ class MILPSolution:
             )
         )
 
+    def get_post_tax_monthly_income(self, t):
+        pre_tax_income = self.pars.get_before_tax_monthly_income(t)
+        tax = sum(
+            pe.value(self.vars.get_taxes_accrued_in_bracket(t, e, b))
+            for e, b in self.sets.taxing_entities_and_brackets
+        )
+        return pre_tax_income - tax
+
+    def get_monthly_allowance(self, t):
+        return self.pars.get_savings_fraction() * self.get_post_tax_monthly_income(t)
+
     def print_objective_components_breakdown(self):
         c = self.objective.components
         logging.debug(f"Risk violation costs: {pe.value(c.get_risk_violation_costs())}")
@@ -116,11 +127,7 @@ class MILPSolution:
         monthly_solutions_dict = dict()
         for dp in self.sets.decision_periods.data:
             dp_month = dp.months[0]
-            monthly_allowance = (
-                self.user_personal_finances.financial_profile.get_monthly_allowance(
-                    dp_month
-                )
-            )
+            monthly_allowance = self.get_monthly_allowance(dp.index)
             payments = monthly_payments[dp_month]
             withdrawals = monthly_withdrawals[dp_month]
             portfolio_instruments = dict()
