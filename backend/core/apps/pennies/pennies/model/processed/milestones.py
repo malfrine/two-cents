@@ -59,25 +59,25 @@ class MilestoneFactory:
             header=f"Pay off {loan.name}",
             text=text,
             instrument_id=loan.db_id,
-            instrument_type='loan'
+            instrument_type="loan",
         )
 
     @classmethod
     def make_debt_free_milestone(cls, debt_free_date: date):
         return Milestone(
-            name=f"Debt Free",
+            name="Debt Free",
             date=debt_free_date,
-            header=f"Debt Free",
+            header="Debt Free",
             text=f"You will be debt free on {debt_free_date}!",
         )
 
     @classmethod
     def make_positive_net_worth_milestone(cls, milestone_date: date):
         return Milestone(
-            name=f"Positive Net Worth",
+            name="Positive Net Worth",
             date=milestone_date,
-            header=f"Positive Net Worth",
-            text=f"Your net worth will be positive on {milestone_date}!",
+            header="Positive Net Worth",
+            text="Your net worth will be positive on {milestone_date}!",
         )
 
     @classmethod
@@ -87,22 +87,27 @@ class MilestoneFactory:
             name="Retirement",
             date=retirement_date,
             header="You Finally Retire!",
-            text=f"You will retire on {retirement_date}. Your net worth at retirement will be {net_worth_str}!",
+            text=f"You will retire on {retirement_date}."
+                 f" Your net worth at retirement will be {net_worth_str}!",
         )
 
     @classmethod
-    def make_nest_egg_completed_milestone(cls, completion_date: date, goal_due_date: date, goal: NestEgg):
+    def make_nest_egg_completed_milestone(
+        cls, completion_date: date, goal_due_date: date, goal: NestEgg
+    ):
         is_on_time = completion_date <= goal_due_date
         if is_on_time:
-            text = f"Woo! You will be able to build your nest egg on time. You will be able to save ${goal.amount:,.0f} by {completion_date}"
+            text = f"Woo! You will be able to build your nest egg on time. " \
+                   f"You will be able to save ${goal.amount:,.0f} by {completion_date}"
         else:
-            text = f"Unfortunately, you will not be able to build your nest egg on time. You will only be able to save ${goal.amount:,.0f} by {completion_date}"
+            text = f"Unfortunately, you will not be able to build your nest egg on time. " \
+                   f"You will only be able to save ${goal.amount:,.0f} by {completion_date}"
 
         return Milestone(
             name=f"Complete Goal: {goal.name}",
             date=completion_date,
             header=f"{goal.name} goal will be completed on {completion_date}",
-            text=text
+            text=text,
         )
 
     @classmethod
@@ -111,7 +116,7 @@ class MilestoneFactory:
         goal: BigPurchase,
         goal_due_date: date,
         actual_purchase_amount: float,
-        withdrawals: List[Tuple[str, float]]
+        withdrawals: List[Tuple[str, float]],
     ) -> Milestone:
         is_success = actual_purchase_amount >= goal.amount
         if not is_success:
@@ -119,18 +124,17 @@ class MilestoneFactory:
             header = f"Only able to save ${actual_purchase_amount:,.0f} for {goal.name}"
         else:
             name = f"Successfully purchase {goal.name}"
-            header = f"Complete {goal.name} big purchase for ${actual_purchase_amount:,.0f}"
+            header = (
+                f"Complete {goal.name} big purchase for ${actual_purchase_amount:,.0f}"
+            )
         if actual_purchase_amount >= 0:
-            withdrawal_text = ", ".join((f"{name}: ${amount:,.0f}" for (name, amount) in withdrawals))
+            withdrawal_text = ", ".join(
+                (f"{name}: ${amount:,.0f}" for (name, amount) in withdrawals)
+            )
             text = f"Your ${actual_purchase_amount:,.0f} can be withdrawn from the following: {withdrawal_text}"
         else:
             text = ""
-        return Milestone(
-            name=name,
-            date=goal_due_date,
-            header=header,
-            text=text
-        )
+        return Milestone(name=name, date=goal_due_date, header=header, text=text)
 
 
 class PlanMilestonesFactory:
@@ -145,16 +149,16 @@ class PlanMilestonesFactory:
         positive_net_worth_ms = cls.get_positive_net_worth_milestone(plan, start_date)
         if positive_net_worth_ms is not None:
             milestones.append(positive_net_worth_ms)
-        retirement_month = problem_input.user_finances.financial_profile.retirement_month
+        retirement_month = (
+            problem_input.user_finances.financial_profile.retirement_month
+        )
         retirement_milestone = MilestoneFactory.make_retirement_milestone(
             retirement_date=get_date_plus_month(start_date, retirement_month),
-            net_worth=plan.get_net_worth_at(retirement_month)
+            net_worth=plan.get_net_worth_at(retirement_month),
         )
         milestones.append(retirement_milestone)
         goal_milestones = cls.get_goal_milestones(
-            plan,
-            problem_input.user_finances.goals,
-            start_date
+            plan, problem_input.user_finances.goals, start_date
         )
         milestones.extend(goal_milestones)
 
@@ -228,35 +232,26 @@ class PlanMilestonesFactory:
 
     @classmethod
     def make_nest_egg_requirements(cls, goals: Dict[UUID, AllGoalTypes]):
-        nest_egg_goals = [
-            goal for goal in goals.values()
-            if isinstance(goal, NestEgg)
-        ]
+        nest_egg_goals = [goal for goal in goals.values() if isinstance(goal, NestEgg)]
         nest_egg_goals = sorted(nest_egg_goals, key=lambda x: x.due_month)
         nest_egg_requirements = list()
         for i in range(len(nest_egg_goals)):
-            amount_needed = sum(
-                goal.amount for goal in nest_egg_goals[:i]
-            )
+            amount_needed = sum(goal.amount for goal in nest_egg_goals[:i])
             goal = nest_egg_goals[i]
             nest_egg_requirements.append((goal, amount_needed))
         return nest_egg_requirements
 
     @classmethod
     def make_nest_egg_milestone(
-        cls,
-        plan: FinancialPlan,
-        goal: NestEgg,
-        start_date: date,
-        amount_needed: float
+        cls, plan: FinancialPlan, goal: NestEgg, start_date: date, amount_needed: float
     ) -> Milestone:
         current_month = goal.due_month - 1
         while True:
             current_month += 1
             monthly_solution = plan.monthly_solutions[current_month]
             current_cash_balance = sum(
-                i.current_balance for i in
-                monthly_solution.portfolio.investments()
+                i.current_balance
+                for i in monthly_solution.portfolio.investments()
                 if isinstance(i, Cash)
             )
             if current_cash_balance >= amount_needed:
@@ -264,40 +259,30 @@ class PlanMilestonesFactory:
                 milestone = MilestoneFactory.make_nest_egg_completed_milestone(
                     completion_date=completion_date,
                     goal_due_date=get_date_plus_month(start_date, goal.due_month),
-                    goal=goal
+                    goal=goal,
                 )
                 return milestone
 
     @classmethod
     def get_nest_egg_milestones(
-        cls,
-        goals: Dict[UUID, NestEgg],
-        plan: FinancialPlan,
-        start_date: date
+        cls, goals: Dict[UUID, NestEgg], plan: FinancialPlan, start_date: date
     ) -> List[Milestone]:
         milestones = list()
         nest_egg_requirements = cls.make_nest_egg_requirements(goals=goals)
         for goal, amount_needed in nest_egg_requirements:
             nest_egg_milestone = cls.make_nest_egg_milestone(
-                plan=plan,
-                goal=goal,
-                start_date=start_date,
-                amount_needed=amount_needed
+                plan=plan, goal=goal, start_date=start_date, amount_needed=amount_needed
             )
             milestones.append(nest_egg_milestone)
         return milestones
 
     @classmethod
     def get_big_purchase_milestones(
-        cls,
-        goals: Dict[UUID, AllGoalTypes],
-        plan: FinancialPlan,
-        start_date: date
+        cls, goals: Dict[UUID, AllGoalTypes], plan: FinancialPlan, start_date: date
     ):
         milestones = list()
         big_purchase_goals = [
-            goal for goal in goals.values()
-            if isinstance(goal, BigPurchase)
+            goal for goal in goals.values() if isinstance(goal, BigPurchase)
         ]
         big_purchase_goals = sorted(big_purchase_goals, key=lambda x: x.due_month)
         for goal in big_purchase_goals:
@@ -305,7 +290,10 @@ class PlanMilestonesFactory:
             monthly_withdrawal = plan.monthly_solutions[goal.due_month].withdrawals
             portfolio = plan.monthly_solutions[goal.due_month].portfolio
             withdrawal_list = [
-                (portfolio.get_instrument(investment_id).name, amount * DecisionPeriodsManagerFactory.max_months)
+                (
+                    portfolio.get_instrument(investment_id).name,
+                    amount * DecisionPeriodsManagerFactory.max_months,
+                )
                 # TODO: this is a quick fix to multiply by max_months
                 for investment_id, amount in monthly_withdrawal.items()
                 if amount > 0
@@ -315,29 +303,22 @@ class PlanMilestonesFactory:
                 goal=goal,
                 goal_due_date=get_date_plus_month(start_date, goal.due_month),
                 actual_purchase_amount=total_purchase,
-                withdrawals=withdrawal_list
+                withdrawals=withdrawal_list,
             )
             milestones.append(milestone)
         return milestones
 
     @classmethod
     def get_goal_milestones(
-        cls,
-        plan: FinancialPlan,
-        goals: Dict[UUID, AllGoalTypes],
-        start_date: date
+        cls, plan: FinancialPlan, goals: Dict[UUID, AllGoalTypes], start_date: date
     ) -> List[Milestone]:
         milestones = list()
-        milestones.extend(cls.get_nest_egg_milestones(
-            goals=goals,
-            plan=plan,
-            start_date=start_date
-        ))
-        milestones.extend(cls.get_big_purchase_milestones(
-            goals=goals,
-            plan=plan,
-            start_date=start_date
-        ))
+        milestones.extend(
+            cls.get_nest_egg_milestones(goals=goals, plan=plan, start_date=start_date)
+        )
+        milestones.extend(
+            cls.get_big_purchase_milestones(
+                goals=goals, plan=plan, start_date=start_date
+            )
+        )
         return milestones
-
-

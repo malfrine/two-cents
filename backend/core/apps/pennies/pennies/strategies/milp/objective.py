@@ -6,8 +6,6 @@ import pyomo.environ as pe
 from pennies.strategies.milp.parameters import MILPParameters
 from pennies.strategies.milp.sets import MILPSets
 from pennies.strategies.milp.variables import MILPVariables
-from pennies.utilities.datetime import MONTHS_IN_YEAR
-from pennies.utilities.finance import DiscountFactorCalculator
 
 ANNUALIZED_DISCOUNT_FACTOR = 3 / 100
 
@@ -59,15 +57,18 @@ class ObjectiveComponents:
         return sum(
             self.vars.get_taxes_accrued_in_bracket(t, e, b)
             for t, (e, b) in itertools.product(
-                self.sets.all_decision_periods_as_set, self.sets.taxing_entities_and_brackets
-            ) for m in self.sets.decision_periods.data[t].months
+                self.sets.all_decision_periods_as_set,
+                self.sets.taxing_entities_and_brackets,
+            )
+            for m in self.sets.decision_periods.data[t].months
         )
 
     def get_taxes_overflow_cost(self):
         return sum(
             self.vars.get_pos_overflow_in_bracket(t, e, b)
             for t, (e, b) in itertools.product(
-                self.sets.all_decision_periods_as_set, self.sets.taxing_entities_and_brackets
+                self.sets.all_decision_periods_as_set,
+                self.sets.taxing_entities_and_brackets,
             )
         ) * (self.pars.get_constraint_violation_penalty())
 
@@ -83,10 +84,12 @@ class ObjectiveComponents:
 
     def get_final_net_worth(self):
         final_dp_index = self.pars.get_final_decision_period_index()
-        final_month = max(self.sets.decision_periods.data[final_dp_index].months)
+        # final_month = max(self.sets.decision_periods.data[final_dp_index].months)
 
         return sum(
-            self.vars.get_balance(i, final_dp_index) # * self.get_discount_factor(i, final_month)
+            self.vars.get_balance(
+                i, final_dp_index
+            )  # * self.get_discount_factor(i, final_month)
             for i in self.sets.instruments
         )
 
@@ -102,9 +105,11 @@ class ObjectiveComponents:
     def get_extra_spending_money(self):
 
         return sum(
-            self.vars.get_withdrawal(i, t) # * self.get_discount_factor(i, m)
-            for i, t in
-            itertools.product(self.sets.investments_and_guaranteed_investments, self.sets.all_decision_periods_as_set)
+            self.vars.get_withdrawal(i, t)  # * self.get_discount_factor(i, m)
+            for i, t in itertools.product(
+                self.sets.investments_and_guaranteed_investments,
+                self.sets.all_decision_periods_as_set,
+            )
             for m in self.sets.decision_periods.data[t].months
         )
 
@@ -114,7 +119,9 @@ class ObjectiveComponents:
     def get_max_payment_violation_cost(self):
         return sum(
             self.vars.get_max_monthly_payment_violation(i, t)
-            for i, t in itertools.product(self.sets.instruments, self.sets.all_decision_periods_as_set)
+            for i, t in itertools.product(
+                self.sets.instruments, self.sets.all_decision_periods_as_set
+            )
         )
 
     def get_savings_goal_violation_cost(self):
@@ -125,20 +132,26 @@ class ObjectiveComponents:
 
     def get_purchase_goal_violation_cost(self):
         max_month = self.sets.decision_periods.max_month
-        return max_month * self.GOAL_VIOLATION_COST * sum(
-            self.vars.get_purchase_goal_violation(g)
-            for g in self.sets.purchase_goals
+        return (
+            max_month
+            * self.GOAL_VIOLATION_COST
+            * sum(
+                self.vars.get_purchase_goal_violation(g)
+                for g in self.sets.purchase_goals
+            )
         )
 
     def get_registered_account_incentive(self):
         return 0.01 * sum(
             self.vars.get_allocation(i, t)
-            for i, t in itertools.product(self.sets.registered_investments, self.sets.working_periods_as_set)
+            for i, t in itertools.product(
+                self.sets.registered_investments, self.sets.working_periods_as_set
+            )
         )
 
     def get_obj(self):
         obj = (
-            - self.get_risk_violation_costs()
+            -self.get_risk_violation_costs()
             - self.get_loan_due_date_violation_costs()
             - self.get_taxes_paid()
             - self.get_taxes_overflow_cost()
@@ -162,13 +175,14 @@ class MILPObjective:
 
     @classmethod
     def create(
-        cls, sets: MILPSets, pars: MILPParameters, vars_: MILPVariables, discount_factor: float
+        cls,
+        sets: MILPSets,
+        pars: MILPParameters,
+        vars_: MILPVariables,
+        discount_factor: float,
     ) -> "MILPObjective":
         components = ObjectiveComponents(sets, pars, vars_, discount_factor)
         return MILPObjective(
-            obj=pe.Objective(
-                expr=components.get_obj(),
-                sense=pe.maximize,
-            ),
+            obj=pe.Objective(expr=components.get_obj(), sense=pe.maximize,),
             components=components,
         )

@@ -1,14 +1,16 @@
 from rest_framework import routers
+
 from core.apps.finances.views import (
     FinancialProfileView,
     InvestmentViewset,
     LoanViewset,
     UserFinancesViewset,
     FinancesEnumsViewset,
-    PenniesRequestViewset, FinancialGoalViewset,
+    PenniesRequestViewset,
+    FinancialGoalViewset,
 )
 from core.apps.plan.views import UserPlanViewSet
-from core.apps.users.views import AccountViewSet, SessionAPIView
+from core.apps.users.views import AccountViewSet
 
 # Settings
 api = routers.DefaultRouter()
@@ -23,4 +25,4 @@ api.register(r"my/finances/investments", InvestmentViewset)
 api.register(r"my/finances/goals", FinancialGoalViewset)
 api.register(r"my/finances/profile", FinancialProfileView, basename="financial-profile")
 api.register(r"my/plan", UserPlanViewSet, basename="financial-plan")
-api.register(f"finances/enums", FinancesEnumsViewset, basename="financial-enums")
+api.register(r"finances/enums", FinancesEnumsViewset, basename="financial-enums")

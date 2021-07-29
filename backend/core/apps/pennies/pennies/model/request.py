@@ -7,7 +7,7 @@ from pydantic.main import BaseModel
 from pennies.model.constants import InvestmentAccountType
 from pennies.model.financial_profile import FinancialProfile
 from pennies.model.goal import AllGoalTypes
-from pennies.model.loan import Loan, AllLoanTypes
+from pennies.model.loan import AllLoanTypes
 
 
 class RequestLoanType(Enum):

@@ -1,6 +1,5 @@
 import json
 import logging
-import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import ClassVar
@@ -9,16 +8,16 @@ from pydantic import BaseModel
 
 from pennies.model.problem_input import ProblemInput
 from pennies.model.request import PenniesRequest
+from pennies.model.solution import Solution
 from pennies.model.status import PenniesStatus
 from pennies.model.user_personal_finances import UserPersonalFinances
-from pennies.model.solution import Solution
 from pennies.solver import solve, solve_request
 from pennies.strategies import StrategyName
 from pennies.utilities.examples import (
     simple_user_finances,
-    pennies_request_as_dict,
     all_requests_as_dicts,
 )
+
 
 @dataclass
 class JSONDao:

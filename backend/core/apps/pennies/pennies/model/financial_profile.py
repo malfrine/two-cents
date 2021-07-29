@@ -29,11 +29,7 @@ class FinancialProfile(BaseModel):
         return self.years_to_death * MONTHS_IN_YEAR
 
     def get_pre_tax_monthly_income(self, month: int):
-        return (
-            self.monthly_salary_before_tax
-            if month < self.retirement_month
-            else 0
-        )
+        return self.monthly_salary_before_tax if month < self.retirement_month else 0
 
     @property
     def monthly_retirement_spending(self):

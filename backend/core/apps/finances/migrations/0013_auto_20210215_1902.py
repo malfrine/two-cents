@@ -10,10 +10,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name="financialprofile",
-            name="risk_profile",
-        ),
+        migrations.RemoveField(model_name="financialprofile", name="risk_profile",),
         migrations.AddField(
             model_name="financialprofile",
             name="risk_tolerance",

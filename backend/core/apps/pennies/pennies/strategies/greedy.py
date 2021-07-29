@@ -2,6 +2,11 @@ from collections import defaultdict
 from typing import Dict, Optional, Iterable, List, Tuple
 from uuid import UUID
 
+from pennies.model.decision_periods import (
+    DecisionPeriodsManagerFactory,
+    WorkingPeriod,
+    DecisionPeriodsManager,
+)
 from pennies.model.factories.financial_plan import FinancialPlanFactory
 from pennies.model.financial_profile import FinancialProfile
 from pennies.model.goal import AllGoalTypes, BigPurchase, NestEgg
@@ -9,11 +14,6 @@ from pennies.model.instrument import Instrument
 from pennies.model.investment import Investment
 from pennies.model.loan import Loan
 from pennies.model.parameters import Parameters
-from pennies.model.decision_periods import (
-    DecisionPeriodsManagerFactory,
-    WorkingPeriod,
-    DecisionPeriodsManager,
-)
 from pennies.model.portfolio import Portfolio
 from pennies.model.portfolio_manager import PortfolioManager
 from pennies.model.solution import FinancialPlan, MonthlySolution, MonthlyAllocation
@@ -22,7 +22,8 @@ from pennies.strategies.allocation_strategy import AllocationStrategy
 from pennies.strategies.milp.strategy import MILPStrategy
 from pennies.utilities.finance import (
     calculate_loan_ending_payment,
-    calculate_average_monthly_interest_rate, calculate_monthly_income_tax,
+    calculate_average_monthly_interest_rate,
+    calculate_monthly_income_tax,
 )
 
 DEFAULT_GOAL_SPEND_IN_DEBT = 0.6
@@ -37,13 +38,17 @@ class GreedyAllocationStrategy(AllocationStrategy):
         monthly_withdrawals = list()
         decision_periods = self._make_decision_periods(user_finances, parameters)
         start_month = user_finances.financial_profile.retirement_month
-        total_goal_contributions = {goal_id: 0. for goal_id in user_finances.goals}
+        total_goal_contributions = {goal_id: 0.0 for goal_id in user_finances.goals}
         for working_period in decision_periods.working_periods:
             if not cur_portfolio.non_mortgage_loans and cur_portfolio.investments():
                 start_month = working_period.months[0]
                 break
 
-            allocations, goal_contributions, withdrawals = self.create_allocation_for_working_period(
+            (
+                allocations,
+                goal_contributions,
+                withdrawals,
+            ) = self.create_allocation_for_working_period(
                 cur_portfolio,
                 user_finances.goals,
                 total_goal_contributions,
@@ -51,24 +56,32 @@ class GreedyAllocationStrategy(AllocationStrategy):
                 working_period=working_period,
             )
 
-            for month, allocation, withdrawal in zip(working_period.months, allocations, withdrawals):
+            for month, allocation, withdrawal in zip(
+                working_period.months, allocations, withdrawals
+            ):
                 monthly_payments.append(allocation.payments)
                 monthly_withdrawals.append(withdrawal)
                 cur_portfolio = cur_portfolio.copy(deep=True)
                 PortfolioManager.forward_on_month(
-                    cur_portfolio, payments=allocation.payments, month=month, withdrawals=withdrawal
+                    cur_portfolio,
+                    payments=allocation.payments,
+                    month=month,
+                    withdrawals=withdrawal,
                 )
                 for goal_id, contribution in goal_contributions.items():
                     total_goal_contributions[goal_id] += contribution
         monthly_solutions = FinancialPlanFactory.create(
-            monthly_payments, user_finances, parameters, monthly_withdrawals=monthly_withdrawals
+            monthly_payments,
+            user_finances,
+            parameters,
+            monthly_withdrawals=monthly_withdrawals,
         ).monthly_solutions
         milp_monthly_solutions = self.solve_with_milp(
             start_month,
             cur_portfolio,
             user_finances.financial_profile,
             parameters,
-            user_finances.goals
+            user_finances.goals,
         )
         monthly_solutions.extend(milp_monthly_solutions)
         return FinancialPlan(monthly_solutions=monthly_solutions)
@@ -91,7 +104,7 @@ class GreedyAllocationStrategy(AllocationStrategy):
         portfolio: Portfolio,
         financial_profile: FinancialProfile,
         parameters: Parameters,
-        goals: Dict[UUID, AllGoalTypes]
+        goals: Dict[UUID, AllGoalTypes],
     ) -> List[MonthlySolution]:
         milp_parameters = Parameters.parse_obj(
             dict(parameters.dict(), starting_month=start_month)
@@ -116,22 +129,24 @@ class GreedyAllocationStrategy(AllocationStrategy):
 
 
 class GreedyHeuristicStrategy(GreedyAllocationStrategy):
-
     @classmethod
     def get_monthly_allowance(cls, financial_profile: FinancialProfile, month: int):
         # this only works if greedy algorithm doesn't make rrsp contributions
         savings_fraction = financial_profile.percent_salary_for_spending / 100
         gross_income = financial_profile.get_pre_tax_monthly_income(month)
-        tax = calculate_monthly_income_tax(gross_income, financial_profile.province_of_residence)
+        tax = calculate_monthly_income_tax(
+            gross_income, financial_profile.province_of_residence
+        )
         return (gross_income - tax) * savings_fraction
 
     @classmethod
-    def get_average_monthly_allowance(cls, financial_profile: FinancialProfile, months: List[int]):
+    def get_average_monthly_allowance(
+        cls, financial_profile: FinancialProfile, months: List[int]
+    ):
         if len(months) == 0:
             return 0
         total_monthly_allowance = sum(
-            cls.get_monthly_allowance(financial_profile, month)
-            for month in months
+            cls.get_monthly_allowance(financial_profile, month) for month in months
         )
         return total_monthly_allowance / len(months)
 
@@ -144,10 +159,14 @@ class GreedyHeuristicStrategy(GreedyAllocationStrategy):
         working_period: WorkingPeriod,
     ) -> Tuple[List[MonthlyAllocation], Dict, Dict]:
         payments = defaultdict(float)
-        allowance = self.get_average_monthly_allowance(financial_profile, working_period.months)
+        allowance = self.get_average_monthly_allowance(
+            financial_profile, working_period.months
+        )
 
         # min loan and investment payments
-        min_payments = self.calculate_min_payments(portfolio, working_period.months, allowance)
+        min_payments = self.calculate_min_payments(
+            portfolio, working_period.months, allowance
+        )
         for key, value in min_payments.items():
             payments[key] = value
         remaining_loans = portfolio.non_mortgage_loans
@@ -167,9 +186,7 @@ class GreedyHeuristicStrategy(GreedyAllocationStrategy):
         allowance -= savings_for_goal
 
         cash_withdrawals = self.make_big_purchase_cash_withdrawals(
-            goals,
-            working_period.months,
-            portfolio.cash_investment.current_balance
+            goals, working_period.months, portfolio.cash_investment.current_balance
         )
 
         while remaining_loans and allowance:
@@ -207,7 +224,9 @@ class GreedyHeuristicStrategy(GreedyAllocationStrategy):
         while allowance > 0:
             # loan min payments
             for loan in portfolio.loans:
-                avg_interest_rate = calculate_average_monthly_interest_rate(loan, months)
+                avg_interest_rate = calculate_average_monthly_interest_rate(
+                    loan, months
+                )
                 loan_ending_payment = calculate_loan_ending_payment(
                     abs(loan.current_balance), avg_interest_rate, len(months)
                 )
@@ -233,13 +252,13 @@ class GreedyHeuristicStrategy(GreedyAllocationStrategy):
 
     @classmethod
     def calculate_goal_contributions_for_period(
-        cls, goals: Dict[UUID, AllGoalTypes],
+        cls,
+        goals: Dict[UUID, AllGoalTypes],
         total_goal_contributions: Dict[UUID, float],
-        allowance: float, current_month: int
+        allowance: float,
+        current_month: int,
     ) -> Dict[UUID, float]:
-        contributions = {
-            goal_id: 0. for goal_id in goals
-        }
+        contributions = {goal_id: 0.0 for goal_id in goals}
         for goal in goals.values():
 
             months_left_for_goal = goal.due_month - current_month
@@ -250,11 +269,14 @@ class GreedyHeuristicStrategy(GreedyAllocationStrategy):
                 if isinstance(goal, NestEgg):
                     goal_spend = goal.amount - amount_saved_up_so_far
                 elif isinstance(goal, BigPurchase):
-                    continue # assume we have missed the deadline and there is no need to save up for it because it is a strict deadline
+                    continue  # assume we have missed the deadline and there
+                    # is no need to save up for it because it is a strict deadline
                 else:
                     raise ValueError(f"Unknown goal type: {goal.type}")
             else:
-                goal_spend = (goal.amount - amount_saved_up_so_far) / months_left_for_goal
+                goal_spend = (
+                    goal.amount - amount_saved_up_so_far
+                ) / months_left_for_goal
             if goal_spend >= allowance:
                 contributions[goal.id_] += allowance
                 allowance = 0
@@ -265,10 +287,10 @@ class GreedyHeuristicStrategy(GreedyAllocationStrategy):
         return contributions
 
     @classmethod
-    def make_big_purchase_cash_withdrawals(cls, goals: Dict[UUID, AllGoalTypes], months: List[int], cash_balance: float) -> Dict[int, float]:
-        cash_withdrawals = {
-            m: 0 for m in months
-        }
+    def make_big_purchase_cash_withdrawals(
+        cls, goals: Dict[UUID, AllGoalTypes], months: List[int], cash_balance: float
+    ) -> Dict[int, float]:
+        cash_withdrawals = {m: 0 for m in months}
         for goal in goals.values():
             if isinstance(goal, BigPurchase) and goal.due_month in months:
                 if goal.amount >= cash_balance:
@@ -291,7 +313,11 @@ class GreedyHeuristicStrategy(GreedyAllocationStrategy):
             )
             - cur_payment
         )
-        return min(loan_ending_payment, allowance, cls.get_max_payment(loan, months) or allowance)
+        return min(
+            loan_ending_payment,
+            allowance,
+            cls.get_max_payment(loan, months) or allowance,
+        )
 
     @classmethod
     def get_max_payment(cls, instrument: Instrument, months: List[int]):
@@ -301,7 +327,7 @@ class GreedyHeuristicStrategy(GreedyAllocationStrategy):
                 for month in months
                 if instrument.get_maximum_monthly_payment(month) is not None
             ),
-            default=None
+            default=None,
         )
 
     @classmethod

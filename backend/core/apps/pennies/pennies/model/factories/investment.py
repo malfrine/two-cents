@@ -13,7 +13,8 @@ from pennies.model.investment import (
     Stock,
     Cash,
     GIC,
-    TermDeposit, )
+    TermDeposit,
+)
 from pennies.model.request import RequestInvestment, RequestInvestmentType, InterestType
 
 
@@ -26,7 +27,7 @@ class InvestmentFactory:
         RequestInvestmentType.CASH: Cash,
         RequestInvestmentType.GIC: GIC,
         RequestInvestmentType.TERM_DEPOSIT: TermDeposit,
-        RequestInvestmentType.PORTFOLIO: Portfolio
+        RequestInvestmentType.PORTFOLIO: Portfolio,
     }
 
     _INTEREST_RATE_MAP = {
@@ -38,7 +39,10 @@ class InvestmentFactory:
     def from_request_investment(
         cls, request_investment: RequestInvestment
     ) -> Investment:
-        if request_investment.investment_type in [RequestInvestmentType.GIC, RequestInvestmentType.TERM_DEPOSIT]:
+        if request_investment.investment_type in [
+            RequestInvestmentType.GIC,
+            RequestInvestmentType.TERM_DEPOSIT,
+        ]:
             internal_interest_rate = cls._INTEREST_RATE_MAP[
                 request_investment.interest_type
             ].parse_obj(request_investment.dict())

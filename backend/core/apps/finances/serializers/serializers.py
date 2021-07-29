@@ -1,10 +1,10 @@
 from rest_framework import serializers
 
+from core.apps.finances.models.financial_profile import FinancialProfile
 from core.apps.finances.models.goals import FinancialGoal
+from core.apps.finances.models.investments import Investment
 from core.apps.finances.serializers.views.loan import LoanSerializer
 from core.apps.users.models import User
-from core.apps.finances.models.financial_profile import FinancialProfile
-from core.apps.finances.models.investments import Investment
 
 
 class InvestmentSerializer(serializers.ModelSerializer):
@@ -25,7 +25,7 @@ class FinancialProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FinancialProfile
-        exclude = ('user',)
+        exclude = ("user",)
 
 
 class UserFinancesSerializer(serializers.ModelSerializer):
@@ -54,5 +54,3 @@ class UserFinancesSerializer(serializers.ModelSerializer):
             "goals",
             "financial_profile",
         )
-
-

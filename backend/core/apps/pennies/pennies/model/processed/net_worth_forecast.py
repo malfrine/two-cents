@@ -64,7 +64,9 @@ class NetWorthForecastFactory:
         return [
             InstrumentForecast(
                 instrument_id=instrument.db_id,
-                instrument_type='loan' if isinstance(instrument, Loan) else 'investment',
+                instrument_type="loan"
+                if isinstance(instrument, Loan)
+                else "investment",
                 label=instrument.name,
                 data=[
                     get_instrument_balance_or_zero(instrument.id_, ms)

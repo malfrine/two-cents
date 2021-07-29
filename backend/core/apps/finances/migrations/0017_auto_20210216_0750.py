@@ -10,10 +10,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name="investment",
-            name="expected_volatility",
-        ),
+        migrations.RemoveField(model_name="investment", name="expected_volatility",),
         migrations.AddField(
             model_name="investment",
             name="prime_modifier",

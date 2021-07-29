@@ -1,21 +1,17 @@
 import logging
 import math
+import sys
 from typing import Tuple, Dict
 
-from pennies.model.decision_periods import DecisionPeriodsManagerFactory
 from pennies.model.factories.financial_plan import FinancialPlanFactory
 from pennies.model.factories.problem_input import ProblemInputFactory
 from pennies.model.instrument import Instrument
-from pennies.model.parameters import Parameters
 from pennies.model.request import PenniesRequest
 from pennies.model.solution import FinancialPlan, MonthlySolution
-from pennies.model.user_personal_finances import UserPersonalFinances
 from pennies.strategies.milp.milp import MILP
 from pennies.strategies.milp.milp_solution import MILPSolution
-from pennies.strategies.milp.strategy import MILPStrategy
 from pennies.utilities.examples import simple_request
-import logging
-import sys
+
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 
@@ -59,7 +55,8 @@ def print_tax_vars(
         bracket_marginal_income = pars.get_bracket_marginal_income(e, b)
         bracket_marginal_tax_rate = pars.get_bracket_marginal_tax_rate(e, b)
         print(
-            f"\t\tMarginal Tax Rate: {bracket_marginal_tax_rate}, Marginal Income: {bracket_marginal_income}, "
+            f"\t\tMarginal Tax Rate: {bracket_marginal_tax_rate}, "
+            f"Marginal Income: {bracket_marginal_income}, "
             f"Cumulative Income: {bracket_cumulative_income}"
         )
 
@@ -69,10 +66,20 @@ def print_tax_vars(
         print(f"\t\tRemaining Marginal Income in Bracket: {rem}")
         print(f"\t\tLB of Taxable Income in Bracket: {taxable_income_in_bracket_lb}")
         print(f"\t\t{overflow} - {rem} = {overflow - rem}")
-        print(f"\t\tmilp taxes accrued in bracket: {milp_solution.get_taxes_accrued_in_bracket(t, e, b)}")
-        prev_cumulative_income = pars.get_bracket_cumulative_income(e, b) if b > 0 else 0
-        actual_taxable_income_in_bracket = max(0, actual_ms.taxable_income - prev_cumulative_income)
-        print(f"\t\tactual taxes accrued in bracket: {actual_taxable_income_in_bracket} * {bracket_marginal_tax_rate} = {actual_taxable_income_in_bracket * bracket_marginal_tax_rate}")
+        print(
+            f"\t\tmilp taxes accrued in bracket: {milp_solution.get_taxes_accrued_in_bracket(t, e, b)}"
+        )
+        prev_cumulative_income = (
+            pars.get_bracket_cumulative_income(e, b) if b > 0 else 0
+        )
+        actual_taxable_income_in_bracket = max(
+            0, actual_ms.taxable_income - prev_cumulative_income
+        )
+        print(
+            "\t\tactual taxes accrued in bracket:"
+            f" {actual_taxable_income_in_bracket} * {bracket_marginal_tax_rate}"
+            f" = {actual_taxable_income_in_bracket * bracket_marginal_tax_rate}"
+        )
 
 
 def print_balance_history_of_instrument(
@@ -92,11 +99,11 @@ def print_balance_history_of_instrument(
     print(f"Instrument Name: {instrument.name}")
     for actual_ms in actual_plan.monthly_solutions:
         print(f"Month: {actual_ms.month}")
-        print(f"Actual:")
+        print("Actual:")
         print_cur_month(actual_ms)
         milp_ms = milp_monthly_solutions.get(actual_ms.month, None)
         if milp_ms is not None:
-            print(f"MILP:")
+            print("MILP:")
             print_cur_month(milp_ms)
 
 
@@ -106,18 +113,18 @@ def test_simple_request():
     milp_monthly_solutions = milp_solution.get_milp_monthly_solutions()
     for month, milp_ms in milp_monthly_solutions.items():
         actual_ms = actual_plan.monthly_solutions[month]
-        decision_period_index = (
-            milp_solution.sets.decision_periods.get_corresponding_period(month).index
-        )
+        decision_period_index = milp_solution.sets.decision_periods.get_corresponding_period(
+            month
+        ).index
         print(f"month: {month}")
-        print(f"milp:")
+        print("milp:")
         print(f"\tmilp taxes paid: {milp_ms.taxes_paid}")
         print(f"\tactual taxes paid: {actual_ms.taxes_paid}")
         if not math.isclose(milp_ms.taxes_paid, actual_ms.taxes_paid, abs_tol=5):
             # get more info
             print_tax_vars(milp_solution, actual_ms, milp_ms, decision_period_index)
             assert False
-        print(f"\tbalances:")
+        print("\tbalances:")
         for id_, instrument in milp_ms.portfolio.instruments.items():
             milp_balance = instrument.current_balance
             actual_instrument = actual_ms.portfolio.instruments.get(id_, None)

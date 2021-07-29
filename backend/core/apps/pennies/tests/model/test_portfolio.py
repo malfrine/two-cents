@@ -1,14 +1,14 @@
-from typing import Tuple, Dict, List
+from typing import Tuple, Dict
 from uuid import UUID
 
 import pytest
-from pydantic import ValidationError
 
 from pennies.model.constants import Province
 from pennies.model.financial_profile import FinancialProfile
 from pennies.model.interest_rate import (
     FixedLoanInterestRate,
-    GuaranteedInvestmentReturnRate, FixedInvestmentInterestRate,
+    GuaranteedInvestmentReturnRate,
+    FixedInvestmentInterestRate,
 )
 from pennies.model.investment import GuaranteedInvestment
 from pennies.model.loan import PersonalLoan, LineOfCredit, StudentLineOfCredit
@@ -22,13 +22,13 @@ TEST_MONTH = 0
 
 def final_payment_example() -> Tuple[Portfolio, MonthlyAllocation]:
     loans = [
-            PersonalLoan(
-                name="loan",
-                interest_rate=FixedLoanInterestRate(apr=5),
-                current_balance=-200,
-                minimum_monthly_payment=100,
-                final_month=10,
-            )
+        PersonalLoan(
+            name="loan",
+            interest_rate=FixedLoanInterestRate(apr=5),
+            current_balance=-200,
+            minimum_monthly_payment=100,
+            final_month=10,
+        )
     ]
     portfolio = Portfolio(instruments={loan.id_: loan for loan in loans})
     name_to_id = {loan.name: loan.id_ for loan in loans}
@@ -52,7 +52,7 @@ def make_user_finances() -> UserPersonalFinances:
             interest_rate=FixedLoanInterestRate(apr=3.5),
             current_balance=-20000,
             final_month=12 * 10,
-            minimum_monthly_payment=50
+            minimum_monthly_payment=50,
         ),
         LineOfCredit(
             name="loan2",
@@ -63,7 +63,7 @@ def make_user_finances() -> UserPersonalFinances:
             name="loan3",
             interest_rate=FixedLoanInterestRate(apr=3.5),
             current_balance=-200000,
-        )
+        ),
     ]
 
     financial_profile = FinancialProfile(
@@ -75,13 +75,13 @@ def make_user_finances() -> UserPersonalFinances:
         current_age=25,
         monthly_salary_before_tax=5000,
         percent_salary_for_spending=50,
-        years_to_death=65
+        years_to_death=65,
     )
 
     return UserPersonalFinances(
         portfolio=Portfolio(instruments={loan.id_: loan for loan in loans}),
         financial_profile=financial_profile,
-        goals=dict()
+        goals=dict(),
     )
 
 
@@ -90,16 +90,14 @@ def simple_monthly_allocation(name_to_id: Dict[str, UUID]) -> MonthlyAllocation:
         payments={
             name_to_id["loan1"]: 500,
             name_to_id["loan2"]: 500,
-            name_to_id["loan3"]: 600
+            name_to_id["loan3"]: 600,
         }
     )
 
 
 def test_forward_on_month():
     user_finances = make_user_finances()
-    name_to_id = {
-        l.name: l.id_ for l in user_finances.portfolio.loans
-    }
+    name_to_id = {l.name: l.id_ for l in user_finances.portfolio.loans}
     ma = simple_monthly_allocation(name_to_id)
     before, after = _forward(user_finances.portfolio, ma)
     for after_loan in after.loans:

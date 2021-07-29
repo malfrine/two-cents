@@ -1,31 +1,36 @@
-from datetime import datetime
 import logging
-from os import stat
-from xml.dom import minicompat
-from django.shortcuts import render
+from datetime import datetime
 
 from dateutil.parser import parse
-
-import firebase_admin.auth as firebase_auth
-from requests import request
 from rest_framework import views, serializers, status
-
 from rest_framework.response import Response
+
 from core.apps.finances.models.constants import InterestTypes
 from core.apps.finances.models.financial_profile import FinancialProfile
 from core.apps.finances.models.goals import FinancialGoal, GoalType
-from core.apps.finances.models.investments import Investment, InvestmentType, RiskChoices, get_risk_level_map
-from core.apps.finances.models.loans import Loan, LoanInterest, LoanType, get_default_apr
+from core.apps.finances.models.investments import (
+    Investment,
+    InvestmentType,
+    RiskChoices,
+    get_risk_level_map,
+)
+from core.apps.finances.models.loans import (
+    Loan,
+    LoanType,
+    get_default_apr,
+)
 from core.apps.finances.serializers.serializers import FinancialProfileSerializer
 from core.apps.finances.serializers.views.loan import LoanSerializer
-from core.apps.finances.utilities import calculate_instalment_loan_min_payment, calculate_revolving_loan_min_payment
-from core.apps.users.models import User, UserManager, WaitlistUser
+from core.apps.finances.utilities import (
+    calculate_instalment_loan_min_payment,
+    calculate_revolving_loan_min_payment,
+)
 from core.apps.users.serializers import UserWriteSerializer
 from core.apps.users.utilities import create_user, delete_user
-from core.apps.users.views import AccountViewSet
 from pennies.model.constants import InvestmentAccountType
 
 NEST_EGG_MONTHS = 6
+
 
 def create_financial_profile(user, data):
     financial_profile = FinancialProfile.objects.get(user=user)
@@ -33,6 +38,7 @@ def create_financial_profile(user, data):
     fp_serializer.is_valid(raise_exception=True)
     financial_profile = fp_serializer.save(user=user)
     return financial_profile
+
 
 def create_goals(user, data):
     big_purchase = data.get("big_purchase")
@@ -42,7 +48,7 @@ def create_goals(user, data):
             name="Big Purchase",
             type=GoalType.BIG_PURCHASE,
             amount=big_purchase.get("amount"),
-            date=big_purchase.get("date")
+            date=big_purchase.get("date"),
         )
         big_purchase_goal.save()
     nest_egg = data.get("current_nest_egg_amount")
@@ -52,7 +58,7 @@ def create_goals(user, data):
             name="Cash Account",
             current_balance=nest_egg,
             investment_type=InvestmentType.CASH,
-            account_type=InvestmentAccountType.NON_REGISTERED.value
+            account_type=InvestmentAccountType.NON_REGISTERED.value,
         )
         cash_account.save()
         financial_profile, _ = FinancialProfile.objects.get_or_create(user=user)
@@ -62,10 +68,9 @@ def create_goals(user, data):
             name="Nest Egg",
             type=GoalType.NEST_EGG,
             amount=nest_egg_target,
-            date=datetime.now().date()
+            date=datetime.now().date(),
         )
         nest_egg_goal.save()
-        
 
 
 def get_default_investment_risk_level(risk_tolerance: float):
@@ -74,8 +79,11 @@ def get_default_investment_risk_level(risk_tolerance: float):
     for (lower_bound, upper_bound), risk_choice in risk_level_map.items():
         if lower_bound <= risk_tolerance <= upper_bound:
             return risk_choice
-    logging.warn(f"Couldn't find default risk choise for risk tolerance: {risk_tolerance}")
+    logging.warn(
+        f"Couldn't find default risk choise for risk tolerance: {risk_tolerance}"
+    )
     return RiskChoices.MEDIUM
+
 
 def create_investments(user, data):
     financial_profile, _ = FinancialProfile.objects.get_or_create(user=user)
@@ -86,7 +94,7 @@ def create_investments(user, data):
         current_balance=data.get("tfsa", 0),
         investment_type=InvestmentType.PORTFOLIO,
         account_type=InvestmentAccountType.TFSA.value,
-        risk_level=risk_level
+        risk_level=risk_level,
     )
     tfsa.save()
     rrsp = Investment(
@@ -95,7 +103,7 @@ def create_investments(user, data):
         current_balance=data.get("rrsp", 0),
         investment_type=InvestmentType.PORTFOLIO,
         account_type=InvestmentAccountType.RRSP.value,
-        risk_level=RiskChoices.LOW
+        risk_level=RiskChoices.LOW,
     )
     rrsp.save()
     non_registered = Investment(
@@ -103,10 +111,11 @@ def create_investments(user, data):
         name="Non Registerd Portfolio",
         current_balance=data.get("non_registered", 0),
         account_type=InvestmentAccountType.NON_REGISTERED.value,
-        risk_level=risk_level
+        risk_level=risk_level,
     )
     non_registered.save()
-    
+
+
 def create_loans(user, data):
     for loan_type, loan_info in data.items():
         loan_type_enum = LoanType(loan_type)
@@ -116,19 +125,18 @@ def create_loans(user, data):
             "name": loan_type,
             "user": user,
             "current_balance": balance,
-            "loan_interest": {
-                "interest_type": InterestTypes.FIXED.value,
-                "apr": apr
-            },
-            "loan_type": loan_type_enum
+            "loan_interest": {"interest_type": InterestTypes.FIXED.value, "apr": apr},
+            "loan_type": loan_type_enum,
         }
-        
+
         if Loan.is_instalment_loan(loan_type=loan_type_enum):
             end_date_str = loan_info.get("date")
             if end_date_str is None:
                 serializers.ValidationError("Instalment loans must have an end date")
             end_date = parse(end_date_str).date()
-            minimum_monthly_payment = calculate_instalment_loan_min_payment(balance, apr, end_date)
+            minimum_monthly_payment = calculate_instalment_loan_min_payment(
+                balance, apr, end_date
+            )
             data["end_date"] = end_date
             data["minimum_monthly_payment"] = minimum_monthly_payment
         elif loan_type_enum == LoanType.MORTGAGE:
@@ -137,12 +145,16 @@ def create_loans(user, data):
                 serializers.ValidationError("Mortgage loans must have an end date")
             end_date = parse(end_date_str).date()
             current_term_end_date = end_date
-            minimum_monthly_payment = calculate_instalment_loan_min_payment(balance, apr, end_date)
+            minimum_monthly_payment = calculate_instalment_loan_min_payment(
+                balance, apr, end_date
+            )
             data["end_date"] = end_date
             data["minimum_monthly_payment"] = minimum_monthly_payment
             data["current_term_end_date"] = current_term_end_date
         else:
-            data["minimum_monthly_payment"] = calculate_revolving_loan_min_payment(balance, apr)
+            data["minimum_monthly_payment"] = calculate_revolving_loan_min_payment(
+                balance, apr
+            )
 
         serializer = LoanSerializer(data=data)
         serializer.is_valid(raise_exception=True)
@@ -151,12 +163,17 @@ def create_loans(user, data):
 
 class OnboardingAPIView(views.APIView):
 
-    MANDATORY_DATA_FIELDS = set(("account", "financial_profile", "goals", "investments", "loans"))
+    MANDATORY_DATA_FIELDS = set(
+        ("account", "financial_profile", "goals", "investments", "loans")
+    )
 
     def post(self, request, format=None):
         data_keys = set(request.data.keys())
         if not self.MANDATORY_DATA_FIELDS.issubset(data_keys):
-            return Response(status=status.HTTP_400_BAD_REQUEST, data=f"Missing one of the following mandatory fields: {self.MANDATORY_DATA_FIELDS}")
+            return Response(
+                status=status.HTTP_400_BAD_REQUEST,
+                data=f"Missing one of the following mandatory fields: {self.MANDATORY_DATA_FIELDS}",
+            )
         user = None
         try:
             user = create_user(UserWriteSerializer(data=request.data.get("account")))
@@ -172,7 +189,3 @@ class OnboardingAPIView(views.APIView):
                 data = e.detail
             return Response(status=e.status_code, data=data)
         return Response(status=status.HTTP_200_OK)
-
-    
-
-

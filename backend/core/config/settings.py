@@ -8,7 +8,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/dev/ref/settings/
 """
 import environ
-from datetime import timedelta
 
 ROOT_DIR = environ.Path(__file__) - 3
 
@@ -26,7 +25,12 @@ DJANGO_APPS = [
     "django.contrib.admin",
 ]
 
-THIRD_PARTY_APPS = ["rest_framework", "django_extensions", "whitenoise", "anymail",]
+THIRD_PARTY_APPS = [
+    "rest_framework",
+    "django_extensions",
+    "whitenoise",
+    "anymail",
+]
 
 LOCAL_APPS = [
     "core.apps.users",
@@ -252,10 +256,7 @@ SENTRY_CLIENT = "raven.contrib.django.raven_compat.DjangoClient"
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": True,
-    "root": {
-        "level": "WARN",
-        "handlers": ["sentry"],
-    },
+    "root": {"level": "WARN", "handlers": ["sentry"]},
     "formatters": {
         "verbose": {
             "format": "%(levelname)s %(asctime)s %(module)s "
@@ -279,11 +280,7 @@ LOGGING = {
             "handlers": ["console"],
             "propagate": False,
         },
-        "raven": {
-            "level": "DEBUG",
-            "handlers": ["console"],
-            "propagate": False,
-        },
+        "raven": {"level": "DEBUG", "handlers": ["console"], "propagate": False},
         "sentry.errors": {
             "level": "DEBUG",
             "handlers": ["console"],

@@ -1,6 +1,6 @@
 import logging
 import math
-from typing import Dict, Optional
+from typing import Dict
 
 from pennies.model.instrument import Instrument
 from pennies.model.investment import GuaranteedInvestment, Investment

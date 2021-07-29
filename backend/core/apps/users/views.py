@@ -1,30 +1,12 @@
 import logging
-import re
-
-import firebase_admin.auth
-from django.contrib.auth.base_user import BaseUserManager
-from django.db.models.query import QuerySet
-import requests
-from uuid import uuid4
 
 from django.contrib.auth import authenticate, get_user, login, logout
-from django.contrib.sessions.models import Session
-from django.conf import settings
-from django.core.mail import send_mail
-from django.core.mail import EmailMultiAlternatives
-from django.template.loader import render_to_string
-
-from rest_framework import mixins, views, viewsets, status, generics
-from rest_framework.decorators import action
+from rest_framework import mixins, views, viewsets, status
 from rest_framework.response import Response
-from rest_framework import serializers
 
-from core.apps.finances.models.financial_profile import FinancialProfile
-from core.apps.finances.models.loans import Loan
 from core.apps.users.models import User, WaitlistUser, create_waitlist_user
-from core.apps.users.serializers import UserWriteSerializer, WaitlistUserSerializer
+from core.apps.users.serializers import UserWriteSerializer
 from core.apps.users.utilities import create_user, send_welcome_email
-from core.config.settings import DEBUG
 
 
 class SessionAPIView(views.APIView):
@@ -53,7 +35,7 @@ class SessionAPIView(views.APIView):
         try:
             logout(request)
             return Response(status=status.HTTP_200_OK)
-        except:
+        except:  # noqa
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -66,11 +48,13 @@ class AccountViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
 
 
 class WaitlistUserAPIView(views.APIView):
-
     def post(self, request, format=None):
         email = request.data.get("email")
         if email is None:
-            return Response(data={"message": "Email and first name required"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                data={"message": "Email and first name required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         referree_id = request.data.get("referree_id")
         try:
             waitlist_user = WaitlistUser.objects.get(email__iexact=email)
@@ -81,6 +65,6 @@ class WaitlistUserAPIView(views.APIView):
         return Response(
             data={
                 "email": waitlist_user.email,
-                "referral_id": str(waitlist_user.referral_id)
+                "referral_id": str(waitlist_user.referral_id),
             }
         )

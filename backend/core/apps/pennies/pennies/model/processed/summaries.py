@@ -1,6 +1,6 @@
 from collections import defaultdict
 from datetime import date, datetime
-from typing import NewType, Dict, List, Optional
+from typing import List, Optional
 
 from pydantic import BaseModel
 
@@ -25,8 +25,12 @@ class PlanSummaries(BaseModel):
 
 class PlanSummariesFactory:
     @classmethod
-    def from_plan(cls, plan: FinancialPlan, problem_input: ProblemInput) -> PlanSummaries:
-        retirement_month = problem_input.user_finances.financial_profile.retirement_month
+    def from_plan(
+        cls, plan: FinancialPlan, problem_input: ProblemInput
+    ) -> PlanSummaries:
+        retirement_month = (
+            problem_input.user_finances.financial_profile.retirement_month
+        )
         return PlanSummaries(
             net_worth=round(plan.get_net_worth_at(retirement_month)),
             priorities=cls.get_instrument_priorities(plan),

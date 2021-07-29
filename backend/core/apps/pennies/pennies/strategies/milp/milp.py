@@ -1,5 +1,5 @@
-from dataclasses import dataclass
 import logging
+from dataclasses import dataclass
 from typing import List, Dict, Optional
 
 from pyomo import environ as pe
@@ -96,7 +96,9 @@ class MILP:
         m.c24 = constraints.penalize_purchase_goal_violations
         m.c25 = constraints.penalize_savings_goal_violations
 
-        objective = MILPObjective.create(sets, milp_parameters, variables, discount_factor=parameters.discount_factor)
+        objective = MILPObjective.create(
+            sets, milp_parameters, variables, discount_factor=parameters.discount_factor
+        )
         m.obj = objective.obj
 
         return MILP(
@@ -155,6 +157,9 @@ class MILP:
         # solver.options["maxNodes"] = 200000
         results = solver.solve(self.pyomodel)
         if not self._is_valid_solution(results):
-            logging.error(f"Did not get a valid solution; status: {results.solver.status}; termination condition: {results.solver.termination_condition}")
+            logging.error(
+                f"Did not get a valid solution; status: {results.solver.status};"
+                f" termination condition: {results.solver.termination_condition}"
+            )
             return None
         return self

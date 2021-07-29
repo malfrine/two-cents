@@ -18,13 +18,20 @@ class InvestmentType(models.TextChoices):
     CASH = "Cash", "Cash"
     PORTFOLIO = "Portfolio", "Portfolio"
 
+
 class InvestmentAccountType(models.TextChoices):
     NON_REGISTERED = "Non-Registered", "Non-Registered"
     RRSP = "RRSP", "Registered Retirement Savings Plan"
     TFSA = "TFSA", "Tax-Free Savings Account"
 
+
 def get_required_fields_map():
-    all_non_guaranteed_inv_fields = ["name", "current_balance", "investment_type", "account_type"]
+    all_non_guaranteed_inv_fields = [
+        "name",
+        "current_balance",
+        "investment_type",
+        "account_type",
+    ]
     all_guaranteed_inv_fields = [
         "name",
         "investment_type",
@@ -34,7 +41,7 @@ def get_required_fields_map():
         "interest_type",
         "expected_roi",
         "prime_modifier",
-        "account_type"
+        "account_type",
     ]
     return {
         InvestmentType.MUTUAL_FUND: all_non_guaranteed_inv_fields
@@ -52,7 +59,8 @@ def get_required_fields_map():
         ],
         InvestmentType.CASH: all_non_guaranteed_inv_fields
         + ["pre_authorized_monthly_contribution"],
-        InvestmentType.PORTFOLIO: all_non_guaranteed_inv_fields + ["pre_authorized_monthly_contribution", "risk_level"]
+        InvestmentType.PORTFOLIO: all_non_guaranteed_inv_fields
+        + ["pre_authorized_monthly_contribution", "risk_level"],
     }
 
 
@@ -64,11 +72,12 @@ class RiskChoices(models.TextChoices):
     MEDIUM = "Medium", "Medium Risk"
     HIGH = "High", "High Risk"
 
-def get_risk_level_map() -> Dict[Tuple[int, int], RiskChoices]: 
+
+def get_risk_level_map() -> Dict[Tuple[int, int], RiskChoices]:
     return {
         (0, 33): RiskChoices.LOW,
         (34, 67): RiskChoices.MEDIUM,
-        (68, 100): RiskChoices.HIGH
+        (68, 100): RiskChoices.HIGH,
     }
 
 
@@ -105,7 +114,11 @@ class Investment(models.Model):
     # attributes for all investments
     @property
     def roi(self) -> float:
-        if self.investment_type in [InvestmentType.MUTUAL_FUND, InvestmentType.ETF, InvestmentType.PORTFOLIO]:
+        if self.investment_type in [
+            InvestmentType.MUTUAL_FUND,
+            InvestmentType.ETF,
+            InvestmentType.PORTFOLIO,
+        ]:
             return self._RISK_TO_ROI[self.risk_level]
         elif self.investment_type in [
             InvestmentType.TERM_DEPOSIT,
@@ -120,7 +133,11 @@ class Investment(models.Model):
 
     @property
     def volatility(self) -> float:
-        if self.investment_type in [InvestmentType.MUTUAL_FUND, InvestmentType.ETF, InvestmentType.PORTFOLIO]:
+        if self.investment_type in [
+            InvestmentType.MUTUAL_FUND,
+            InvestmentType.ETF,
+            InvestmentType.PORTFOLIO,
+        ]:
             return self._VOLATILITY_AS_FLOAT[self._RISK_TO_VOLATILITY[self.risk_level]]
         elif self.investment_type in [
             InvestmentType.TERM_DEPOSIT,
@@ -150,7 +167,7 @@ class Investment(models.Model):
         max_length=50,
         default=InvestmentAccountType.NON_REGISTERED,
         choices=InvestmentAccountType.choices,
-        verbose_name="Investment Account Type"
+        verbose_name="Investment Account Type",
     )
     pre_authorized_monthly_contribution = models.FloatField(
         default=0,
@@ -175,16 +192,10 @@ class Investment(models.Model):
         default=None, blank=True, null=True, verbose_name="Amount Invested"
     )
     investment_date = models.DateField(
-        default=None,
-        blank=True,
-        null=True,
-        verbose_name="Investment Date",
+        default=None, blank=True, null=True, verbose_name="Investment Date",
     )
     maturity_date = models.DateField(
-        default=None,
-        blank=True,
-        null=True,
-        verbose_name="Maturity Date",
+        default=None, blank=True, null=True, verbose_name="Maturity Date",
     )
 
     @property

@@ -1,12 +1,10 @@
 import logging
+
 from pennies.model.factories.investment import InvestmentFactory
-from pennies.model.financial_profile import FinancialProfile
-from pennies.model.parameters import Parameters
 from pennies.model.portfolio import Portfolio
 from pennies.model.problem_input import ProblemInput
 from pennies.model.request import PenniesRequest
 from pennies.model.user_personal_finances import UserPersonalFinances
-from pennies.utilities.finance import DiscountFactorCalculator
 
 
 class ProblemInputFactory:
@@ -24,7 +22,7 @@ class ProblemInputFactory:
             user_finances=UserPersonalFinances(
                 financial_profile=request.financial_profile,
                 portfolio=portfolio,
-                goals={g.id_: g for g in request.goals}
+                goals={g.id_: g for g in request.goals},
             ),
             strategies=request.strategies,
         )

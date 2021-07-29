@@ -13,7 +13,7 @@ class TFSALimitGetter:
         2017: 5500,
         2018: 5500,
         2019: 6000,
-        2020: 6000
+        2020: 6000,
     }
 
     @classmethod

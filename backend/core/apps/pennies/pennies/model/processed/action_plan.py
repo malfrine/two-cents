@@ -1,10 +1,9 @@
-from typing import Dict, List, Optional
-from uuid import UUID
+from typing import List
 
 from pydantic import BaseModel
 
 from pennies.model.loan import Loan
-from pennies.model.solution import FinancialPlan, MonthlyAllocation, MonthlySolution
+from pennies.model.solution import FinancialPlan, MonthlySolution
 
 
 class Payment(BaseModel):
@@ -38,16 +37,15 @@ class ActionPlanFactory:
 
     @classmethod
     def get_payments(cls, monthly_solution: MonthlySolution) -> List[Payment]:
-
         def make_payment(instrument_id, payment_amount):
-            instrument = monthly_solution.portfolio.get_instrument(
-                    instrument_id
-            )
+            instrument = monthly_solution.portfolio.get_instrument(instrument_id)
             return Payment(
                 id=instrument.db_id,
                 instrument=instrument.name,
                 payment=payment_amount,
-                instrument_type='loan' if isinstance(instrument, Loan) else 'investment',
+                instrument_type="loan"
+                if isinstance(instrument, Loan)
+                else "investment",
             )
 
         return [

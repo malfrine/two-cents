@@ -1,6 +1,6 @@
-from typing import List, Union, Any, Literal
+from typing import Union, Any, Literal
 
-from pydantic import BaseModel, root_validator, validator
+from pydantic import BaseModel
 
 from pennies.model.prime import PrimeInterestRateForecast
 from pennies.utilities.datetime import MONTHS_IN_YEAR
@@ -19,6 +19,7 @@ class CompoundingRate(BaseModel):
 
 class InterestRate(CompoundingRate):
     """for loans"""
+
     interest_type: Any
 
 
@@ -35,7 +36,7 @@ class ZeroGrowthRate(ReturnRate):
 
 
 class FixedLoanInterestRate(InterestRate):
-    interest_type: Literal['Fixed'] = 'Fixed'
+    interest_type: Literal["Fixed"] = "Fixed"
     apr: float
     volatility: float = 0
 
@@ -47,7 +48,7 @@ class FixedLoanInterestRate(InterestRate):
 
 
 class VariableLoanInterestRate(InterestRate):
-    interest_type: Literal['Variable'] = 'Variable'
+    interest_type: Literal["Variable"] = "Variable"
     prime_modifier: float
     volatility: float = 0
     _prime_forecast: PrimeInterestRateForecast = PrimeInterestRateForecast()
@@ -116,14 +117,15 @@ class GuaranteedInvestmentReturnRate(ReturnRate):
 
 
 class MortgageInterestRate(InterestRate):
-
     def get_volatility(self):
         return 0
 
-    interest_type: Literal['Mortgage Interest Rate'] = 'Mortgage Interest Rate'
+    interest_type: Literal["Mortgage Interest Rate"] = "Mortgage Interest Rate"
     interest_rate: Union[FixedLoanInterestRate, VariableLoanInterestRate]
     current_term_end_month: int
-    default_interest_rate: Union[FixedLoanInterestRate, VariableLoanInterestRate] = FixedLoanInterestRate(apr=2.5)
+    default_interest_rate: Union[
+        FixedLoanInterestRate, VariableLoanInterestRate
+    ] = FixedLoanInterestRate(apr=2.5)
 
     def get_monthly_interest_rate(self, month: int) -> float:
         if month <= self.current_term_end_month:
@@ -132,4 +134,6 @@ class MortgageInterestRate(InterestRate):
             return self.default_interest_rate.get_monthly_interest_rate(month)
 
 
-AllLoanInterestTypes = Union[FixedLoanInterestRate, VariableLoanInterestRate, MortgageInterestRate]
+AllLoanInterestTypes = Union[
+    FixedLoanInterestRate, VariableLoanInterestRate, MortgageInterestRate
+]

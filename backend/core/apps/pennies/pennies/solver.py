@@ -23,7 +23,7 @@ def solve_request(request: Dict) -> Dict:
             result=processed_solution, status=PenniesStatus.SUCCESS
         ).dict()
 
-    except Exception as e:
+    except Exception:
         logging.error(traceback.format_exc())
         return PenniesResponse(
             result=traceback.format_exc(), status=PenniesStatus.FAILURE
@@ -43,7 +43,9 @@ def solve(problem_input: ProblemInput) -> Solution:
     for strategy_name, plan in plans.items():
         logging.debug(f"solution strategy: {strategy_name}")
         logging.debug(f"\t net worth: {plan.get_net_worth()}")
-        logging.debug(f"\t interest paid on loans: {plan.get_total_interest_paid_on_loans()}")
+        logging.debug(
+            f"\t interest paid on loans: {plan.get_total_interest_paid_on_loans()}"
+        )
         logging.debug(
             f"\t interest earned on investments: {plan.get_total_interest_earned_on_investments()}"
         )

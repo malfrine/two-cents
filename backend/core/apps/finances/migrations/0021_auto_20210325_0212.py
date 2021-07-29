@@ -6,13 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('finances', '0020_auto_20210325_0049'),
+        ("finances", "0020_auto_20210325_0049"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='financialprofile',
-            name='monthly_salary_before_tax',
-            field=models.FloatField(default=8000, verbose_name='Monthly Salary Before Tax'),
+            model_name="financialprofile",
+            name="monthly_salary_before_tax",
+            field=models.FloatField(
+                default=8000, verbose_name="Monthly Salary Before Tax"
+            ),
         ),
     ]

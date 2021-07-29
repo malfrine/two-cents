@@ -5,7 +5,6 @@ from typing import Union, Dict, List
 
 from dateutil.relativedelta import relativedelta
 
-
 MONTHS_IN_YEAR = 12
 
 

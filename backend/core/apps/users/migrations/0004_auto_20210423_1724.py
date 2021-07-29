@@ -6,17 +6,16 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0003_auto_20210324_2149'),
+        ("users", "0003_auto_20210324_2149"),
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='user',
-            name='token',
-        ),
+        migrations.RemoveField(model_name="user", name="token",),
         migrations.AddField(
-            model_name='waitlistuser',
-            name='current_position',
-            field=models.IntegerField(default=-1, verbose_name='Current Position on Waitlist'),
+            model_name="waitlistuser",
+            name="current_position",
+            field=models.IntegerField(
+                default=-1, verbose_name="Current Position on Waitlist"
+            ),
         ),
     ]

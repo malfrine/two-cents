@@ -9,7 +9,9 @@ class LoanInterestSerializer(serializers.ModelSerializer):
         if data["interest_type"] == InterestTypes.FIXED:
             data.pop("prime_modifier", None)
             if data.get("apr") is None:
-                raise serializers.ValidationError("Fixed interest loans must have an APR")
+                raise serializers.ValidationError(
+                    "Fixed interest loans must have an APR"
+                )
         elif data["interest_type"] == InterestTypes.VARIABLE:
             data.pop("apr", None)
             if data.get("prime_modifier") is None:
@@ -66,9 +68,17 @@ class LoanSerializer(serializers.ModelSerializer):
 
         # define fields to pop and validate
         if loan_type == LoanType.MORTGAGE:
-            mandatory_fields = ("minimum_monthly_payment", "end_date", "current_balance")
+            mandatory_fields = (
+                "minimum_monthly_payment",
+                "end_date",
+                "current_balance",
+            )
         elif Loan.is_instalment_loan(loan_type):
-            mandatory_fields = ("minimum_monthly_payment", "end_date", "current_balance")
+            mandatory_fields = (
+                "minimum_monthly_payment",
+                "end_date",
+                "current_balance",
+            )
             pop_fields = ("mortgage_details",)
         else:
             mandatory_fields = ("current_balance",)
@@ -79,7 +89,9 @@ class LoanSerializer(serializers.ModelSerializer):
                 attrs.pop(field)
         for field in mandatory_fields:
             if not attrs[field]:
-                raise serializers.ValidationError(f"Mortgage loans must have '{field}' in input")
+                raise serializers.ValidationError(
+                    f"Mortgage loans must have '{field}' in input"
+                )
         return attrs
 
     def get_loan_interest_serializer(self) -> LoanInterestSerializer:

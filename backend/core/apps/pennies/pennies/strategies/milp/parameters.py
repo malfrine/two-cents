@@ -2,14 +2,11 @@ from dataclasses import dataclass
 from typing import Dict, Optional
 from uuid import UUID
 
-import pyomo.environ as pe
-
-from pennies.model.instrument import Instrument
-from pennies.model.investment import Investment, GuaranteedInvestment, Cash
 from pennies.model.constants import InvestmentAccountType
+from pennies.model.instrument import Instrument
+from pennies.model.investment import Investment, GuaranteedInvestment
 from pennies.model.loan import Loan, RevolvingLoan
 from pennies.model.rrsp import RRSPAnnualLimitGetter
-from pennies.model.taxes import IncomeTaxBrackets
 from pennies.model.tfsa import TFSALimitGetter
 from pennies.model.user_personal_finances import UserPersonalFinances
 from pennies.strategies.milp.sets import MILPSets
@@ -45,17 +42,13 @@ class MILPParameters:
 
     def get_max_investment_volatility(self):
         return max(
-            list(
-                self.get_volatility(i) for i in self.sets.non_cash_investments
-            ),
+            list(self.get_volatility(i) for i in self.sets.non_cash_investments),
             default=0,
         )
 
     def get_min_investment_volatility(self):
         return min(
-            list(
-                self.get_volatility(i) for i in self.sets.non_cash_investments
-            ),
+            list(self.get_volatility(i) for i in self.sets.non_cash_investments),
             default=0,
         )
 
@@ -177,29 +170,45 @@ class MILPParameters:
     def get_starting_tfsa_contribution_limit(self):
         return self.user_finances.financial_profile.starting_tfsa_contribution_limit
 
-    def get_has_guaranteed_investment_matured(self, instrument_id: UUID, decision_period_index: int):
+    def get_has_guaranteed_investment_matured(
+        self, instrument_id: UUID, decision_period_index: int
+    ):
         instrument = self._get_instrument(instrument_id)
         if isinstance(instrument, GuaranteedInvestment):
-            return self.get_decision_period_index_of_maturation(instrument_id) < decision_period_index
+            return (
+                self.get_decision_period_index_of_maturation(instrument_id)
+                < decision_period_index
+            )
         else:
-            raise ValueError(f"Investment {instrument_id} is not a Guaranteed Investment")
+            raise ValueError(
+                f"Investment {instrument_id} is not a Guaranteed Investment"
+            )
 
     def get_decision_period_index_of_maturation(self, instrument_id):
         instrument = self._get_instrument(instrument_id)
         if isinstance(instrument, GuaranteedInvestment):
             maturation_month = instrument.final_month
-            min_planing_horizon_month = min(self.sets.decision_periods.month_to_period_dict.keys())
+            min_planing_horizon_month = min(
+                self.sets.decision_periods.month_to_period_dict.keys()
+            )
             if maturation_month <= min_planing_horizon_month:
                 # already matured before planning started
                 return min(self.sets.all_decision_periods_as_set)
             else:
-                return self.sets.decision_periods.month_to_period_dict[maturation_month].index
+                return self.sets.decision_periods.month_to_period_dict[
+                    maturation_month
+                ].index
         else:
-            raise ValueError(f"Investment {instrument_id} is not a Guaranteed Investment")
+            raise ValueError(
+                f"Investment {instrument_id} is not a Guaranteed Investment"
+            )
 
     def get_is_rrsp_investment(self, instrument_id):
         instrument = self._get_instrument(instrument_id)
-        return isinstance(instrument, Investment) and instrument.account_type == InvestmentAccountType.RRSP
+        return (
+            isinstance(instrument, Investment)
+            and instrument.account_type == InvestmentAccountType.RRSP
+        )
 
     def get_is_retired(self, decision_period_index: int):
         return decision_period_index >= self.get_retirement_decision_period_index()
@@ -207,7 +216,9 @@ class MILPParameters:
     def get_retirement_decision_period_index(self):
         return min(self.sets.retirement_periods_as_set)
 
-    def get_num_months_between_decision_periods(self, start_dp_index: int, end_dp_index: int):
+    def get_num_months_between_decision_periods(
+        self, start_dp_index: int, end_dp_index: int
+    ):
         return sum(
             self.sets.get_num_months_in_decision_period(dp_index)
             for dp_index in range(start_dp_index, end_dp_index)
@@ -221,8 +232,8 @@ class MILPParameters:
                 instrument.get_maximum_monthly_payment(month)
                 for month in months
                 if instrument.get_maximum_monthly_payment(month) is not None
-             ),
-            default=None
+            ),
+            default=None,
         )
 
     def get_goal_amount(self, g, t):
