@@ -150,7 +150,10 @@ class MILP:
         ]
 
     def solve(self) -> Optional["MILP"]:
-        results = pe.SolverFactory("cbc").solve(self.pyomodel)
+        solver = pe.SolverFactory("cbc")
+        # solver.options["ratio"] = 0.01
+        # solver.options["maxNodes"] = 200000
+        results = solver.solve(self.pyomodel)
         if not self._is_valid_solution(results):
             logging.error(f"Did not get a valid solution; status: {results.solver.status}; termination condition: {results.solver.termination_condition}")
             return None

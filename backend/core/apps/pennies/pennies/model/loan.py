@@ -30,7 +30,6 @@ class Loan(Instrument):
 
 class RevolvingLoan(Loan):
 
-
     def get_minimum_monthly_payment(self, month: int):
         min_payment = abs(self.current_balance) * self.monthly_interest_rate(month)
         return min_payment if min_payment > MIN_REVOLVING_LOAN_PAYMENT_THRESHOLD else 0
@@ -83,7 +82,6 @@ class Mortgage(Loan):
 
     minimum_monthly_payment: float
 
-
     def get_minimum_monthly_payment(self, month: int):
         return self.minimum_monthly_payment
 
@@ -91,5 +89,12 @@ class Mortgage(Loan):
         return self.current_balance
 
 
-
-AllLoanTypes = Union[CarLoan, StudentLoan, StudentLineOfCredit, LineOfCredit, CreditCard, PersonalLoan, Mortgage]
+AllLoanTypes = Union[
+    CarLoan,
+    StudentLoan,
+    StudentLineOfCredit,
+    LineOfCredit,
+    CreditCard,
+    PersonalLoan,
+    Mortgage
+]

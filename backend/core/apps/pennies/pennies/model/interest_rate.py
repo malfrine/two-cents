@@ -114,17 +114,22 @@ class GuaranteedInvestmentReturnRate(ReturnRate):
     def get_volatility(self):
         return self.interest_rate.get_volatility()
 
+
 class MortgageInterestRate(InterestRate):
+
+    def get_volatility(self):
+        return 0
 
     interest_type: Literal['Mortgage Interest Rate'] = 'Mortgage Interest Rate'
     interest_rate: Union[FixedLoanInterestRate, VariableLoanInterestRate]
     current_term_end_month: int
-    default_interest_rate: InterestRate = FixedLoanInterestRate(apr=2.5)
+    default_interest_rate: Union[FixedLoanInterestRate, VariableLoanInterestRate] = FixedLoanInterestRate(apr=2.5)
 
     def get_monthly_interest_rate(self, month: int) -> float:
         if month <= self.current_term_end_month:
             return self.interest_rate.get_monthly_interest_rate(month)
         else:
             return self.default_interest_rate.get_monthly_interest_rate(month)
+
 
 AllLoanInterestTypes = Union[FixedLoanInterestRate, VariableLoanInterestRate, MortgageInterestRate]

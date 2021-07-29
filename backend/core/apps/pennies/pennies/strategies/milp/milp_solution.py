@@ -96,13 +96,16 @@ class MILPSolution:
     def get_post_tax_monthly_income(self, t):
         pre_tax_income = self.pars.get_before_tax_monthly_income(t)
         tax = sum(
-            pe.value(self.vars.get_taxes_accrued_in_bracket(t, e, b))
+            self.get_taxes_accrued_in_bracket(t, e, b)
             for e, b in self.sets.taxing_entities_and_brackets
         )
         return pre_tax_income - tax
 
     def get_monthly_allowance(self, t):
         return self.pars.get_savings_fraction() * self.get_post_tax_monthly_income(t)
+
+    def get_taxes_accrued_in_bracket(self, t, e, b):
+        return pe.value(self.vars.get_taxes_accrued_in_bracket(t, e, b))
 
     def print_objective_components_breakdown(self):
         c = self.objective.components
@@ -130,6 +133,15 @@ class MILPSolution:
             monthly_allowance = self.get_monthly_allowance(dp.index)
             payments = monthly_payments[dp_month]
             withdrawals = monthly_withdrawals[dp_month]
+            total_withdrawals = sum(w for w in withdrawals.values())
+            tfsa_withdrawals = sum(
+                withdrawals.get(i, 0)
+                for i in self.sets.tfsa_investments_and_guaranteed_investments
+            )
+            rrsp_contributions = sum(
+                payments.get(i, 0)
+                for i in self.sets.rrsp_investments_and_guaranteed_investments
+            )
             portfolio_instruments = dict()
             for i in self.sets.instruments:
                 instrument = self.user_personal_finances.portfolio.get_instrument(
@@ -151,12 +163,16 @@ class MILPSolution:
                 )
                 for e, b in self.sets.taxing_entities_and_brackets
             )
+            gross_income = self.pars.get_before_tax_monthly_income(dp.index) + total_withdrawals
+            taxable_income = gross_income - tfsa_withdrawals - rrsp_contributions
             ms = MonthlySolution(
                 month=dp_month,
                 portfolio=portfolio,
                 allocation=allocation,
                 taxes_paid=taxes_paid,
                 withdrawals=withdrawals,
+                gross_income=gross_income,
+                taxable_income=taxable_income
             )
             monthly_solutions_dict[dp_month] = ms
         return monthly_solutions_dict

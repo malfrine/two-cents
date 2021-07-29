@@ -27,6 +27,8 @@ class MonthlySolution(BaseModel):
     portfolio: Portfolio
     allocation: MonthlyAllocation
     taxes_paid: float
+    gross_income: float
+    taxable_income: float
     withdrawals: MonthlyWithdrawal
 
     def get_loan_payment(self, loan_name: str) -> float:

@@ -26,24 +26,34 @@ class FinancialPlanFactory:
         for index, (mp, withdrawals) in enumerate(
             zip(monthly_payments, monthly_withdrawals)
         ):
+            month = index + parameters.starting_month
+
+            total_withdrawals = sum(
+                withdrawals.get(i.id_, 0)
+                for i in cur_portfolio.investments()
+            )
+            pre_tax_monthly_income = user_personal_finances.financial_profile.get_pre_tax_monthly_income(month)
+            gross_income_in_month = pre_tax_monthly_income + total_withdrawals
+
             non_tfsa_withdrawals = sum(
                 withdrawals.get(i.id_, 0)
                 for i in cur_portfolio.non_tfsa_investments_and_guaranteed_investments
             )
-            month = index + parameters.starting_month
-            income_in_month = (
-                user_personal_finances.financial_profile.get_pre_tax_monthly_income(month)
+            rrsp_contributions = sum(
+                mp.get(i.id_, 0)
+                for i in cur_portfolio.rrsp_investments_and_guaranteed_investments
+            )
+            taxable_income_in_month = (
+                pre_tax_monthly_income
                 + non_tfsa_withdrawals
-                - sum(
-                    mp.get(i.id_, 0)
-                    for i in cur_portfolio.rrsp_investments_and_guaranteed_investments
-                )
+                - rrsp_contributions
             )
             taxes_paid = calculate_monthly_income_tax(
-                income=income_in_month, province=province
+                income=taxable_income_in_month, province=province
             )
+
             savings_fraction = user_personal_finances.financial_profile.percent_salary_for_spending / 100
-            monthly_allowance = (income_in_month - taxes_paid) * savings_fraction
+            monthly_allowance = (gross_income_in_month - taxes_paid) * savings_fraction
             monthly_solutions.append(
                 MonthlySolution(
                     allocation=MonthlyAllocation(
@@ -54,6 +64,8 @@ class FinancialPlanFactory:
                     month=month,
                     taxes_paid=taxes_paid,
                     withdrawals=withdrawals,
+                    gross_income=gross_income_in_month,
+                    taxable_income=taxable_income_in_month
                 )
             )
             cur_portfolio = cur_portfolio.copy(deep=True)

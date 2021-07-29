@@ -69,4 +69,5 @@ def get_request() -> PenniesRequest:
         ],
         investments=list(),
         strategies=[StrategyName.avalanche.value, StrategyName.lp.value],
+        goals=list()
     )
