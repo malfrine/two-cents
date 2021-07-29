@@ -1,7 +1,8 @@
 stages:
   - static analysis
   - test
-  - approve
+  - approve_pr
+  - approve_deployment
   - deploy # just a test
 
 
@@ -30,14 +31,23 @@ pennies_test:
   only:
     - merge_requests
 
-approve:
-  stage: approve
+approve_pr:
+  stage: approve_pr
   script:
     - echo Approved!
   when: manual
   allow_failure: false
   only:
     - merge_requests
+
+approve_deployment:
+  stage: approve_deployment
+  script:
+    - echo Approved!
+  when: manual
+  allow_failure: false
+  only:
+    - master
 
 frontend:
   image: node
