@@ -1,9 +1,7 @@
-from collections import defaultdict
 from dataclasses import dataclass
-from datetime import date, datetime
 from typing import List, Dict
 
-from pennies.utilities.datetime import get_first_date_of_next_month, DateTimeHelper
+from pennies.utilities.datetime import DateTimeHelper
 
 
 @dataclass
@@ -83,17 +81,28 @@ class DecisionPeriodsManager:
     def grouped_by_years(self) -> Dict[int, List[DecisionPeriod]]:
         if not self._grouped_by_years:
             self._grouped_by_years = {
-                year: [self.month_to_period_dict[month] for month in months if month in self.month_to_period_dict]
+                year: [
+                    self.month_to_period_dict[month]
+                    for month in months
+                    if month in self.month_to_period_dict
+                ]
                 for year, months in self.dt_helper.month_ints_by_year.items()
             }
         return self._grouped_by_years
 
     def get_years_in_decision_period(self, dp_index: int) -> List[int]:
-        return list(set(self.dt_helper.get_date_from_month_int(month).year for month in self.data[dp_index].months))
+        return list(
+            set(
+                self.dt_helper.get_date_from_month_int(month).year
+                for month in self.data[dp_index].months
+            )
+        )
 
     def get_decision_periods_after_month(self, due_month) -> List[int]:
         first_period = self.get_corresponding_period_or_closest(due_month)
-        return list(wp.index for wp in self.all_periods if wp.index >= first_period.index)
+        return list(
+            wp.index for wp in self.all_periods if wp.index >= first_period.index
+        )
 
 
 @dataclass

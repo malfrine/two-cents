@@ -6,17 +6,19 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('finances', '0036_auto_20210711_0544'),
+        ("finances", "0036_auto_20210711_0544"),
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='loan',
-            name='current_term_end_date',
-        ),
+        migrations.RemoveField(model_name="loan", name="current_term_end_date",),
         migrations.AddField(
-            model_name='loaninterest',
-            name='current_term_end_date',
-            field=models.DateField(blank=True, default=None, null=True, verbose_name='Current Term End Date'),
+            model_name="loaninterest",
+            name="current_term_end_date",
+            field=models.DateField(
+                blank=True,
+                default=None,
+                null=True,
+                verbose_name="Current Term End Date",
+            ),
         ),
     ]

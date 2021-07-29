@@ -1,12 +1,14 @@
 from datetime import datetime
 
 from django.db import models
+
 from core.apps.users.models import User as AuthUser
 from core.utilities import get_current_age
-from core.apps.finances.models.loans import Loan
+from core.apps.finances.models.loans import Loan  # noqa
 
 DEFAULT_BIRTH_DATE = datetime(year=1985, month=1, day=1).date()
 DEFAULT_TAX_RATE = 0.3
+
 
 class Province(models.TextChoices):
     AB = "AB", "Alberta"
@@ -21,13 +23,12 @@ class Province(models.TextChoices):
     SK = "SK", "Saskatchewan"
     YK = "YK", "Yukon"
 
-class FinancialProfileManager(models.Manager):
 
+class FinancialProfileManager(models.Manager):
     def create_default(self, user: AuthUser):
         profile = self.model(user=user)
         profile.save()
         return profile
-
 
 
 class FinancialProfile(models.Model):
@@ -37,14 +38,20 @@ class FinancialProfile(models.Model):
     birth_date = models.DateField(default=DEFAULT_BIRTH_DATE, verbose_name="Birth Date")
     retirement_age = models.IntegerField(default=65, verbose_name="Retirement Age")
     risk_tolerance = models.FloatField(default=50.0, verbose_name="Risk Tolerance")
-    monthly_salary_before_tax = models.FloatField(default=8000, verbose_name="Monthly Salary Before Tax")
-    percent_salary_for_spending = models.FloatField(default=25.0, verbose_name="Percent of Salary Allocated for Finances")
-    starting_rrsp_contribution_limit = models.FloatField(default=0, verbose_name="Remaining RRSP Contribution Limit")
-    starting_tfsa_contribution_limit = models.FloatField(default=0, verbose_name="Remaining TFSA Contribution Limit")
+    monthly_salary_before_tax = models.FloatField(
+        default=8000, verbose_name="Monthly Salary Before Tax"
+    )
+    percent_salary_for_spending = models.FloatField(
+        default=25.0, verbose_name="Percent of Salary Allocated for Finances"
+    )
+    starting_rrsp_contribution_limit = models.FloatField(
+        default=0, verbose_name="Remaining RRSP Contribution Limit"
+    )
+    starting_tfsa_contribution_limit = models.FloatField(
+        default=0, verbose_name="Remaining TFSA Contribution Limit"
+    )
     province_of_residence = models.CharField(
-        max_length=50,
-        choices=Province.choices,
-        default=Province.AB,
+        max_length=50, choices=Province.choices, default=Province.AB,
     )
     death_age = models.IntegerField(default=90, verbose_name="Death Age")
 
@@ -63,10 +70,14 @@ class FinancialProfile(models.Model):
     @property
     def months_to_retirement(self):
         return self.years_to_retirement * 12
-    
+
     @property
     def monthly_expenses_estimate(self):
-        return self.monthly_salary_before_tax * (1 - DEFAULT_TAX_RATE) * (1 - self.percent_salary_for_spending / 100)
+        return (
+            self.monthly_salary_before_tax
+            * (1 - DEFAULT_TAX_RATE)
+            * (1 - self.percent_salary_for_spending / 100)
+        )
 
     def __str__(self):
         return "Profile" + " - " + str(self.user.pk)

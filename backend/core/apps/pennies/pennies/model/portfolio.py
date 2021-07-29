@@ -3,6 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, validator, ValidationError
 
+from pennies.model.constants import InvestmentAccountType
 from pennies.model.instrument import Instrument
 from pennies.model.interest_rate import ZeroGrowthRate
 from pennies.model.investment import (
@@ -11,11 +12,8 @@ from pennies.model.investment import (
     GuaranteedInvestment,
     BaseInvestment,
 )
-from pennies.model.constants import InvestmentAccountType
 from pennies.model.loan import Loan, Mortgage
-from pennies.utilities.dict import (
-    get_value_from_dict,
-)
+from pennies.utilities.dict import get_value_from_dict
 
 
 class Portfolio(BaseModel):
@@ -33,7 +31,10 @@ class Portfolio(BaseModel):
     @validator("instruments")
     def add_cash_account_if_needed(cls, v):
         for id_, instrument in v.items():
-            if isinstance(instrument, Cash) and instrument.account_type == InvestmentAccountType.NON_REGISTERED:
+            if (
+                isinstance(instrument, Cash)
+                and instrument.account_type == InvestmentAccountType.NON_REGISTERED
+            ):
                 return v
         cash = Cash(
             db_id=-1,
@@ -41,7 +42,7 @@ class Portfolio(BaseModel):
             interest_rate=ZeroGrowthRate(),
             current_balance=0,
             account_type=InvestmentAccountType.NON_REGISTERED,
-            pre_authorized_monthly_contribution=0
+            pre_authorized_monthly_contribution=0,
         )
         v[cash.id_] = cash
         return v
@@ -125,4 +126,4 @@ class Portfolio(BaseModel):
         for investment in self.investments():
             if isinstance(investment, Cash):
                 return investment
-        raise ValueError(f"No cash investment exists")
+        raise ValueError("No cash investment exists")

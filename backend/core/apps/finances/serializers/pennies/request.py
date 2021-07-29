@@ -1,12 +1,11 @@
-from collections import defaultdict
-
 from rest_framework import serializers
 
 from core.apps.finances.models.financial_profile import FinancialProfile
 from core.apps.finances.models.goals import FinancialGoal
 from core.apps.finances.models.investments import Investment
-from core.apps.finances.models.loans import LoanType
-from core.apps.finances.serializers.pennies.loan import LoanSerializer as PenniesLoanSerializer
+from core.apps.finances.serializers.pennies.loan import (
+    LoanSerializer as PenniesLoanSerializer,
+)
 from core.apps.users.models import User
 from core.config import base
 
@@ -33,7 +32,7 @@ class PenniesInvestmentSerializer(serializers.ModelSerializer):
             "prime_modifier",
             "interest_type",
             "account_type",
-            "db_id"
+            "db_id",
         )
 
 
@@ -49,19 +48,14 @@ class PenniesFinancialProfileSerializer(serializers.ModelSerializer):
             "starting_rrsp_contribution_limit",
             "starting_tfsa_contribution_limit",
             "current_age",
-            "years_to_death"
+            "years_to_death",
         )
 
 
 class PenniesFinancialGoalSerializer(serializers.ModelSerializer):
     class Meta:
         model = FinancialGoal
-        fields = (
-            "name",
-            "type",
-            "amount",
-            "due_month"
-        )
+        fields = ("name", "type", "amount", "due_month")
 
 
 class PenniesRequestSerializer(base.ReadOnlyModelSerializer):
@@ -72,7 +66,6 @@ class PenniesRequestSerializer(base.ReadOnlyModelSerializer):
     strategies = serializers.ReadOnlyField(
         default=["Two Cents Plan", "Avalanche Plan", "Snowball Plan"]
     )
-
 
     class Meta:
         model = User

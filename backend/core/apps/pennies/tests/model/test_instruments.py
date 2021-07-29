@@ -1,9 +1,8 @@
-from pydantic import ValidationError
-
 from pennies.model.instrument import Instrument
 from pennies.model.interest_rate import (
     FixedLoanInterestRate,
-    GuaranteedInvestmentReturnRate, FixedInvestmentInterestRate,
+    GuaranteedInvestmentReturnRate,
+    FixedInvestmentInterestRate,
 )
 from pennies.model.investment import GuaranteedInvestment
 from pennies.model.loan import Loan

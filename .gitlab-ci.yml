@@ -1,0 +1,66 @@
+stages:
+  - static analysis
+  - test
+  - approve
+  - deploy # just a test
+
+
+flake8:
+  stage: static analysis
+  image: python:3.8
+  script:
+    - pip install -r backend/requirements-test.txt
+    - flake8
+  allow_failure: false
+  only:
+    - merge_requests
+
+pennies_test:
+  stage: test
+  image: python:3.8
+  script:
+    - apt-get update -qy
+    - apt-get install -y python-dev python-pip
+    - apt-get install -y coinor-cbc
+    - cd backend
+    - pip install -r requirements.txt
+    - cd core/apps/pennies
+    - pytest
+  allow_failure: false
+  only:
+    - merge_requests
+
+approve:
+  stage: approve
+  script:
+    - echo Approved!
+  when: manual
+  allow_failure: false
+  only:
+    - merge_requests
+
+frontend:
+  image: node
+  stage: deploy
+  script:
+    - npm install -g caprover
+    - git status
+    - caprover login
+    - caprover deploy --caproverApp two-cents-frontend --branch "$(git rev-parse HEAD)"
+    - caprover logout
+  allow_failure: false
+  only:
+    - master
+
+backend:
+  image: node
+  stage: deploy
+  script:
+    - npm install -g caprover
+    - git status
+    - caprover login
+    - caprover deploy --caproverApp two-cents-backend --branch "$(git rev-parse HEAD)"
+    - caprover logout
+  allow_failure: false
+  only:
+    - master

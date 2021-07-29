@@ -6,13 +6,19 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0007_waitlistuser_first_name'),
+        ("users", "0007_waitlistuser_first_name"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='waitlistuser',
-            name='first_name',
-            field=models.CharField(blank=True, default=None, max_length=30, null=True, verbose_name='First name'),
+            model_name="waitlistuser",
+            name="first_name",
+            field=models.CharField(
+                blank=True,
+                default=None,
+                max_length=30,
+                null=True,
+                verbose_name="First name",
+            ),
         ),
     ]

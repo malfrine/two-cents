@@ -1,9 +1,9 @@
-from django.urls import path
-from django.contrib import admin
 from django.conf.urls import include
+from django.contrib import admin
+from django.urls import path
+
 from core.apps.onboarding.views import OnboardingAPIView
 from core.apps.users.views import SessionAPIView, WaitlistUserAPIView
-
 from core.config.api import api
 
 urlpatterns = [

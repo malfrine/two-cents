@@ -6,23 +6,21 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('finances', '0025_auto_20210325_2224'),
+        ("finances", "0025_auto_20210325_2224"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='mortgage',
-            old_name='current_term_apr',
-            new_name='apr',
+            model_name="mortgage", old_name="current_term_apr", new_name="apr",
         ),
         migrations.RenameField(
-            model_name='mortgage',
-            old_name='current_term_interest_type',
-            new_name='interest_type',
+            model_name="mortgage",
+            old_name="current_term_interest_type",
+            new_name="interest_type",
         ),
         migrations.RenameField(
-            model_name='mortgage',
-            old_name='current_term_prime_modifier',
-            new_name='prime_modifier',
+            model_name="mortgage",
+            old_name="current_term_prime_modifier",
+            new_name="prime_modifier",
         ),
     ]

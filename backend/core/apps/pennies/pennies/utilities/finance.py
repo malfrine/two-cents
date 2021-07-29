@@ -7,8 +7,7 @@ from pennies.model.constants import Province
 from pennies.model.financial_profile import FinancialProfile
 from pennies.model.instrument import Instrument
 from pennies.model.portfolio import Portfolio
-from pennies.model.taxes import PROVINCIAL_TAX_MAP, IncomeTaxBrackets, FEDERAL
-from pennies.model.user_personal_finances import UserPersonalFinances
+from pennies.model.taxes import PROVINCIAL_TAX_MAP, IncomeTaxBrackets
 from pennies.utilities.datetime import MONTHS_IN_YEAR
 
 
@@ -125,7 +124,10 @@ class DiscountFactorCalculator:
 
     def get_investment_capital(self):
         financial_profile = self.financial_profile
-        return financial_profile.annual_income_before_retirement * financial_profile.years_to_retirement
+        return (
+            financial_profile.annual_income_before_retirement
+            * financial_profile.years_to_retirement
+        )
 
     def get_total_debt(self):
         portfolio = self.portfolio
@@ -133,4 +135,6 @@ class DiscountFactorCalculator:
 
     def get_total_weighted_debt(self):
         portfolio = self.portfolio
-        return sum(abs(l.current_balance) * l.monthly_interest_rate(0) for l in portfolio.loans)
+        return sum(
+            abs(l.current_balance) * l.monthly_interest_rate(0) for l in portfolio.loans
+        )

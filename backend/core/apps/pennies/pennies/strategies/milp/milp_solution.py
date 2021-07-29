@@ -1,6 +1,6 @@
 import itertools
-from dataclasses import dataclass
 import logging
+from dataclasses import dataclass
 from typing import Dict, List
 
 import pyomo.environ as pe
@@ -116,8 +116,12 @@ class MILPSolution:
         logging.debug(
             f"Loan due date violation costs: {pe.value(c.get_loan_due_date_violation_costs())}"
         )
-        logging.debug(f"Purchase goal violation costs: {pe.value(c.get_purchase_goal_violation_cost())}")
-        logging.debug(f"Savings goal violation costs: {pe.value(c.get_savings_goal_violation_cost())}")
+        logging.debug(
+            f"Purchase goal violation costs: {pe.value(c.get_purchase_goal_violation_cost())}"
+        )
+        logging.debug(
+            f"Savings goal violation costs: {pe.value(c.get_savings_goal_violation_cost())}"
+        )
         logging.debug(f"Taxes paid: {pe.value(c.get_taxes_paid())}")
         logging.debug(f"Taxes overflow costs: {pe.value(c.get_taxes_overflow_cost())}")
         logging.debug(f"Interest Earned: {pe.value(c.get_interest_earned())}")
@@ -163,7 +167,9 @@ class MILPSolution:
                 )
                 for e, b in self.sets.taxing_entities_and_brackets
             )
-            gross_income = self.pars.get_before_tax_monthly_income(dp.index) + total_withdrawals
+            gross_income = (
+                self.pars.get_before_tax_monthly_income(dp.index) + total_withdrawals
+            )
             taxable_income = gross_income - tfsa_withdrawals - rrsp_contributions
             ms = MonthlySolution(
                 month=dp_month,
@@ -172,7 +178,7 @@ class MILPSolution:
                 taxes_paid=taxes_paid,
                 withdrawals=withdrawals,
                 gross_income=gross_income,
-                taxable_income=taxable_income
+                taxable_income=taxable_income,
             )
             monthly_solutions_dict[dp_month] = ms
         return monthly_solutions_dict

@@ -23,6 +23,6 @@ sys.path.append(os.path.join(current_path, "core", "apps"))
 # setting points here.
 application = get_wsgi_application()
 
-from raven.contrib.django.raven_compat.middleware.wsgi import Sentry
+from raven.contrib.django.raven_compat.middleware.wsgi import Sentry  # noqa: E402
 
 application = Sentry(application)

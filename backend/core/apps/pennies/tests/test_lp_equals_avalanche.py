@@ -7,7 +7,7 @@ from pennies.model.interest_rate import FixedLoanInterestRate
 from pennies.model.loan import PersonalLoan
 from pennies.model.parameters import Parameters
 from pennies.model.processed.plan import ProcessedFinancialPlan
-from pennies.model.request import PenniesRequest, RequestLoan, InterestType
+from pennies.model.request import PenniesRequest
 from pennies.model.response import PenniesResponse
 from pennies.model.status import PenniesStatus
 from pennies.solver import solve_request
@@ -56,7 +56,7 @@ def get_request() -> PenniesRequest:
             starting_tfsa_contribution_limit=0,
             starting_rrsp_contribution_limit=0,
             current_age=50,
-            risk_tolerance=0
+            risk_tolerance=0,
         ),
         loans=[
             PersonalLoan(
@@ -64,10 +64,10 @@ def get_request() -> PenniesRequest:
                 interest_rate=FixedLoanInterestRate(apr=1),
                 current_balance=-50_000,
                 minimum_monthly_payment=854,
-                final_month=60
+                final_month=60,
             )
         ],
         investments=list(),
         strategies=[StrategyName.avalanche.value, StrategyName.lp.value],
-        goals=list()
+        goals=list(),
     )

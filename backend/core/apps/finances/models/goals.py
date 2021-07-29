@@ -17,7 +17,9 @@ class FinancialGoal(models.Model):
     type = models.CharField(
         max_length=50, choices=GoalType.choices, default=GoalType.BIG_PURCHASE
     )
-    amount = models.FloatField(default=None, blank=True, null=True, verbose_name="Amount to Save")
+    amount = models.FloatField(
+        default=None, blank=True, null=True, verbose_name="Amount to Save"
+    )
     date = models.DateField(
         default=None, blank=True, null=True, verbose_name="Date to Completion"
     )

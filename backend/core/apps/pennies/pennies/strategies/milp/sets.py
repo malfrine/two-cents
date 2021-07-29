@@ -1,22 +1,22 @@
-import itertools
 from dataclasses import dataclass
 from typing import List, Set, Dict, Tuple
 from uuid import UUID
 
 from pennies.model import taxes
+from pennies.model.constants import InvestmentAccountType
+from pennies.model.decision_periods import (
+    DecisionPeriodsManager,
+    DecisionPeriodsManagerFactory,
+)
 from pennies.model.goal import BaseSavingsGoal, BasePurchaseGoal
 from pennies.model.instrument import Instrument
 from pennies.model.investment import (
     Investment,
     Cash,
-    GuaranteedInvestment, BaseInvestment,
+    GuaranteedInvestment,
+    BaseInvestment,
 )
-from pennies.model.constants import InvestmentAccountType
-from pennies.model.loan import Loan, InstalmentLoan, Mortgage
-from pennies.model.decision_periods import (
-    DecisionPeriodsManager,
-    DecisionPeriodsManagerFactory,
-)
+from pennies.model.loan import Loan, Mortgage
 from pennies.model.taxes import IncomeTaxBrackets
 from pennies.model.user_personal_finances import UserPersonalFinances
 
@@ -81,15 +81,13 @@ class MILPSets:
 
     @property
     def registered_investments(self):
-
         def is_registered(i):
             return i.account_type != InvestmentAccountType.NON_REGISTERED
 
         return list(
             i.id_
             for i in self._instruments
-            if isinstance(i, BaseInvestment)
-            and is_registered(i)
+            if isinstance(i, BaseInvestment) and is_registered(i)
         )
 
     @property
@@ -122,9 +120,7 @@ class MILPSets:
     @property
     def guaranteed_investments(self):
         return list(
-            i.id_
-            for i in self._instruments
-            if isinstance(i, GuaranteedInvestment)
+            i.id_ for i in self._instruments if isinstance(i, GuaranteedInvestment)
         )
 
     @property
@@ -153,17 +149,21 @@ class MILPSets:
         goal = self._user_finances.goals.get(goal_id)
         if goal is None:
             return list()
-        investments = self._user_finances.portfolio.get_investments_of_types(goal.get_allowed_accounts())
+        investments = self._user_finances.portfolio.get_investments_of_types(
+            goal.get_allowed_accounts()
+        )
         return list(i.id_ for i in investments)
 
     def get_goals_and_decision_periods(self, goals) -> List[Tuple[UUID, int]]:
-        return list((
-            (g, t)
-            for g in goals
-            for t in self.decision_periods.get_decision_periods_after_month(
-                self._user_finances.goals[g].due_month
+        return list(
+            (
+                (g, t)
+                for g in goals
+                for t in self.decision_periods.get_decision_periods_after_month(
+                    self._user_finances.goals[g].due_month
+                )
             )
-        ))
+        )
 
     @property
     def goals_and_decision_periods(self) -> List[Tuple[UUID, int]]:
@@ -174,12 +174,14 @@ class MILPSets:
     def purchase_goals(self):
         def is_purchase_goal(g):
             return isinstance(self._user_finances.goals[g], BasePurchaseGoal)
+
         return list(g for g in self.goals if is_purchase_goal(g))
 
     @property
     def savings_goals(self):
         def is_savings_goal(g):
             return isinstance(self._user_finances.goals[g], BaseSavingsGoal)
+
         return list(g for g in self.goals if is_savings_goal(g))
 
     @property

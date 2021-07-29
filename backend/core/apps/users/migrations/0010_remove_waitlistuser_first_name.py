@@ -6,12 +6,9 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0009_auto_20210709_1813'),
+        ("users", "0009_auto_20210709_1813"),
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='waitlistuser',
-            name='first_name',
-        ),
+        migrations.RemoveField(model_name="waitlistuser", name="first_name",),
     ]

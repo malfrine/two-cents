@@ -2,7 +2,6 @@ from math import isclose
 
 from pennies.model.taxes import TaxBracket, IncomeTaxBrackets
 from pennies.utilities.finance import (
-    calculate_annual_income_tax,
     calculate_annual_income_tax_from_brackets,
     calculate_monthly_income_tax_from_brackets,
 )

@@ -1,5 +1,5 @@
 import logging
-from typing import Union, Literal
+from typing import Union
 
 from pydantic import validator, root_validator
 
@@ -8,7 +8,6 @@ from pennies.model.constants import InvestmentAccountType
 from pennies.model.instrument import Instrument
 from pennies.model.interest_rate import (
     ZeroGrowthRate,
-    CompoundingRate,
     GuaranteedInvestmentReturnRate,
 )
 
@@ -52,6 +51,7 @@ class GIC(GuaranteedInvestment):
     # investment_type: Literal['GIC'] = 'GIC'
     ...
 
+
 class TermDeposit(GuaranteedInvestment):
     # investment_type: Literal['Term Deposit'] = 'Term Deposit'
     ...
@@ -74,6 +74,7 @@ class Investment(BaseInvestment):
 class MutualFund(Investment):
     # investment_type: Literal['Mutual Fund'] = 'Mutual Fund'
     ...
+
 
 class Portfolio(Investment):
     ...

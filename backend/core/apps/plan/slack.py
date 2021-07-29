@@ -1,4 +1,5 @@
 import json
+
 import requests
 
 
@@ -15,10 +16,7 @@ def _make_data(data):
             {
                 "type": "context",
                 "elements": [
-                    {
-                        "type": "plain_text",
-                        "text": json.dumps(data, indent=4),
-                    }
+                    {"type": "plain_text", "text": json.dumps(data, indent=4)}
                 ],
             },
         ]
@@ -41,6 +39,7 @@ def send_failed_request_data_to_slack(pennies_request):
             "Request to slack returned an error %s, the response is:\n%s"
             % (response.status_code, response.text)
         )
+
 
 def send_failed_request_message():
     error_block = {

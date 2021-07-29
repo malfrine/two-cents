@@ -101,12 +101,25 @@ class MILPVariables:
         )
         rrsp_deduction_limits = pe.Var(sets.years, domain=pe.NonNegativeReals)
         tfsa_contribution_limits = pe.Var(sets.years, domain=pe.NonNegativeReals)
-        pos_withdrawal_differences = pe.Var(sets.all_decision_periods_as_set, domain=pe.NonNegativeReals)
-        neg_withdrawal_differences = pe.Var(sets.all_decision_periods_as_set, domain=pe.NonNegativeReals)
+        pos_withdrawal_differences = pe.Var(
+            sets.all_decision_periods_as_set, domain=pe.NonNegativeReals
+        )
+        neg_withdrawal_differences = pe.Var(
+            sets.all_decision_periods_as_set, domain=pe.NonNegativeReals
+        )
         withdrawal_fluctuation_violation = pe.Var(domain=pe.NonNegativeReals)
-        max_monthly_payment_violations = pe.Var(sets.instruments, sets.all_decision_periods_as_set, domain=pe.NonNegativeReals, initialize=0)
-        savings_goal_violations = pe.Var(sets.savings_goals_and_decision_periods, domain=pe.NonNegativeReals)
-        purchase_goal_violations = pe.Var(sets.purchase_goals, domain=pe.NonNegativeReals)
+        max_monthly_payment_violations = pe.Var(
+            sets.instruments,
+            sets.all_decision_periods_as_set,
+            domain=pe.NonNegativeReals,
+            initialize=0,
+        )
+        savings_goal_violations = pe.Var(
+            sets.savings_goals_and_decision_periods, domain=pe.NonNegativeReals
+        )
+        purchase_goal_violations = pe.Var(
+            sets.purchase_goals, domain=pe.NonNegativeReals
+        )
         return MILPVariables(
             allocations=allocations,
             balances=balances,
@@ -129,7 +142,7 @@ class MILPVariables:
             withdrawal_fluctuation_violation=withdrawal_fluctuation_violation,
             max_monthly_payment_violations=max_monthly_payment_violations,
             savings_goal_violations=savings_goal_violations,
-            purchase_goal_violations=purchase_goal_violations
+            purchase_goal_violations=purchase_goal_violations,
         )
 
     def get_allocation(self, instrument: UUID, month: int):

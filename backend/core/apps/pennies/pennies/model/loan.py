@@ -1,13 +1,12 @@
 import math
 from typing import Any, Literal, Union, Optional
 
-from pydantic import validator, root_validator
+from pydantic import validator
 
-from pennies.errors.validation_errors import BadDomainException
 from pennies.model.instrument import Instrument
-from pennies.model.interest_rate import AllLoanInterestTypes, FixedLoanInterestRate, MortgageInterestRate, VariableLoanInterestRate
+from pennies.model.interest_rate import AllLoanInterestTypes
 
-MIN_REVOLVING_LOAN_PAYMENT_THRESHOLD = 10 # dollars
+MIN_REVOLVING_LOAN_PAYMENT_THRESHOLD = 10  # dollars
 
 
 class Loan(Instrument):
@@ -29,7 +28,6 @@ class Loan(Instrument):
 
 
 class RevolvingLoan(Loan):
-
     def get_minimum_monthly_payment(self, month: int):
         min_payment = abs(self.current_balance) * self.monthly_interest_rate(month)
         return min_payment if min_payment > MIN_REVOLVING_LOAN_PAYMENT_THRESHOLD else 0
@@ -54,31 +52,31 @@ class InstalmentLoan(Loan):
 
 
 class CarLoan(InstalmentLoan):
-    loan_type: Literal['Car Loan'] = 'Car Loan'
+    loan_type: Literal["Car Loan"] = "Car Loan"
 
 
 class StudentLoan(InstalmentLoan):
-    loan_type: Literal['Student Loan'] = 'Student Loan'
+    loan_type: Literal["Student Loan"] = "Student Loan"
 
 
 class StudentLineOfCredit(RevolvingLoan):
-    loan_type: Literal['Student Line of Credit'] = 'Student Line of Credit'
+    loan_type: Literal["Student Line of Credit"] = "Student Line of Credit"
 
 
 class LineOfCredit(RevolvingLoan):
-    loan_type: Literal['Line of Credit'] = 'Line of Credit'
+    loan_type: Literal["Line of Credit"] = "Line of Credit"
 
 
 class CreditCard(RevolvingLoan):
-    loan_type: Literal['Credit Card'] = 'Credit Card'
+    loan_type: Literal["Credit Card"] = "Credit Card"
 
 
 class PersonalLoan(InstalmentLoan):
-    loan_type: Literal['Personal Loan'] = 'Personal Loan'
+    loan_type: Literal["Personal Loan"] = "Personal Loan"
 
 
 class Mortgage(Loan):
-    loan_type: Literal['Mortgage'] = 'Mortgage'
+    loan_type: Literal["Mortgage"] = "Mortgage"
 
     minimum_monthly_payment: float
 
@@ -96,5 +94,5 @@ AllLoanTypes = Union[
     LineOfCredit,
     CreditCard,
     PersonalLoan,
-    Mortgage
+    Mortgage,
 ]

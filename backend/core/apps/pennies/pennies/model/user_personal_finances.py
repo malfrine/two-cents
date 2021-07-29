@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import Dict
 from uuid import UUID
 
 from pydantic import BaseModel, root_validator

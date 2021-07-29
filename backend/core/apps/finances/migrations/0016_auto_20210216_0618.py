@@ -11,12 +11,10 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RemoveField(
-            model_name="investment",
-            name="current_monthly_contribution",
+            model_name="investment", name="current_monthly_contribution",
         ),
         migrations.RemoveField(
-            model_name="investment",
-            name="minimum_monthly_payment",
+            model_name="investment", name="minimum_monthly_payment",
         ),
         migrations.AddField(
             model_name="investment",

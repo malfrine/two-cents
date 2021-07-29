@@ -29,10 +29,11 @@ class FinancialPlanFactory:
             month = index + parameters.starting_month
 
             total_withdrawals = sum(
-                withdrawals.get(i.id_, 0)
-                for i in cur_portfolio.investments()
+                withdrawals.get(i.id_, 0) for i in cur_portfolio.investments()
             )
-            pre_tax_monthly_income = user_personal_finances.financial_profile.get_pre_tax_monthly_income(month)
+            pre_tax_monthly_income = user_personal_finances.financial_profile.get_pre_tax_monthly_income(
+                month
+            )
             gross_income_in_month = pre_tax_monthly_income + total_withdrawals
 
             non_tfsa_withdrawals = sum(
@@ -44,15 +45,16 @@ class FinancialPlanFactory:
                 for i in cur_portfolio.rrsp_investments_and_guaranteed_investments
             )
             taxable_income_in_month = (
-                pre_tax_monthly_income
-                + non_tfsa_withdrawals
-                - rrsp_contributions
+                pre_tax_monthly_income + non_tfsa_withdrawals - rrsp_contributions
             )
             taxes_paid = calculate_monthly_income_tax(
                 income=taxable_income_in_month, province=province
             )
 
-            savings_fraction = user_personal_finances.financial_profile.percent_salary_for_spending / 100
+            savings_fraction = (
+                user_personal_finances.financial_profile.percent_salary_for_spending
+                / 100
+            )
             monthly_allowance = (gross_income_in_month - taxes_paid) * savings_fraction
             monthly_solutions.append(
                 MonthlySolution(
@@ -65,7 +67,7 @@ class FinancialPlanFactory:
                     taxes_paid=taxes_paid,
                     withdrawals=withdrawals,
                     gross_income=gross_income_in_month,
-                    taxable_income=taxable_income_in_month
+                    taxable_income=taxable_income_in_month,
                 )
             )
             cur_portfolio = cur_portfolio.copy(deep=True)

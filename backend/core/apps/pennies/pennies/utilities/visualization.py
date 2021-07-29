@@ -1,4 +1,4 @@
-from typing import List, Dict, Tuple
+from typing import List, Dict
 
 import pandas as pd
 from matplotlib import pyplot as plt
@@ -16,9 +16,7 @@ def _visualize_portfolios(portfolio_balances: List[Dict[str, float]], suffix) ->
 
 def _visualize_money_movements(money_movements: List[Dict[str, float]], suffix):
     df = pd.DataFrame(money_movements)
-    ax = df.plot(
-        kind="bar", stacked=True, width=1.0, figsize=(10, 10)
-    )
+    ax = df.plot(kind="bar", stacked=True, width=1.0, figsize=(10, 10))
     ax.set_xticks(range(0, len(money_movements), 24))
     plt.savefig(f"payments-{suffix}.png")
 
@@ -37,7 +35,8 @@ def visualize_solution(plan: FinancialPlan, suffix="") -> None:
     money_movements = list()
     for ms in plan.monthly_solutions:
         money_movement = {
-            instrument.name: - ms.allocation.payments.get(id_, 0) + ms.withdrawals.get(id_, 0)
+            instrument.name: -ms.allocation.payments.get(id_, 0)
+            + ms.withdrawals.get(id_, 0)
             for id_, instrument in starting_instruments.items()
         }
         money_movements.append(money_movement)

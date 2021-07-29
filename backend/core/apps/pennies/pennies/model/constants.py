@@ -1,8 +1,6 @@
 from enum import Enum
 
 
-
-
 class Province(Enum):
     NL = "Newfoundland and Labrador"
     PEI = "Prince Edward Island"

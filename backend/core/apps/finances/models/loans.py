@@ -38,7 +38,7 @@ def get_required_fields_map():
         "amortization_years",
         "current_term_start_date",
         "current_term_end_date",
-        "interest_type"
+        "interest_type",
     ]
     return {
         LoanType.CREDIT_CARD: revolving_loans,
@@ -47,7 +47,7 @@ def get_required_fields_map():
         LoanType.PERSONAL_LOAN: instalment_loans,
         LoanType.STUDENT_LOAN: instalment_loans,
         LoanType.CAR_LOAN: instalment_loans,
-        LoanType.MORTGAGE: mortgage_loans
+        LoanType.MORTGAGE: mortgage_loans,
     }
 
 
@@ -55,13 +55,11 @@ LOAN_REQUIRED_FIELDS_MAP = get_required_fields_map()
 
 
 def get_loan_interest_required_fields_map():
-    return {
-        InterestTypes.FIXED: "apr",
-        InterestTypes.VARIABLE: "prime_modifier"
-    }
+    return {InterestTypes.FIXED: "apr", InterestTypes.VARIABLE: "prime_modifier"}
 
 
 LOAN_INTEREST_REQUIRED_FIELDS_MAP = get_loan_interest_required_fields_map()
+
 
 def get_default_apr(loan_type: LoanType):
     if loan_type == LoanType.CREDIT_CARD:
@@ -84,9 +82,7 @@ def get_default_apr(loan_type: LoanType):
 
 class LoanInterest(models.Model):
     interest_type = models.CharField(
-        max_length=50,
-        choices=InterestTypes.choices,
-        default=InterestTypes.FIXED,
+        max_length=50, choices=InterestTypes.choices, default=InterestTypes.FIXED,
     )
     apr = models.FloatField(default=None, blank=True, null=True, verbose_name="APR")
     prime_modifier = models.FloatField(
@@ -95,7 +91,6 @@ class LoanInterest(models.Model):
     current_term_end_date = models.DateField(
         default=None, blank=True, null=True, verbose_name="Current Term End Date"
     )
-    
 
 
 class Loan(models.Model):
@@ -105,8 +100,12 @@ class Loan(models.Model):
         max_length=50, choices=LoanType.choices, default=LoanType.PERSONAL_LOAN
     )
 
-    loan_interest = models.OneToOneField(LoanInterest, on_delete=models.CASCADE, related_name="loan_interest")
-    current_balance = models.FloatField(default=None, blank=True, null=True, verbose_name="Current Balance")
+    loan_interest = models.OneToOneField(
+        LoanInterest, on_delete=models.CASCADE, related_name="loan_interest"
+    )
+    current_balance = models.FloatField(
+        default=None, blank=True, null=True, verbose_name="Current Balance"
+    )
 
     minimum_monthly_payment = models.FloatField(
         default=None, blank=True, null=True, verbose_name="Minimum Monthly Payment"
@@ -114,7 +113,6 @@ class Loan(models.Model):
     end_date = models.DateField(
         default=None, blank=True, null=True, verbose_name="Final Payment Month"
     )
-
 
     @property
     def final_month(self):
@@ -129,7 +127,3 @@ class Loan(models.Model):
     @classmethod
     def is_instalment_loan(cls, loan_type: LoanType):
         return loan_type in INSTALMENT_LOANS
-
-
-
-

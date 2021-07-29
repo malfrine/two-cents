@@ -1,29 +1,31 @@
-from django.contrib.auth.models import AnonymousUser
 from firebase_admin.auth import UserRecord as FirebaseUserRecord
 from rest_framework import status
+from rest_framework import viewsets
 from rest_framework.response import Response
 
-from core.apps.finances.models.goals import FinancialGoal
-from core.apps.finances.models.loans import LOAN_REQUIRED_FIELDS_MAP, LOAN_INTEREST_REQUIRED_FIELDS_MAP
 from core.apps.finances.models.constants import InterestTypes
 from core.apps.finances.models.financial_profile import FinancialProfile, Province
+from core.apps.finances.models.financial_profile import Loan
+from core.apps.finances.models.goals import FinancialGoal
 from core.apps.finances.models.investments import (
     Investment,
     INVESTMENT_REQUIRED_FIELDS_MAP,
     RiskChoices,
-    VolatilityChoices, InvestmentAccountType,
+    VolatilityChoices,
+    InvestmentAccountType,
 )
-from core.apps.finances.models.financial_profile import Loan
-from rest_framework import viewsets
-
+from core.apps.finances.models.loans import (
+    LOAN_REQUIRED_FIELDS_MAP,
+    LOAN_INTEREST_REQUIRED_FIELDS_MAP,
+)
+from core.apps.finances.serializers.pennies.request import PenniesRequestSerializer
 from core.apps.finances.serializers.serializers import (
     FinancialProfileSerializer,
     InvestmentSerializer,
-    UserFinancesSerializer, FinancialGoalSerializer,
+    UserFinancesSerializer,
+    FinancialGoalSerializer,
 )
-from core.apps.finances.serializers.pennies.request import PenniesRequestSerializer
 from core.apps.finances.serializers.views.loan import LoanSerializer
-
 
 # Create your views here.
 from core.apps.users.models import User
@@ -70,6 +72,7 @@ class FinancialGoalViewset(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         return serializer.save(user=self.request.user)
+
 
 class FinancialProfileView(viewsets.GenericViewSet):
     serializer_class = FinancialProfileSerializer
@@ -130,6 +133,6 @@ class FinancesEnumsViewset(viewsets.GenericViewSet):
             "risk_levels": list(name for name in RiskChoices),
             "volatility_choices": list(name for name in VolatilityChoices),
             "provinces": list(name for name in Province),
-            "investment_account_types": list(name for name in InvestmentAccountType)
+            "investment_account_types": list(name for name in InvestmentAccountType),
         }
         return Response(data)
