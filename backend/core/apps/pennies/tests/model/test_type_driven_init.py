@@ -2,6 +2,7 @@ from typing import List
 
 from pydantic import BaseModel
 
+from pennies.model.investment import GIC, AllInvestmentTypes, Portfolio
 from pennies.model.loan import AllLoanTypes, StudentLoan, Mortgage
 
 
@@ -63,3 +64,54 @@ def test_simple_case():
     assert isinstance(p.loans[1], StudentLoan)
     assert isinstance(p.loans[2], Mortgage)
     assert isinstance(p.loans[3], StudentLoan)
+
+
+def test_gic():
+    class InvestmentHolder(BaseModel):
+        investment: AllInvestmentTypes
+
+    investment_data = {
+        "name": "Test GIC",
+        "current_balance": 0.0,
+        "final_month": 468,
+        "investment_type": "GIC",
+        "principal_investment_amount": 10000.0,
+        "start_month": 132,
+        "account_type": "Non-Registered",
+        "interest_rate": {
+            "interest_type": "Guaranteed Investment Return Rate",
+            "interest_rate": {
+                "interest_type": "Variable Investment Return Rate",
+                "prime_modifier": 4.0,
+            },
+            "final_month": 468,
+        },
+    }
+
+    data = {"investment": investment_data}
+
+    holder = InvestmentHolder.parse_obj(data)
+    assert isinstance(holder.investment, GIC)
+
+
+def test_investment_portfolio():
+    class InvestmentHolder(BaseModel):
+        investment: AllInvestmentTypes
+
+    investment_data = {
+        "name": "Test Portfolio",
+        "current_balance": 1.0,
+        "investment_type": "Portfolio",
+        "pre_authorized_monthly_contribution": 1.0,
+        "account_type": "Non-Registered",
+        "interest_rate": {
+            "interest_type": "Investment Return Rate",
+            "roi": 3.0,
+            "volatility": 1.0,
+        },
+    }
+
+    data = {"investment": investment_data}
+
+    holder = InvestmentHolder.parse_obj(data)
+    assert isinstance(holder.investment, Portfolio)

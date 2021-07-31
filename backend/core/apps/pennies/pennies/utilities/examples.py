@@ -1,4 +1,4 @@
-from typing import Tuple, Dict, List, ClassVar
+from typing import Dict, List, ClassVar
 
 from pennies.model.constants import Province, InvestmentAccountType
 from pennies.model.factories.problem_input import ProblemInputFactory
@@ -8,6 +8,20 @@ from pennies.model.interest_rate import (
     FixedLoanInterestRate,
     VariableLoanInterestRate,
     InterestRate,
+    InvestmentReturnRate,
+    FixedInvestmentInterestRate,
+    GuaranteedInvestmentReturnRate,
+    VariableInvestmentInterestRate,
+    ZeroGrowthRate,
+)
+from pennies.model.investment import (
+    AllInvestmentTypes,
+    MutualFund,
+    ETF,
+    Stock,
+    Cash,
+    GIC,
+    TermDeposit,
 )
 from pennies.model.loan import (
     Loan,
@@ -16,16 +30,10 @@ from pennies.model.loan import (
     StudentLineOfCredit,
     StudentLoan,
     CreditCard,
+    AllLoanTypes,
 )
-from pennies.model.portfolio import Portfolio
 from pennies.model.problem_input import ProblemInput
-from pennies.model.request import (
-    PenniesRequest,
-    RequestInvestment,
-    InterestType,
-    RequestInvestmentType,
-)
-from pennies.model.solution import MonthlyAllocation
+from pennies.model.request import PenniesRequest
 from pennies.model.user_personal_finances import UserPersonalFinances
 from pennies.strategies import StrategyName
 
@@ -44,7 +52,7 @@ def financial_profile():
     )
 
 
-def simple_request_loans() -> List[Loan]:
+def simple_request_loans() -> List[AllLoanTypes]:
     return [
         PersonalLoan(
             name="3.5 APR Personal Loan",
@@ -66,14 +74,14 @@ def simple_request_loans() -> List[Loan]:
     ]
 
 
-def all_possible_loans() -> List[Loan]:
+def all_possible_loans() -> List[AllLoanTypes]:
     default_apr = 1
     default_prime_modifier = -2
     default_current_balance = -10
 
     def make_loan(
         loan_class: ClassVar[Loan], interest_class: ClassVar[InterestRate]
-    ) -> Loan:
+    ) -> AllLoanTypes:
         interest_rate = interest_class(
             apr=default_apr, prime_modifier=default_prime_modifier
         )
@@ -93,105 +101,74 @@ def all_possible_loans() -> List[Loan]:
     ]
 
 
-def simple_investments() -> List[RequestInvestment]:
+def simple_investments() -> List[AllInvestmentTypes]:
     return [
-        # RequestInvestment(
-        #     name="medium risk (non-registered)",
-        #     roi=5.0,
-        #     current_balance=0,
-        #     pre_authorized_monthly_contribution=0,
-        #     volatility=5.0,
-        #     investment_type=RequestInvestmentType.MUTUAL_FUND,
-        #     account_type=InvestmentAccountType.NON_REGISTERED
-        # ),
-        RequestInvestment(
+        MutualFund(
             name="medium risk (rrsp)",
-            roi=5.0,
+            interest_rate=InvestmentReturnRate(roi=5.0, volatility=5.0),
             current_balance=0,
-            pre_authorized_monthly_contribution=0,
-            volatility=5.0,
-            investment_type=RequestInvestmentType.MUTUAL_FUND,
             account_type=InvestmentAccountType.RRSP,
+            pre_authorized_monthly_contribution=0,
         ),
-        RequestInvestment(
+        MutualFund(
             name="medium risk (tfsa)",
-            roi=5.0,
+            interest_rate=InvestmentReturnRate(roi=5.0, volatility=5.0),
             current_balance=0,
             pre_authorized_monthly_contribution=0,
-            volatility=5.0,
-            investment_type=RequestInvestmentType.MUTUAL_FUND,
             account_type=InvestmentAccountType.TFSA,
         ),
-        # RequestInvestment(
-        #     name="term deposit",
-        #     investment_type=RequestInvestmentType.TERM_DEPOSIT,
-        #     final_month=100,
-        #     principal_investment_amount=100000,
-        #     start_month=-36,
-        #     interest_type=InterestType.VARIABLE,
-        #     prime_modifier=0,
-        #     volatility=0,
-        #     account_type=RequestInvestmentAccountType.NON_REGISTERED
-        # ),
     ]
 
 
-def all_possible_investments() -> List[RequestInvestment]:
+def all_possible_investments() -> List[AllInvestmentTypes]:
     return [
-        RequestInvestment(
+        MutualFund(
             name="mutual fund",
             current_balance=0,
-            investment_type=RequestInvestmentType.MUTUAL_FUND,
-            roi=5,
-            volatility=5,
+            interest_rate=InvestmentReturnRate(roi=5.0, volatility=5.0),
             pre_authorized_monthly_contribution=0,
             account_type=InvestmentAccountType.TFSA,
         ),
-        RequestInvestment(
+        ETF(
             name="etf",
             current_balance=0,
-            investment_type=RequestInvestmentType.ETF,
-            roi=5,
-            volatility=5,
+            interest_rate=InvestmentReturnRate(roi=5.0, volatility=5.0),
             pre_authorized_monthly_contribution=0,
             account_type=InvestmentAccountType.RRSP,
         ),
-        RequestInvestment(
+        Stock(
             name="stock",
             current_balance=0,
-            investment_type=RequestInvestmentType.STOCK,
-            roi=5,
-            volatility=5,
+            interest_rate=InvestmentReturnRate(roi=5.0, volatility=5.0),
             pre_authorized_monthly_contribution=0,
             account_type=InvestmentAccountType.NON_REGISTERED,
         ),
-        RequestInvestment(
+        Cash(
             name="cash",
             current_balance=0,
-            investment_type=RequestInvestmentType.CASH,
+            interest_rate=ZeroGrowthRate(),
             pre_authorized_monthly_contribution=10,
             account_type=InvestmentAccountType.NON_REGISTERED,
         ),
-        RequestInvestment(
+        GIC(
             name="gic",
-            investment_type=RequestInvestmentType.GIC,
-            roi=2,
+            interest_rate=GuaranteedInvestmentReturnRate(
+                interest_rate=FixedInvestmentInterestRate(roi=2), final_month=36,
+            ),
             final_month=36,
             principal_investment_amount=1000,
             start_month=-36,
-            interest_type=InterestType.FIXED,
-            volatility=0,
             account_type=InvestmentAccountType.TFSA,
         ),
-        RequestInvestment(
+        TermDeposit(
             name="term deposit",
-            investment_type=RequestInvestmentType.TERM_DEPOSIT,
+            interest_rate=GuaranteedInvestmentReturnRate(
+                interest_rate=VariableInvestmentInterestRate(prime_modifier=0),
+                final_month=36,
+            ),
             final_month=36,
             principal_investment_amount=1000,
             start_month=-36,
-            interest_type=InterestType.VARIABLE,
-            prime_modifier=0,
-            volatility=0,
             account_type=InvestmentAccountType.NON_REGISTERED,
         ),
     ]
@@ -215,10 +192,11 @@ def simple_goals():
 
 
 def simple_request() -> PenniesRequest:
+    investments = simple_investments()
     return PenniesRequest(
         financial_profile=financial_profile(),
         loans=simple_request_loans(),
-        investments=simple_investments(),
+        investments=investments,
         strategies=all_strategies(),
         goals=simple_goals(),
     )
@@ -258,22 +236,6 @@ def simple_model_input():
             StrategyName.lp.value,
         ],
     )
-
-
-def final_payment_example() -> Tuple[Portfolio, MonthlyAllocation]:
-    portfolio = Portfolio(
-        instruments=[
-            Loan(
-                name="loan",
-                apr=5,
-                current_balance=-200,
-                minimum_monthly_payment=100,
-                final_month=10,
-            )
-        ]
-    )
-    ma = MonthlyAllocation(payments={"loan": 300})
-    return portfolio, ma
 
 
 def pennies_request_as_dict() -> Dict:

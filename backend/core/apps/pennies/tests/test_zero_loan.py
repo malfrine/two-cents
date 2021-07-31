@@ -1,16 +1,13 @@
 from pennies import strategies
 from pennies.model.constants import InvestmentAccountType
-from pennies.model.interest_rate import FixedLoanInterestRate
+from pennies.model.interest_rate import FixedLoanInterestRate, InvestmentReturnRate
+from pennies.model.investment import MutualFund
 from pennies.model.loan import (
     LineOfCredit,
     PersonalLoan,
     StudentLineOfCredit,
 )
-from pennies.model.request import (
-    PenniesRequest,
-    RequestInvestment,
-    RequestInvestmentType,
-)
+from pennies.model.request import PenniesRequest
 from pennies.model.response import PenniesResponse
 from pennies.model.status import PenniesStatus
 from pennies.solver import solve_request
@@ -40,13 +37,11 @@ def make_request():
             ),
         ],
         investments=[
-            RequestInvestment(
+            MutualFund(
                 name="medium risk (rrsp)",
-                roi=5.0,
+                interest_rate=InvestmentReturnRate(roi=5.0, volatility=5.0),
                 current_balance=0,
                 pre_authorized_monthly_contribution=0,
-                volatility=5.0,
-                investment_type=RequestInvestmentType.MUTUAL_FUND,
                 account_type=InvestmentAccountType.RRSP,
             )
         ],

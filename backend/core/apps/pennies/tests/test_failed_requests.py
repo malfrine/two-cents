@@ -31,5 +31,5 @@ def test_process_all_failed_requests():
         _assert_successful_solve(f)
 
 
-def test_fail1_request():
-    _assert_successful_solve("fail6.json")
+def test_fail_request():
+    _assert_successful_solve("fail7.json")

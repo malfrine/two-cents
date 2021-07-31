@@ -13,8 +13,8 @@ class Instrument(BaseModel):
     db_id: int = -1
     name: str
     interest_rate: CompoundingRate
-    current_balance: float = None
-    final_month: int = None
+    current_balance: float = None  # TODO: remove the None
+    final_month: int = None  # TODO: remove the None
 
     @property
     def volatility(self):

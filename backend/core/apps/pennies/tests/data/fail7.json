@@ -53,29 +53,31 @@
          "name": "Dividend Funds",
          "investment_type": "GIC",
          "account_type": "Non-Registered",
-         "roi": 3.0,
-         "volatility": 0.0,
          "current_balance": 0.0,
-         "prime_modifier": null,
-         "pre_authorized_monthly_contribution": 0.0,
          "principal_investment_amount": 10000.0,
          "start_month": -12,
          "final_month": 1,
-         "interest_type": "Fixed"
+         "interest_type": "Fixed",
+         "interest_rate": {
+             "interest_type": "Guaranteed Investment Return Rate",
+             "interest_rate": {
+               "interest_type": "Fixed Investment Return Rate",
+               "roi": 3.0
+             },
+             "final_month": 1
+         }
       },
       {
          "name": "Mutual Fund",
          "investment_type": "Mutual Fund",
          "account_type": "Non-Registered",
-         "roi": 3.5,
-         "volatility": 2.5,
          "current_balance": 15000.0,
-         "prime_modifier": null,
          "pre_authorized_monthly_contribution": 100.0,
-         "principal_investment_amount": 10000.0,
-         "start_month": null,
-         "final_month": null,
-         "interest_type": "Fixed"
+         "interest_rate": {
+             "interest_type": "Investment Return Rate",
+             "roi":3.5,
+             "volatility": 2.5
+         }
       }
    ],
    "strategies": [

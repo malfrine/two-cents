@@ -125,7 +125,7 @@ class ObjectiveComponents:
         )
 
     def get_savings_goal_violation_cost(self):
-        return (self.GOAL_VIOLATION_COST + 10) * sum(
+        return (1000) * sum(
             self.vars.get_savings_goal_violation(g, t)
             for g, t in self.sets.savings_goals_and_decision_periods
         )
@@ -134,7 +134,7 @@ class ObjectiveComponents:
         max_month = self.sets.decision_periods.max_month
         return (
             max_month
-            * self.GOAL_VIOLATION_COST
+            * 200
             * sum(
                 self.vars.get_purchase_goal_violation(g)
                 for g in self.sets.purchase_goals
