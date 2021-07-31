@@ -1,4 +1,5 @@
-from typing import Union, Any, Literal
+from abc import ABC
+from typing import Union, Literal
 
 from pydantic import BaseModel
 
@@ -6,7 +7,7 @@ from pennies.model.prime import PrimeInterestRateForecast
 from pennies.utilities.datetime import MONTHS_IN_YEAR
 
 
-class CompoundingRate(BaseModel):
+class CompoundingRate(BaseModel, ABC):
     def get_monthly_interest_rate(self, month: int) -> float:
         raise NotImplementedError()
 
@@ -17,17 +18,17 @@ class CompoundingRate(BaseModel):
         underscore_attrs_are_private = True
 
 
-class InterestRate(CompoundingRate):
+class InterestRate(CompoundingRate, ABC):
     """for loans"""
 
-    interest_type: Any
 
-
-class ReturnRate(CompoundingRate):
+class ReturnRate(CompoundingRate, ABC):
     """for investments"""
 
 
 class ZeroGrowthRate(ReturnRate):
+    interest_type: Literal["Zero Growth"] = "Zero Growth"
+
     def get_monthly_interest_rate(self, month: int) -> float:
         return 0
 
@@ -65,6 +66,9 @@ class VariableLoanInterestRate(InterestRate):
 
 
 class FixedInvestmentInterestRate(ReturnRate):
+    interest_type: Literal[
+        "Fixed Investment Return Rate"
+    ] = "Fixed Investment Return Rate"
     roi: float
     volatility: float = 0
 
@@ -76,6 +80,9 @@ class FixedInvestmentInterestRate(ReturnRate):
 
 
 class VariableInvestmentInterestRate(ReturnRate):
+    interest_type: Literal[
+        "Variable Investment Return Rate"
+    ] = "Variable Investment Return Rate"
     prime_modifier: float
     volatility: float = 0
     _prime_forecast: PrimeInterestRateForecast = PrimeInterestRateForecast()
@@ -92,6 +99,7 @@ class VariableInvestmentInterestRate(ReturnRate):
 
 
 class InvestmentReturnRate(ReturnRate):
+    interest_type: Literal["Investment Return Rate"] = "Investment Return Rate"
     roi: float
     volatility: float
 
@@ -103,7 +111,10 @@ class InvestmentReturnRate(ReturnRate):
 
 
 class GuaranteedInvestmentReturnRate(ReturnRate):
-    interest_rate: ReturnRate
+    interest_type: Literal[
+        "Guaranteed Investment Return Rate"
+    ] = "Guaranteed Investment Return Rate"
+    interest_rate: Union[VariableInvestmentInterestRate, FixedInvestmentInterestRate]
     final_month: int
 
     def get_monthly_interest_rate(self, month: int) -> float:
@@ -135,5 +146,15 @@ class MortgageInterestRate(InterestRate):
 
 
 AllLoanInterestTypes = Union[
-    FixedLoanInterestRate, VariableLoanInterestRate, MortgageInterestRate
+    FixedLoanInterestRate,
+    VariableLoanInterestRate,
+    MortgageInterestRate,
+    ZeroGrowthRate,
+]
+AllInvestmentInterestTypes = Union[
+    FixedInvestmentInterestRate,
+    VariableInvestmentInterestRate,
+    GuaranteedInvestmentReturnRate,
+    InvestmentReturnRate,
+    ZeroGrowthRate,
 ]

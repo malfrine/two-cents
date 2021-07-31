@@ -12,4 +12,8 @@ class ReadOnlyModelSerializer(serializers.ModelSerializer):
 
 
 def drop_none_fields(d: Dict):
-    return {k: v for k, v in d.items() if v is not None}
+    return {
+        k: drop_none_fields(v) if isinstance(v, dict) else v
+        for k, v in d.items()
+        if v is not None
+    }

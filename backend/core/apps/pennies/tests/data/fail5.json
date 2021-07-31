@@ -50,58 +50,57 @@
        {
            "name": "Medium Risk Investment",
            "current_balance": 0.0,
-           "roi": 5.0,
            "final_month": 468,
-           "volatility": 5,
            "investment_type": "Mutual Fund",
            "pre_authorized_monthly_contribution": 50.0,
-           "principal_investment_amount": null,
-           "start_month": null,
-           "prime_modifier": null,
-           "interest_type": null,
-           "account_type": "Non-Registered"
+           "account_type": "Non-Registered",
+           "interest_rate": {
+             "interest_type": "Investment Return Rate",
+             "roi":5.0,
+             "volatility": 5
+           }
        },
        {
            "name": "Cash Money",
            "current_balance": 0.0,
-           "roi": 0,
            "final_month": 468,
-           "volatility": 0,
            "investment_type": "Cash",
            "pre_authorized_monthly_contribution": 0.0,
            "principal_investment_amount": 0.0,
-           "start_month": null,
-           "prime_modifier": null,
-           "interest_type": null,
-           "account_type": "Non-Registered"
+           "account_type": "Non-Registered",
+           "interest_rate": {
+             "interest_type": "Zero Growth"
+           }
        },
        {
            "name": "Random ETF",
            "current_balance": 5000.0,
-           "roi": 5.0,
            "final_month": 468,
-           "volatility": 5,
            "investment_type": "ETF",
            "pre_authorized_monthly_contribution": 0.0,
-           "principal_investment_amount": 0.0,
-           "start_month": null,
-           "prime_modifier": null,
-           "interest_type": null,
-           "account_type": "Non-Registered"
+           "account_type": "Non-Registered",
+           "interest_rate": {
+             "interest_type": "Investment Return Rate",
+             "roi":5.0,
+             "volatility": 5
+           }
        },
        {
            "name": "Test GIC",
            "current_balance": 0.0,
-           "roi": null,
            "final_month": 468,
-           "volatility": 0,
            "investment_type": "GIC",
-           "pre_authorized_monthly_contribution": 0.0,
            "principal_investment_amount": 10000.0,
            "start_month": 132,
-           "prime_modifier": 4.0,
-           "interest_type": "Variable",
-           "account_type": "Non-Registered"
+           "account_type": "Non-Registered",
+           "interest_rate": {
+             "interest_type": "Guaranteed Investment Return Rate",
+             "interest_rate": {
+               "interest_type": "Variable Investment Return Rate",
+               "prime_modifier": 4.0
+             },
+             "final_month": 468
+           }
        }
    ],
    "financial_profile": {

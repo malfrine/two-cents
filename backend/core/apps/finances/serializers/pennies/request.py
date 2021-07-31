@@ -2,12 +2,13 @@ from rest_framework import serializers
 
 from core.apps.finances.models.financial_profile import FinancialProfile
 from core.apps.finances.models.goals import FinancialGoal
-from core.apps.finances.models.investments import Investment
+from core.apps.finances.models.investments import Investment, InvestmentType
 from core.apps.finances.serializers.pennies.loan import (
     LoanSerializer as PenniesLoanSerializer,
 )
 from core.apps.users.models import User
 from core.config import base
+from core.config.base import drop_none_fields
 
 
 class PenniesInvestmentSerializer(serializers.ModelSerializer):
@@ -16,6 +17,33 @@ class PenniesInvestmentSerializer(serializers.ModelSerializer):
 
     def get_db_id(self, obj: Investment):
         return obj.pk
+
+    def to_representation(self, instance):
+        rep = super(PenniesInvestmentSerializer, self).to_representation(instance)
+        investment_type = InvestmentType(rep.get("investment_type"))
+        if investment_type in (InvestmentType.GIC, InvestmentType.TERM_DEPOSIT):
+            # guaranteed investment
+            interest_rate = {
+                "interest_type": "Guaranteed Investment Return Rate",
+                "interest_rate": {
+                    "interest_type": f"{rep.pop('interest_type')} Investment Return Rate",
+                    "roi": rep.pop("roi"),
+                    "volatility": rep.pop("volatility"),
+                    "prime_modifier": rep.pop("prime_modifier"),
+                },
+                "final_month": rep.get("final_month"),
+            }
+        else:
+            rep.pop("interest_type")
+            interest_rate = {
+                "interest_type": "Investment Return Rate",
+                "roi": rep.pop("roi"),
+                "volatility": rep.pop("volatility"),
+            }
+        interest_rate = drop_none_fields(interest_rate)
+        rep["interest_rate"] = interest_rate
+        print(rep)
+        return rep
 
     class Meta:
         model = Investment

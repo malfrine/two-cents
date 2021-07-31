@@ -27,44 +27,39 @@
        {
            "name": "Medium Risk Investment",
            "current_balance": 0.0,
-           "roi": 5.0,
            "final_month": 468,
-           "volatility": 5,
            "investment_type": "Mutual Fund",
            "pre_authorized_monthly_contribution": 50.0,
-           "principal_amount_invested": null,
-           "start_month": null,
-           "prime_modifier": null,
-           "interest_type": null,
-           "account_type": "Non-Registered"
+           "account_type": "Non-Registered",
+          "interest_rate": {
+           "interest_type": "Investment Return Rate",
+           "roi":5.0,
+           "volatility": 5
+         }
        },
        {
            "name": "High Risk Investment",
            "current_balance": 100.0,
-           "roi": 7.0,
            "final_month": 468,
-           "volatility": 7.5,
            "investment_type": "Mutual Fund",
            "pre_authorized_monthly_contribution": 30.0,
-           "principal_amount_invested": null,
-           "start_month": null,
-           "prime_modifier": null,
-           "interest_type": null,
-           "account_type": "Non-Registered"
+           "account_type": "Non-Registered",
+           "interest_rate": {
+             "interest_type": "Investment Return Rate",
+             "roi":7.0,
+             "volatility": 7.5
+           }
        },
        {
            "name": "Cash Money",
            "current_balance": 0.0,
-           "roi": 0,
            "final_month": 468,
-           "volatility": 0,
            "investment_type": "Cash",
            "pre_authorized_monthly_contribution": 100.0,
-           "principal_amount_invested": null,
-           "start_month": null,
-           "prime_modifier": null,
-           "interest_type": null,
-           "account_type": "Non-Registered"
+           "account_type": "Non-Registered",
+           "interest_rate": {
+             "interest_type": "Zero Growth"
+           }
        }
    ],
    "financial_profile": {

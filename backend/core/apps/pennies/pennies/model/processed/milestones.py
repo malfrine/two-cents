@@ -88,7 +88,7 @@ class MilestoneFactory:
             date=retirement_date,
             header="You Finally Retire!",
             text=f"You will retire on {retirement_date}."
-                 f" Your net worth at retirement will be {net_worth_str}!",
+            f" Your net worth at retirement will be {net_worth_str}!",
         )
 
     @classmethod
@@ -97,11 +97,15 @@ class MilestoneFactory:
     ):
         is_on_time = completion_date <= goal_due_date
         if is_on_time:
-            text = f"Woo! You will be able to build your nest egg on time. " \
-                   f"You will be able to save ${goal.amount:,.0f} by {completion_date}"
+            text = (
+                f"Woo! You will be able to build your nest egg on time. "
+                f"You will be able to save ${goal.amount:,.0f} by {completion_date}"
+            )
         else:
-            text = f"Unfortunately, you will not be able to build your nest egg on time. " \
-                   f"You will only be able to save ${goal.amount:,.0f} by {completion_date}"
+            text = (
+                f"Unfortunately, you will not be able to build your nest egg on time. "
+                f"You will only be able to save ${goal.amount:,.0f} by {completion_date}"
+            )
 
         return Milestone(
             name=f"Complete Goal: {goal.name}",

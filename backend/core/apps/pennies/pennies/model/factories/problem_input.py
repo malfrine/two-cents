@@ -1,6 +1,5 @@
 import logging
 
-from pennies.model.factories.investment import InvestmentFactory
 from pennies.model.portfolio import Portfolio
 from pennies.model.problem_input import ProblemInput
 from pennies.model.request import PenniesRequest
@@ -15,7 +14,6 @@ class ProblemInputFactory:
         for loan in request.loans:
             instruments[loan.id_] = loan
         for investment in request.investments:
-            investment = InvestmentFactory.from_request_investment(investment)
             instruments[investment.id_] = investment
         portfolio = Portfolio(instruments=instruments)
         return ProblemInput(

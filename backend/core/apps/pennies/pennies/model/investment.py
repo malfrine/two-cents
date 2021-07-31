@@ -1,5 +1,6 @@
 import logging
-from typing import Union
+from abc import ABC
+from typing import Union, Literal
 
 from pydantic import validator, root_validator
 
@@ -9,12 +10,13 @@ from pennies.model.instrument import Instrument
 from pennies.model.interest_rate import (
     ZeroGrowthRate,
     GuaranteedInvestmentReturnRate,
+    AllInvestmentInterestTypes,
 )
 
 
-class BaseInvestment(Instrument):
-
+class BaseInvestment(Instrument, ABC):
     account_type: InvestmentAccountType = InvestmentAccountType.NON_REGISTERED
+    interest_rate: AllInvestmentInterestTypes
 
     def get_minimum_monthly_payment(self, month: int):
         raise NotImplementedError()
@@ -23,7 +25,7 @@ class BaseInvestment(Instrument):
         return "investment"
 
 
-class GuaranteedInvestment(BaseInvestment):
+class GuaranteedInvestment(BaseInvestment, ABC):
     principal_investment_amount: float
     start_month: int  # can be negative (current month is 0)
     final_month: int
@@ -32,7 +34,7 @@ class GuaranteedInvestment(BaseInvestment):
     def get_minimum_monthly_payment(self, month: int):
         return 0
 
-    @root_validator
+    @root_validator(skip_on_failure=True)
     def set_current_balance(cls, values):
         v: int = values["current_balance"]
         n: int = abs(values["start_month"])
@@ -48,17 +50,16 @@ class GuaranteedInvestment(BaseInvestment):
 
 
 class GIC(GuaranteedInvestment):
-    # investment_type: Literal['GIC'] = 'GIC'
+    investment_type: Literal["GIC"] = "GIC"
     ...
 
 
 class TermDeposit(GuaranteedInvestment):
-    # investment_type: Literal['Term Deposit'] = 'Term Deposit'
+    investment_type: Literal["Term Deposit"] = "Term Deposit"
     ...
 
 
 class Investment(BaseInvestment):
-
     pre_authorized_monthly_contribution: float
 
     @validator("current_balance")
@@ -72,26 +73,27 @@ class Investment(BaseInvestment):
 
 
 class MutualFund(Investment):
-    # investment_type: Literal['Mutual Fund'] = 'Mutual Fund'
+    investment_type: Literal["Mutual Fund"] = "Mutual Fund"
     ...
 
 
 class Portfolio(Investment):
+    investment_type: Literal["Portfolio"] = "Portfolio"
     ...
 
 
 class ETF(Investment):
-    # investment_type: Literal['ETF'] = 'ETF'
+    investment_type: Literal["ETF"] = "ETF"
     ...
 
 
 class Stock(Investment):
-    # investment_type: Literal['Stock'] = 'Stock'
+    investment_type: Literal["Stock"] = "Stock"
     ...
 
 
 class Cash(Investment):
-    # investment_type: Literal['Cash'] = 'Cash'
+    investment_type: Literal["Cash"] = "Cash"
 
     # add validator to make sure no growth rate
     @validator("interest_rate")
@@ -102,4 +104,4 @@ class Cash(Investment):
 
 ALL_NON_GUARANTEED_INVESTMENTS = [MutualFund, ETF, Stock, Cash]
 ALL_GUARANTEED_INVESTMENTS = [TermDeposit, GIC]
-AllNonGuaranteedInvestments = Union[MutualFund, ETF, Stock, Cash]
+AllInvestmentTypes = Union[GIC, TermDeposit, MutualFund, Portfolio, ETF, Stock, Cash]
