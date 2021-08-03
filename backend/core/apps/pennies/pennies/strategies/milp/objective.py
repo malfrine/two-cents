@@ -149,6 +149,18 @@ class ObjectiveComponents:
             )
         )
 
+    def get_min_payment_violation_cost(self):
+        return (
+            self.pars.get_constraint_violation_penalty()
+            * 10
+            * sum(
+                self.vars.get_min_payment_violation(i, t)
+                for i, t in itertools.product(
+                    self.sets.instruments, self.sets.all_decision_periods_as_set
+                )
+            )
+        )
+
     def get_obj(self):
         obj = (
             -self.get_risk_violation_costs()
@@ -159,6 +171,7 @@ class ObjectiveComponents:
             - self.get_max_payment_violation_cost()
             - self.get_savings_goal_violation_cost()
             - self.get_purchase_goal_violation_cost()
+            - self.get_min_payment_violation_cost()
         )
         if self.pars.has_investments():
             obj += self.get_final_net_worth() + self.get_registered_account_incentive()

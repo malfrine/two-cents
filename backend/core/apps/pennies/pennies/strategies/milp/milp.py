@@ -66,6 +66,7 @@ class MILP:
         m.max_monthly_payment_violations = variables.max_monthly_payment_violations
         m.savings_goal_violations = variables.savings_goal_violations
         m.purchase_goal_violations = variables.purchase_goal_violations
+        m.min_payment_violations = variables.min_payment_violations
 
         cls._fix_final_allocation_to_zero(sets, variables)
 

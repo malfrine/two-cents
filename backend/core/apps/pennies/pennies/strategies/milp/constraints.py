@@ -43,12 +43,12 @@ class _ConstraintMaker:
         def rule(_, i, t):
             if self.pars.get_is_guaranteed_investment(i):
                 return pe.Constraint.Skip
-            # if t >= max(self.sets.working_periods_as_set):
-            #     return pe.Constraint.Skip
 
             allocation = self.vars.get_allocation(i, t)
+            violation = self.vars.get_min_payment_violation(i, t)
+            min_payment = self.pars.get_minimum_monthly_payment(i, t)
             if self.pars.get_is_investment(i):
-                return self.pars.get_minimum_monthly_payment(i, t) <= allocation
+                return violation >= min_payment - allocation
 
             final_payment_order = self.pars.get_final_work_period_index()
             big_m = (
@@ -59,10 +59,7 @@ class _ConstraintMaker:
                 1 - self.vars.get_is_unpaid(i, min(t + 1, final_payment_order))
             )
 
-            return (
-                self.pars.get_minimum_monthly_payment(i, t)
-                <= allocation + allocation_slack
-            )
+            return violation >= min_payment - allocation - allocation_slack
 
         return pe.Constraint(
             itertools.product(self.sets.instruments, self.sets.working_periods_as_set),
