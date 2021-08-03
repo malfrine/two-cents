@@ -1,0 +1,67 @@
+{
+   "financial_profile":{
+      "current_age":36,
+      "monthly_salary_before_tax":8000,
+      "percent_salary_for_spending":25,
+      "province_of_residence":"AB",
+      "risk_tolerance":50,
+      "starting_rrsp_contribution_limit":0,
+      "starting_tfsa_contribution_limit":0,
+      "years_to_death":54,
+      "years_to_retirement":29
+   },
+   "goals":[
+
+   ],
+   "investments":[
+      {
+         "account_type":"RRSP",
+         "current_balance":10000.0,
+         "db_id":29,
+         "investment_type":"Mutual Fund",
+         "name":"RBC",
+         "pre_authorized_monthly_contribution":0,
+         "principal_investment_amount":0.0,
+         "interest_rate": {
+             "interest_type": "Investment Return Rate",
+             "roi":7.5,
+             "volatility": 7.5
+         }
+      }
+   ],
+   "loans":[
+      {
+         "current_balance":-500000.0,
+         "db_id":34,
+         "final_month":353,
+         "interest_rate":{
+            "current_term_end_month":53,
+            "interest_rate":{
+               "apr":1.6,
+               "interest_type":"Fixed"
+            },
+            "interest_type":"Mortgage Interest Rate"
+         },
+         "loan_type":"Mortgage",
+         "minimum_monthly_payment":2500.0,
+         "name":"House"
+      },
+      {
+         "current_balance":-25000.0,
+         "db_id":33,
+         "final_month":65,
+         "interest_rate":{
+            "apr":1.6,
+            "interest_type":"Fixed"
+         },
+         "loan_type":"Car Loan",
+         "minimum_monthly_payment":500.0,
+         "name":"Car"
+      }
+   ],
+   "strategies":[
+      "Two Cents Plan",
+      "Avalanche Plan",
+      "Snowball Plan"
+   ]
+}
