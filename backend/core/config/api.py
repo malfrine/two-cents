@@ -16,6 +16,7 @@ from core.apps.users.views import AccountViewSet
 api = routers.DefaultRouter()
 api.trailing_slash = "/?"
 
+
 # Users API
 api.register(r"my/account", AccountViewSet, basename="account")
 api.register(r"my/finances", UserFinancesViewset, basename="user-finances")

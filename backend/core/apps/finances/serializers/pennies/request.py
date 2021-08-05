@@ -33,6 +33,11 @@ class PenniesInvestmentSerializer(serializers.ModelSerializer):
                 },
                 "final_month": rep.get("final_month"),
             }
+        elif investment_type == InvestmentType.CASH:
+            rep.pop("interest_type")
+            interest_rate = {
+                "interest_type": "Zero Growth",
+            }
         else:
             rep.pop("interest_type")
             interest_rate = {

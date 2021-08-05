@@ -50,10 +50,8 @@ def create_user(serializer: UserWriteSerializer):
             )
     try:
         firebase_auth.create_user(email=email, password=password)
-    except Exception:
-        raise serializers.ValidationError(
-            "Firebase error", code=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+    except Exception as e:
+        raise serializers.ValidationError(e, code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     user = serializer.save()
     user.save()

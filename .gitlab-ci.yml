@@ -1,9 +1,12 @@
+services:
+    - postgres
+
 stages:
   - static analysis
   - test
   - approve_pr
   - approve_deployment
-  - deploy # just a test
+  - deploy
 
 
 flake8:
@@ -16,17 +19,28 @@ flake8:
   only:
     - merge_requests
 
-pennies_test:
+backend_test:
   stage: test
   image: python:3.8
+  services:
+    - name: postgres:10.1-alpine
+      alias: postgres
+  variables:
+    POSTGRES_PORT: 5432
+    POSTGRES_DB: two-cents
+    POSTGRES_USER: postgresuser
+    POSTGRES_PASSWORD: mysecretpass
+    TESTING: "True"
   script:
     - apt-get update -qy
     - apt-get install -y python-dev python-pip
     - apt-get install -y coinor-cbc
     - cd backend
     - pip install -r requirements.txt
-    - cd core/apps/pennies
-    - pytest
+    - cd core
+    - python runtests.py # run backend tests
+    - cd apps/pennies
+    - pytest # run pennies tests
   allow_failure: false
   only:
     - merge_requests

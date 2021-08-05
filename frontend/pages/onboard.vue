@@ -524,7 +524,7 @@ export default {
       userInfo.account = {
         email: this.email,
         password: this.password,
-        first_name: this.firstName || 'hi'
+        first_name: this.firstName || ''
       }
       // add basic info
       userInfo.financial_profile = {

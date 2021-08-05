@@ -1,0 +1,118 @@
+{
+   "financial_profile":{
+      "current_age":27,
+      "monthly_salary_before_tax":8000,
+      "percent_salary_for_spending":20,
+      "province_of_residence":"BC",
+      "risk_tolerance":50,
+      "starting_rrsp_contribution_limit":77760,
+      "starting_tfsa_contribution_limit":60500,
+      "years_to_death":63,
+      "years_to_retirement":33
+   },
+   "goals":[
+      {
+         "amount":26880.0,
+         "due_month":0,
+         "name":"Nest Egg",
+         "type":"Nest Egg"
+      }
+   ],
+   "investments":[
+      {
+         "account_type":"Non-Registered",
+         "current_balance":10000.0,
+         "db_id":68,
+         "final_month":null,
+         "interest_rate":{
+            "interest_type":"Zero Growth"
+         },
+         "investment_type":"Cash",
+         "name":"Cash Account",
+         "pre_authorized_monthly_contribution":0.0,
+         "prime_modifier":null,
+         "principal_investment_amount":null,
+         "start_month":null
+      },
+      {
+         "account_type":"RRSP",
+         "current_balance":0.0,
+         "db_id":70,
+         "final_month":null,
+         "interest_rate":{
+            "interest_type":"Investment Return Rate",
+            "roi":3.5,
+            "volatility":2.5
+         },
+         "investment_type":"Portfolio",
+         "name":"RRSP Portfolio",
+         "pre_authorized_monthly_contribution":0.0,
+         "prime_modifier":null,
+         "principal_investment_amount":null,
+         "start_month":null
+      },
+      {
+         "account_type":"Non-Registered",
+         "current_balance":0.0,
+         "db_id":71,
+         "final_month":null,
+         "interest_rate":{
+            "interest_type":"Investment Return Rate",
+            "roi":5.0,
+            "volatility":5
+         },
+         "investment_type":"Mutual Fund",
+         "name":"Non Registerd Portfolio",
+         "pre_authorized_monthly_contribution":0.0,
+         "prime_modifier":null,
+         "principal_investment_amount":null,
+         "start_month":null
+      },
+      {
+         "account_type":"TFSA",
+         "current_balance":0.0,
+         "db_id":69,
+         "final_month":null,
+         "interest_rate":{
+            "interest_type":"Investment Return Rate",
+            "roi":5.0,
+            "volatility":5
+         },
+         "investment_type":"Portfolio",
+         "name":"TFSA Portfolio",
+         "pre_authorized_monthly_contribution":0.0,
+         "prime_modifier":null,
+         "principal_investment_amount":0.0,
+         "start_month":null
+      }
+   ],
+   "loans":[
+      {
+         "current_balance":-100.0,
+         "db_id":42,
+         "interest_rate":{
+            "apr":20.0,
+            "interest_type":"Fixed"
+         },
+         "loan_type":"Credit Card",
+         "name":"Credit Card"
+      },
+      {
+         "current_balance":-98000.0,
+         "db_id":43,
+         "final_month":106,
+         "interest_rate":{
+            "apr":2.5,
+            "interest_type":"Fixed"
+         },
+         "loan_type":"Student Loan",
+         "minimum_monthly_payment":1040.0,
+         "name":"Student Loan"
+      }
+   ],
+   "strategies":[
+      "Two Cents Plan",
+      "Avalanche Plan",
+      "Snowball Plan"
+   ]
+}

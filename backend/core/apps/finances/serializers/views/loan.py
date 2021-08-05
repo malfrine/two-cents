@@ -88,9 +88,9 @@ class LoanSerializer(serializers.ModelSerializer):
             if field in attrs:
                 attrs.pop(field)
         for field in mandatory_fields:
-            if not attrs[field]:
+            if attrs.get(field) is None:
                 raise serializers.ValidationError(
-                    f"Mortgage loans must have '{field}' in input"
+                    f"{loan_type} loan must have '{field}' in input"
                 )
         return attrs
 

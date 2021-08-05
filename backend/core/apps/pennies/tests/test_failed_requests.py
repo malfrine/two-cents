@@ -32,4 +32,4 @@ def test_process_all_failed_requests():
 
 
 def test_fail_request():
-    _assert_successful_solve("fail8.json")
+    _assert_successful_solve("fail9.json")
