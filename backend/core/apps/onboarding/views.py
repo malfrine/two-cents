@@ -12,7 +12,7 @@ from core.apps.finances.models.investments import (
     Investment,
     InvestmentType,
     RiskChoices,
-    get_risk_level_map,
+    get_risk_level_map, InvestmentAccountType,
 )
 from core.apps.finances.models.loans import (
     Loan,
@@ -27,7 +27,6 @@ from core.apps.finances.utilities import (
 )
 from core.apps.users.serializers import UserWriteSerializer
 from core.apps.users.utilities import create_user, delete_user
-from pennies.model.constants import InvestmentAccountType
 
 NEST_EGG_MONTHS = 6
 
@@ -118,7 +117,7 @@ def create_investments(user, data):
 
 def create_loans(user, data):
     for loan_type, loan_info in data.items():
-        loan_type_enum = LoanType(loan_type)
+        loan_type_enum: LoanType = LoanType(loan_type)
         apr = get_default_apr(loan_type_enum)
         balance = abs(float(loan_info.get("balance", 0)))
         data = {
@@ -126,9 +125,8 @@ def create_loans(user, data):
             "user": user,
             "current_balance": balance,
             "loan_interest": {"interest_type": InterestTypes.FIXED.value, "apr": apr},
-            "loan_type": loan_type_enum,
+            "loan_type": loan_type_enum.value,
         }
-
         if Loan.is_instalment_loan(loan_type=loan_type_enum):
             end_date_str = loan_info.get("date")
             if end_date_str is None:
@@ -155,7 +153,6 @@ def create_loans(user, data):
             data["minimum_monthly_payment"] = calculate_revolving_loan_min_payment(
                 balance, apr
             )
-
         serializer = LoanSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save(user=user)
@@ -163,9 +160,13 @@ def create_loans(user, data):
 
 class OnboardingAPIView(views.APIView):
 
-    MANDATORY_DATA_FIELDS = set(
-        ("account", "financial_profile", "goals", "investments", "loans")
-    )
+    MANDATORY_DATA_FIELDS = {
+        "account",
+        "financial_profile",
+        "goals",
+        "investments",
+        "loans",
+    }
 
     def post(self, request, format=None):
         data_keys = set(request.data.keys())

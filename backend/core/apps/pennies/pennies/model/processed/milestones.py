@@ -77,7 +77,7 @@ class MilestoneFactory:
             name="Positive Net Worth",
             date=milestone_date,
             header="Positive Net Worth",
-            text="Your net worth will be positive on {milestone_date}!",
+            text=f"Your net worth will be positive on {milestone_date}!",
         )
 
     @classmethod

@@ -56,12 +56,13 @@ MIDDLEWARE = [
 # DEBUG
 # ------------------------------------------------------------------------------
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#debug
-DEBUG = env.bool("DEBUG")
+DEBUG = env.bool("DEBUG", default=True)
+TESTING = env.bool("TESTING", default=False)
 SECRET_KEY = env.str("SECRET_KEY")
 
 # DOMAINS
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["*"])
-DOMAIN = env.str("DOMAIN")
+DOMAIN = env.str("DOMAIN", default="localhost")
 
 # EMAIL CONFIGURATION
 # ------------------------------------------------------------------------------
@@ -251,7 +252,7 @@ RAVEN_MIDDLEWARE = [
 MIDDLEWARE = RAVEN_MIDDLEWARE + MIDDLEWARE
 
 # Sentry Configuration
-SENTRY_DSN = "" if DEBUG else env.str("SENTRY_DSN")
+SENTRY_DSN = "" if DEBUG else env.str("SENTRY_DSN", "")
 SENTRY_CLIENT = "raven.contrib.django.raven_compat.DjangoClient"
 LOGGING = {
     "version": 1,
