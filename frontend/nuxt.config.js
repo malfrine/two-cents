@@ -145,7 +145,8 @@ export default {
   },
 
   sentry: {
-    dsn: process.env.SENTRY_DSN || ''
+    dsn: process.env.SENTRY_DSN || '',
+    disabled: isDev
   },
 
   // Vuetify module configuration (https://go.nuxtjs.dev/config-vuetify)
