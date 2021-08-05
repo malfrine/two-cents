@@ -563,19 +563,19 @@ export default {
         }
       }
 
-      console.log(userInfo)
-
       this.$axios.post(
         '/api/my/account/onboard', userInfo
       )
         .then(
           () => {
             this.$fire.auth.signOut() // just in case they were signed in as someone else
+            this.$sentry.captureMessage('Successfully onboarded user', userInfo)
             this.$router.push('login')
           }
         )
         .catch((e) => {
           this.$toast.error('Sorry, could not register your account')
+          this.$sentry.captureException('Failed to onboard user', userInfo)
         })
     }
   },

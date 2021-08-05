@@ -170,6 +170,9 @@ class OnboardingAPIView(views.APIView):
     def post(self, request, format=None):
         data_keys = set(request.data.keys())
         if not self.MANDATORY_DATA_FIELDS.issubset(data_keys):
+            logging.error(
+                "Unable to onboard user because of bad request", extra=request.data
+            )
             return Response(
                 status=status.HTTP_400_BAD_REQUEST,
                 data=f"Missing one of the following mandatory fields: {self.MANDATORY_DATA_FIELDS}",
@@ -187,5 +190,9 @@ class OnboardingAPIView(views.APIView):
             data = None
             if status.is_client_error(e.status_code):
                 data = e.detail
+            logging.error(
+                f"Unable to onboard user because of {e.status_code} status",
+                extra=request.data,
+            )
             return Response(status=e.status_code, data=data)
         return Response(status=status.HTTP_200_OK)
