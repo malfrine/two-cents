@@ -68,7 +68,9 @@ const actions = {
       .then((response) => {
         context.commit('SET_ENUMS', response)
       })
-      .catch((e) => { })
+      .catch((e) => {
+        this.$sentry.captureException('Unable to get enums', e)
+      })
   }
 }
 

@@ -109,6 +109,7 @@ const actions = {
         )
         .catch(
           (e) => {
+            this.$sentry.captureException('Failed to create user loan', payload)
             this.$toast.error('Could not create loan')
           }
         )
@@ -121,6 +122,7 @@ const actions = {
         )
         .catch(
           (e) => {
+            this.$sentry.captureException('Failed to update user loan', payload)
             this.$toast.error('Could not update loan')
           }
         )
@@ -135,6 +137,7 @@ const actions = {
       )
       .catch(
         (e) => {
+          this.$sentry.captureException('Failed to delete user loan', payload)
           this.$toast.error('Could not delete loan')
         }
       )
@@ -149,6 +152,7 @@ const actions = {
         )
         .catch(
           (e) => {
+            this.$sentry.captureException('Failed to add user investment', payload)
             this.$toast.error('Could not create investment')
           }
         )
@@ -161,6 +165,7 @@ const actions = {
         )
         .catch(
           (e) => {
+            this.$sentry.captureException('Failed to update user investment', payload)
             this.$toast.error('Could not update investment')
           }
         )
@@ -175,6 +180,7 @@ const actions = {
       )
       .catch(
         (e) => {
+          this.$sentry.captureException('Failed to delete user investment', payload)
           this.$toast.error('Could not delete investment')
         }
       )
@@ -189,6 +195,7 @@ const actions = {
         )
         .catch(
           (e) => {
+            this.$sentry.captureException('Failed to create user goal', payload)
             this.$toast.error('Could not create goal')
           }
         )
@@ -201,6 +208,7 @@ const actions = {
         )
         .catch(
           (e) => {
+            this.$sentry.captureException('Failed to update user goal', payload)
             this.$toast.error('Could not update goal')
           }
         )
@@ -215,6 +223,7 @@ const actions = {
       )
       .catch(
         (e) => {
+          this.$sentry.captureException('Failed to delete user goal', payload)
           this.$toast.error('Could not delete goal')
         }
       )

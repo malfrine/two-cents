@@ -57,6 +57,7 @@ export default {
         )
         .catch(
           (e) => {
+            this.$sentry.captureException('Unable to add user to waitlist', e)
             this.$toast.error('Sorry, we were not able to add you to the waitlist')
           }
         )
