@@ -59,6 +59,7 @@ export default {
           this.$toast.success('Please check your email for next steps')
         })
         .catch((e) => {
+          this.$sentry.captureException('Failed to change user password', e)
           this.$toast.error(e.message)
         })
       this.emailing = false

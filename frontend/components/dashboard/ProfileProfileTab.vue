@@ -179,6 +179,7 @@ export default {
           .catch(
             (e) => {
               this.$toast.error('Could not update your information')
+              this.$sentry.captureExecption('Failed to update user financial information', fp, e)
               this.financial_profile = { ...this.$store.getters['finances/getFinancialProfile'] }
             }
           )

@@ -191,6 +191,7 @@ export default {
       })
       .catch((e) => {
         // this.$toast.error('Could not get your plan')
+        // exception is logged server side
         return null
       })
     if (response) {
@@ -198,6 +199,7 @@ export default {
       const plans = pm.fromResponseData(response)
       this.$store.commit('plan/SET_PLANS', plans)
       this.$store.commit('finances/REGISTER_PLAN_UPDATED')
+      this.$fire.analytics.logEvent('created_plan')
     }
   },
   data () {

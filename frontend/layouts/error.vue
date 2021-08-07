@@ -49,6 +49,9 @@ export default {
       otherError: 'An error occurred'
     }
   },
+  created () {
+    this.$sentry.captureException('An error occured on the frontend', this.error)
+  },
   head () {
     const title =
       this.error.statusCode === 404 ? this.pageNotFound : this.otherError

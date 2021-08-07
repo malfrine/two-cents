@@ -29,6 +29,7 @@ export default {
           return response
         })
         .catch((e) => {
+          this.$sentry.captureException('Unable to get users financial information', e)
           this.$toast.error('Could not get your financial information')
           return null
         })
