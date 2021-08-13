@@ -6,7 +6,7 @@ from pennies.model.financial_profile import FinancialProfile
 from pennies.model.interest_rate import FixedLoanInterestRate
 from pennies.model.loan import PersonalLoan
 from pennies.model.parameters import Parameters
-from pennies.model.processed.plan import ProcessedFinancialPlan
+from pennies.plan_processing.plan import ProcessedFinancialPlan
 from pennies.model.request import PenniesRequest
 from pennies.model.response import PenniesResponse
 from pennies.model.status import PenniesStatus
@@ -36,7 +36,7 @@ def test_lp_equals_avalanche():
         av_payment = milp_ms.allocation.payments.get(loan.id_, 0)
         assert math.isclose(milp_payment, av_payment)
 
-    # assert equality for processed objects
+    # assert equality for plan_processing objects
     response = PenniesResponse.parse_obj(solve_request(request.dict()))
     assert response.status == PenniesStatus.SUCCESS
     assert isinstance(response.result, dict)

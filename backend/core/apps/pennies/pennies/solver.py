@@ -8,7 +8,7 @@ from pennies.model.request import PenniesRequest
 from pennies.model.response import PenniesResponse
 from pennies.model.solution import Solution
 from pennies.model.status import PenniesStatus
-from pennies.solution_processor import SolutionProcessor
+from pennies.plan_processing.solution_processor import SolutionProcessor
 from pennies.strategies import get_strategy
 
 

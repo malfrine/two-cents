@@ -1,10 +1,11 @@
 from pennies.model.problem_input import ProblemInput
-from pennies.model.processed.action_plan import ActionPlanFactory
-from pennies.model.processed.milestones import PlanMilestonesFactory
-from pennies.model.processed.net_worth_forecast import NetWorthForecastFactory
-from pennies.model.processed.plan import ProcessedFinancialPlan
-from pennies.model.processed.solution import ProcessedSolution
-from pennies.model.processed.summaries import PlanSummariesFactory
+from pennies.plan_processing.action_plan import ActionPlanFactory
+from pennies.plan_processing.failures import PlanFailuresFactory
+from pennies.plan_processing.milestones import PlanMilestonesFactory
+from pennies.plan_processing.net_worth_forecast import NetWorthForecastFactory
+from pennies.plan_processing.plan import ProcessedFinancialPlan
+from pennies.plan_processing.solution import ProcessedSolution
+from pennies.plan_processing.summaries import PlanSummariesFactory
 from pennies.model.solution import Solution, FinancialPlan
 
 
@@ -27,4 +28,5 @@ class SolutionProcessor:
             summaries=PlanSummariesFactory.from_plan(plan, problem_input),
             milestones=PlanMilestonesFactory.create(plan, problem_input),
             action_plan=ActionPlanFactory.from_plan(plan),
+            failures=PlanFailuresFactory.create(plan, problem_input),
         )
