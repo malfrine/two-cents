@@ -28,15 +28,15 @@
         </v-card-text>
 
         <v-divider />
-        <v-row justify="space-between">
-          <v-col cols="12" md="6" class="d-flex justify-center justify-md-start">
+        <v-row justify="space-between" class="py-4">
+          <v-col cols="12" md="6" class="d-flex justify-center justify-md-start py-0">
             <v-row no-gutters class="d-flex justify-center justify-md-start">
               <TOSDialog class="mr-2" />
               |
               <PrivacyPolicyDialog class="ml-2" />
             </v-row>
           </v-col>
-          <v-col cols="12" md="6" class="d-flex justify-center justify-md-end">
+          <v-col cols="12" md="6" class="d-flex justify-center justify-md-end py-0">
             {{ new Date().getFullYear() }} — <strong>Two Cents</strong>
           </v-col>
         </v-row>
