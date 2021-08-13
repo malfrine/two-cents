@@ -1,5 +1,5 @@
 from typing import Dict, NewType
 
-from pennies.model.processed.plan import ProcessedFinancialPlan
+from pennies.plan_processing.plan import ProcessedFinancialPlan
 
 ProcessedSolution = NewType("ProcessedSolution", Dict[str, ProcessedFinancialPlan])

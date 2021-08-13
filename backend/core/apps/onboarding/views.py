@@ -12,7 +12,8 @@ from core.apps.finances.models.investments import (
     Investment,
     InvestmentType,
     RiskChoices,
-    get_risk_level_map, InvestmentAccountType,
+    get_risk_level_map,
+    InvestmentAccountType,
 )
 from core.apps.finances.models.loans import (
     Loan,

@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, validator, ValidationError
@@ -105,6 +105,9 @@ class Portfolio(BaseModel):
 
     def get_instrument(self, id_: UUID) -> Instrument:
         return get_value_from_dict(id_, self.instruments)
+
+    def get_instrument_or_none(self, id_: UUID) -> Optional[Instrument]:
+        return self.instruments.get(id_)
 
     def get_debt(self) -> float:
         return abs(sum(loan.current_balance for loan in self.loans))

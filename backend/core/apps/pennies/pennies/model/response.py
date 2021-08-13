@@ -2,7 +2,7 @@ from typing import Union
 
 from pydantic import BaseModel
 
-from pennies.model.processed.solution import ProcessedSolution
+from pennies.plan_processing.solution import ProcessedSolution
 from pennies.model.status import PenniesStatus
 
 

@@ -5,12 +5,16 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from pennies.model.decision_periods import DecisionPeriodsManagerFactory
 from pennies.model.goal import AllGoalTypes, NestEgg, BigPurchase
-from pennies.model.investment import Cash
 from pennies.model.loan import Loan
 from pennies.model.problem_input import ProblemInput
 from pennies.model.solution import FinancialPlan
+from pennies.plan_processing.utilities import (
+    get_loan_pay_off_date,
+    get_nest_egg_completion_month_or_none,
+    get_actual_big_purchase_amount_and_withdrawals,
+    get_nest_egg_cash_balance_requirements,
+)
 from pennies.utilities.datetime import (
     get_first_date_of_next_month,
     get_months_difference,
@@ -185,7 +189,7 @@ class PlanMilestonesFactory:
         )
         milestones = list()
         for loan in all_loans:
-            payoff_date = cls.get_loan_payoff_date(loan, plan, start_date)
+            payoff_date = get_loan_pay_off_date(loan, plan, start_date)
             if payoff_date is None:
                 continue
             interest_paid = plan.get_interest_paid_on_loan(loan.id_)
@@ -195,18 +199,6 @@ class PlanMilestonesFactory:
                 )
             )
         return milestones
-
-    @classmethod
-    def get_loan_payoff_date(
-        cls, loan: Loan, plan: FinancialPlan, start_date: date
-    ) -> Optional[date]:
-        for month, ms in enumerate(plan.monthly_solutions):
-            loan_at_month = ms.portfolio.loans_by_id.get(loan.id_, None)
-            if loan_at_month is None:
-                return get_date_plus_month(start_date, month + 1)
-            elif loan_at_month.current_balance >= _ALMOST_ZERO_LOWER_BOUND:
-                return get_date_plus_month(start_date, month + 1)
-        return None
 
     @classmethod
     def get_debt_free_milestone(
@@ -235,49 +227,25 @@ class PlanMilestonesFactory:
         return MilestoneFactory.make_positive_net_worth_milestone(milestone_date)
 
     @classmethod
-    def make_nest_egg_requirements(cls, goals: Dict[UUID, AllGoalTypes]):
-        nest_egg_goals = [goal for goal in goals.values() if isinstance(goal, NestEgg)]
-        nest_egg_goals = sorted(nest_egg_goals, key=lambda x: x.due_month)
-        nest_egg_requirements = list()
-        for i in range(len(nest_egg_goals)):
-            amount_needed = sum(goal.amount for goal in nest_egg_goals[:i])
-            goal = nest_egg_goals[i]
-            nest_egg_requirements.append((goal, amount_needed))
-        return nest_egg_requirements
-
-    @classmethod
-    def make_nest_egg_milestone(
-        cls, plan: FinancialPlan, goal: NestEgg, start_date: date, amount_needed: float
-    ) -> Milestone:
-        current_month = goal.due_month - 1
-        while True:
-            current_month += 1
-            monthly_solution = plan.monthly_solutions[current_month]
-            current_cash_balance = sum(
-                i.current_balance
-                for i in monthly_solution.portfolio.investments()
-                if isinstance(i, Cash)
+    def get_nest_egg_milestones(
+        cls, goals: Dict[UUID, NestEgg], plan: FinancialPlan, start_date: date
+    ) -> List[Milestone]:
+        milestones = list()
+        nest_egg_requirements = get_nest_egg_cash_balance_requirements(goals=goals)
+        for goal, amount_needed in nest_egg_requirements:
+            completion_month = get_nest_egg_completion_month_or_none(
+                goal, plan, amount_needed
             )
-            if current_cash_balance >= amount_needed:
-                completion_date = get_date_plus_month(start_date, current_month)
+            if completion_month is None:
+                continue
+            else:
+                completion_date = get_date_plus_month(start_date, completion_month)
                 milestone = MilestoneFactory.make_nest_egg_completed_milestone(
                     completion_date=completion_date,
                     goal_due_date=get_date_plus_month(start_date, goal.due_month),
                     goal=goal,
                 )
-                return milestone
-
-    @classmethod
-    def get_nest_egg_milestones(
-        cls, goals: Dict[UUID, NestEgg], plan: FinancialPlan, start_date: date
-    ) -> List[Milestone]:
-        milestones = list()
-        nest_egg_requirements = cls.make_nest_egg_requirements(goals=goals)
-        for goal, amount_needed in nest_egg_requirements:
-            nest_egg_milestone = cls.make_nest_egg_milestone(
-                plan=plan, goal=goal, start_date=start_date, amount_needed=amount_needed
-            )
-            milestones.append(nest_egg_milestone)
+                milestones.append(milestone)
         return milestones
 
     @classmethod
@@ -290,24 +258,15 @@ class PlanMilestonesFactory:
         ]
         big_purchase_goals = sorted(big_purchase_goals, key=lambda x: x.due_month)
         for goal in big_purchase_goals:
-            # TODO: how to handle multiple big purchases on the same day???
-            monthly_withdrawal = plan.monthly_solutions[goal.due_month].withdrawals
-            portfolio = plan.monthly_solutions[goal.due_month].portfolio
-            withdrawal_list = [
-                (
-                    portfolio.get_instrument(investment_id).name,
-                    amount * DecisionPeriodsManagerFactory.max_months,
-                )
-                # TODO: this is a quick fix to multiply by max_months
-                for investment_id, amount in monthly_withdrawal.items()
-                if amount > 0
-            ]
-            total_purchase = sum(amount for _, amount in withdrawal_list)
+            (
+                actual_purchase,
+                withdrawals,
+            ) = get_actual_big_purchase_amount_and_withdrawals(goal, plan)
             milestone = MilestoneFactory.make_big_purchase_milestone(
                 goal=goal,
                 goal_due_date=get_date_plus_month(start_date, goal.due_month),
-                actual_purchase_amount=total_purchase,
-                withdrawals=withdrawal_list,
+                actual_purchase_amount=actual_purchase,
+                withdrawals=withdrawals,
             )
             milestones.append(milestone)
         return milestones
