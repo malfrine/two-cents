@@ -39,7 +39,7 @@ class PlanFailureType(Enum):
 
 
 class PlanFailure(BaseModel):
-    failure_type: PlanFailureType
+    failure_type: str
     header: str
     text: str
     instrument_id: Optional[int] = None
@@ -61,7 +61,7 @@ class PlanFailure(BaseModel):
             )
 
         return PlanFailure(
-            failure_type=PlanFailureType.LOAN_DEFAULT,
+            failure_type=PlanFailureType.LOAN_DEFAULT.value,
             header=f"Unable to pay off {loan.name} on time",
             text=text,
         )
@@ -76,7 +76,7 @@ class PlanFailure(BaseModel):
             f"on dates ranging from {min_date} to {max_date}"
         )
         return PlanFailure(
-            failure_type=PlanFailureType.MIN_PAYMENT,
+            failure_type=PlanFailureType.MIN_PAYMENT.value,
             header=f"Missed some payments on {loan.name}",
             text=text,
         )
@@ -93,7 +93,7 @@ class PlanFailure(BaseModel):
             f"{investment.name} on dates ranging from {min_date} to {max_date}"
         )
         return PlanFailure(
-            failure_type=PlanFailureType.PRE_AUTHORIZED_CONTRIBUTION,
+            failure_type=PlanFailureType.PRE_AUTHORIZED_CONTRIBUTION.value,
             header=f"Missed some payments on {investment.name}",
             text=text,
         )
@@ -113,7 +113,7 @@ class PlanFailure(BaseModel):
                 f"egg goal and only complete goal on {actual_completion_date}"
             )
         return PlanFailure(
-            failure_type=PlanFailureType.UNSATISFIED_GOAL,
+            failure_type=PlanFailureType.UNSATISFIED_GOA.value,
             header=f"Unable to build nest egg for {goal.name} by {expected_completion_date}",
             text=text,
         )
@@ -121,7 +121,7 @@ class PlanFailure(BaseModel):
     @classmethod
     def make_failed_big_purchase_goal(cls, goal: BigPurchase, actual_amount: float):
         return PlanFailure(
-            failure_type=PlanFailureType.UNSATISFIED_GOAL,
+            failure_type=PlanFailureType.UNSATISFIED_GOAL.value,
             header=f"Unable to purchase {goal.name} for ${goal.amount:,.0f}",
             text=f"Only able to save up ${actual_amount:,.0f}",
         )
