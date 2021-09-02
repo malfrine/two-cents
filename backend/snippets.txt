@@ -10,3 +10,6 @@ def dispatch(self, *args, **kwargs):
 
 # bash script to chown of some files - (docker makes files root protected when running django startapp)
 sudo chown <new-owner-name> <path>
+
+# cut first X lines of a file
+cut -c X- file.txt

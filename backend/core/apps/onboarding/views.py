@@ -79,7 +79,7 @@ def get_default_investment_risk_level(risk_tolerance: float):
     for (lower_bound, upper_bound), risk_choice in risk_level_map.items():
         if lower_bound <= risk_tolerance <= upper_bound:
             return risk_choice
-    logging.warn(
+    logging.warning(
         f"Couldn't find default risk choise for risk tolerance: {risk_tolerance}"
     )
     return RiskChoices.MEDIUM
@@ -103,7 +103,7 @@ def create_investments(user, data):
         current_balance=data.get("rrsp", 0),
         investment_type=InvestmentType.PORTFOLIO,
         account_type=InvestmentAccountType.RRSP.value,
-        risk_level=RiskChoices.LOW,
+        risk_level=risk_level,
     )
     rrsp.save()
     non_registered = Investment(

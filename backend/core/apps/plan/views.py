@@ -1,3 +1,4 @@
+import json
 import logging
 
 from rest_framework import viewsets, status
@@ -35,6 +36,7 @@ class UserPlanViewSet(viewsets.GenericViewSet):
                 )
                 send_failed_request_message()
             else:
+                print(json.dumps(pennies_request.data, indent=3))
                 print(pennies_response["result"])
             return Response(
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,

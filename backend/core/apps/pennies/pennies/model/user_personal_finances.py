@@ -15,14 +15,14 @@ class UserPersonalFinances(BaseModel):
     goals: Dict[UUID, AllGoalTypes]
 
     def __str__(self):
-        return "name: {:s}, monthly_allowance ${:,.2f} \n".format(
-            self.name, self.financial_profile.monthly_allowance_before_retirement
+        return "name: {:s}, monthly_salary_before_tax ${:,.2f} \n".format(
+            self.name, self.financial_profile.monthly_salary_before_tax
         ) + "portfolio: \n\t{}".format(str(self.portfolio))
 
-    @property
-    def final_month(self):
-        """The final month that calculations need to be run for"""
-        return max(self.portfolio.final_month, self.financial_profile.retirement_month)
+    # @property
+    # def final_month(self):
+    #     """The final month that calculations need to be run for"""
+    #     return max(self.portfolio.final_month, self.financial_profile.retirement_month)
 
     # @root_validator
     # def enough_funds_to_solve(cls, values):

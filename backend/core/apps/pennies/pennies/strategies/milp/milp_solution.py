@@ -12,12 +12,22 @@ from pennies.strategies.milp.milp import MILP
 from pennies.strategies.milp.objective import MILPObjective
 from pennies.strategies.milp.parameters import MILPParameters
 from pennies.strategies.milp.sets import MILPSets
+from pennies.strategies.milp.utilities import AttributeUtility
 from pennies.strategies.milp.variables import MILPVariables
 
 
 @dataclass
 class MILPSolution:
     milp: MILP
+
+    attribute_utility: AttributeUtility = None
+
+    def __post_init__(self):
+        self.attribute_utility = AttributeUtility(
+            sets=self.milp.sets,
+            pars=self.milp.milp_parameters,
+            vars=self.milp.variables,
+        )
 
     @property
     def sets(self) -> MILPSets:
@@ -67,10 +77,7 @@ class MILPSolution:
             return pe.value(self.vars.get_withdrawal(i_, t_))
 
         return [
-            {
-                i: get_withdrawal(i, t)
-                for i in self.sets.investments_and_guaranteed_investments
-            }
+            {i: get_withdrawal(i, t) for i in self.sets.investments}
             for t in list(sorted(self.sets.all_decision_periods_as_set))
             for _ in range(self.sets.get_num_months_in_decision_period(t))
         ]
@@ -102,7 +109,7 @@ class MILPSolution:
         return pre_tax_income - tax
 
     def get_monthly_allowance(self, t):
-        return self.pars.get_savings_fraction() * self.get_post_tax_monthly_income(t)
+        return self.pars.get_savings_fraction(t) * self.get_post_tax_monthly_income(t)
 
     def get_taxes_accrued_in_bracket(self, t, e, b):
         return pe.value(self.vars.get_taxes_accrued_in_bracket(t, e, b))
@@ -122,8 +129,11 @@ class MILPSolution:
         logging.debug(
             f"Savings goal violation costs: {pe.value(c.get_savings_goal_violation_cost())}"
         )
-        logging.debug(f"Taxes paid: {pe.value(c.get_taxes_paid())}")
-        logging.debug(f"Taxes overflow costs: {pe.value(c.get_taxes_overflow_cost())}")
+        logging.debug(
+            f"Min payment violation costs: {pe.value(c.get_min_payment_violation_cost())}"
+        )
+
+        # logging.debug(f"Taxes overflow costs: {pe.value(c.get_taxes_overflow_cost())}")
         logging.debug(f"Interest Earned: {pe.value(c.get_interest_earned())}")
         logging.debug(f"Final net worth: {pe.value(c.get_final_net_worth())}")
         logging.debug(f"Total: {pe.value(c.get_obj())}")
@@ -139,21 +149,22 @@ class MILPSolution:
             withdrawals = monthly_withdrawals[dp_month]
             total_withdrawals = sum(w for w in withdrawals.values())
             tfsa_withdrawals = sum(
-                withdrawals.get(i, 0)
-                for i in self.sets.tfsa_investments_and_guaranteed_investments
+                withdrawals.get(i, 0) for i in self.sets.tfsa_investments
             )
             rrsp_contributions = sum(
-                payments.get(i, 0)
-                for i in self.sets.rrsp_investments_and_guaranteed_investments
+                payments.get(i, 0) for i in self.sets.rrsp_investments
             )
             portfolio_instruments = dict()
             for i in self.sets.instruments:
                 instrument = self.user_personal_finances.portfolio.get_instrument(
                     i
                 ).copy(deep=True)
-                instrument.current_balance = round(
-                    pe.value(self.vars.get_balance(i, dp.index)), 2
-                )
+                if dp.index == 0:
+                    instrument.current_balance = self.pars.get_starting_balance(i)
+                else:
+                    instrument.current_balance = round(
+                        pe.value(self.vars.get_balance(i, dp.index - 1)), 2
+                    )
                 portfolio_instruments[i] = instrument
             portfolio = Portfolio(instruments=portfolio_instruments)
             allocation = MonthlyAllocation(

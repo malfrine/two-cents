@@ -1,56 +1,66 @@
 from dataclasses import dataclass
-from typing import Dict, Optional
+from math import ceil
+from typing import Dict
 from uuid import UUID
 
 from pennies.model.constants import InvestmentAccountType
 from pennies.model.instrument import Instrument
-from pennies.model.investment import Investment, GuaranteedInvestment
-from pennies.model.loan import Loan, RevolvingLoan
-from pennies.model.rrsp import RRSPAnnualLimitGetter
+from pennies.model.investment import (
+    NonGuaranteedInvestment,
+    GuaranteedInvestment,
+    BaseInvestment,
+)
+from pennies.model.loan import RevolvingLoan
+from pennies.model.rrsp import RRSPAnnualLimitGetter, RRSP_LIMIT_INCOME_FACTOR
+from pennies.model.taxes import (
+    CAPITAL_GAINS_TAX_PERCENTAGE,
+    MAX_MARGINAL_MONTHLY_INCOME,
+)
 from pennies.model.tfsa import TFSALimitGetter
 from pennies.model.user_personal_finances import UserPersonalFinances
 from pennies.strategies.milp.sets import MILPSets
+from pennies.utilities.datetime import MONTHS_IN_YEAR
 
 
 @dataclass
 class MILPParameters:
     user_finances: UserPersonalFinances
     sets: MILPSets
-    _instrument_bounds: Dict[str, float] = None
-    MAX_VOLATILITY = 100
+    loan_bounds: Dict[str, float] = None
+    MAX_VOLATILITY = 10
+    INSTRUMENT_UPPER_BOUND_FACTOR = 1.4
+    ADDITIONAL_ALLOCATION_FACTOR = 1.5
 
     def __post_init__(self):
-        self._instrument_bounds = dict()
+        self.loan_bounds = dict()
+        final_month = self.user_finances.financial_profile.death_month
+        for loan_id in self.sets.loans:
+            loan = self._get_instrument(loan_id)
+            max_monthly_interest_rate = max(
+                loan.monthly_interest_rate(month) for month in range(final_month)
+            )
+            upper_bound = (
+                loan.current_balance * (1 + max_monthly_interest_rate) ** final_month
+            )
+            self.loan_bounds[loan_id] = (
+                ceil(upper_bound) * self.INSTRUMENT_UPPER_BOUND_FACTOR
+            )
 
     def _get_instrument(self, id_: UUID) -> Instrument:
         return self.user_finances.portfolio.instruments[id_]
 
-    def _get_loan(self, id_: UUID) -> Loan:
-        return self.user_finances.portfolio.instruments[id_]
-
-    def _get_investment(self, name) -> Investment:
-        return self.user_finances.portfolio.investments_by_name[name]
-
     def get_average_interest_rate(self, id_: UUID, payment_horizon: int) -> float:
         months = self.sets.decision_periods.data[payment_horizon].months
-        return sum(
+        total_interest_rate = sum(
             self._get_instrument(id_).monthly_interest_rate(month) for month in months
-        ) / len(months)
+        )
+        return total_interest_rate / len(months)
 
-    def get_volatility(self, id) -> float:
-        return self._get_investment(id).volatility
+    def get_instrument_volatility(self, id) -> float:
+        return self._get_instrument(id).volatility
 
     def get_max_investment_volatility(self):
-        return max(
-            list(self.get_volatility(i) for i in self.sets.non_cash_investments),
-            default=0,
-        )
-
-    def get_min_investment_volatility(self):
-        return min(
-            list(self.get_volatility(i) for i in self.sets.non_cash_investments),
-            default=0,
-        )
+        return self.MAX_VOLATILITY
 
     def get_starting_balance(self, id_: UUID):
         return self._get_instrument(id_).current_balance
@@ -80,61 +90,37 @@ class MILPParameters:
             self.user_finances.portfolio.get_instrument(id_), RevolvingLoan
         )
 
-    def get_is_investment(self, id_):
-        return (
-            self.user_finances.portfolio.investments_by_name.get(id_, None) is not None
-        )
+    def get_is_non_guaranteed_investment(self, id_):
+        return isinstance(self._get_instrument(id_), NonGuaranteedInvestment)
 
     def get_is_guaranteed_investment(self, id_):
-        return isinstance(
-            self.user_finances.portfolio.get_instrument(id_), GuaranteedInvestment
-        )
+        return isinstance(self._get_instrument(id_), GuaranteedInvestment)
+
+    def get_is_investment(self, id_):
+        return isinstance(self._get_instrument(id_), BaseInvestment)
 
     def has_loans(self) -> bool:
-        return len(self.user_finances.portfolio.loans) > 0
+        return len(self.sets.loans) > 0
 
     def has_investments(self) -> bool:
-        return len(self.user_finances.portfolio.investments()) > 0
+        return len(self.sets.investments) > 0
 
     def get_final_month(self, id_) -> int:
-        return (
-            self._get_instrument(id_).final_month
-            or self.user_finances.financial_profile.retirement_month
-        )
+        """Must pay off every loan by retirement month"""
+        final_month = self._get_instrument(id_).final_month
+        retirement_month = self.get_retirement_month()
+        return final_month or retirement_month
 
-    def get_instrument_final_payment_horizon(self, id_):
+    def get_instrument_due_decision_period(self, id_):
         return self.sets.decision_periods.get_corresponding_period(
-            self.get_final_month(id_) - 1
+            self.get_final_month(id_)
         )
 
     def get_final_decision_period_index(self):
-        return self.sets.decision_periods.data[-1].index
-
-    def get_final_work_period_index(self) -> Optional[int]:
-        return max(self.sets.working_periods_as_set, default=None)
+        return self.sets.decision_periods.max_period_index
 
     def get_loan_upper_bound(self, id_):
-        if id_ not in self._instrument_bounds:
-            final_month = self.get_final_month(id_)
-            loan = self._get_loan(id_)
-            max_monthly_interest_rate = max(
-                loan.monthly_interest_rate(month) for month in range(final_month)
-            )
-            self._instrument_bounds[id_] = round(
-                loan.current_balance
-                * (1 + max_monthly_interest_rate) ** self.get_final_month(id_)
-            )
-        return self._instrument_bounds[id_]
-
-    def get_constraint_violation_penalty(self):
-        final_month = self.user_finances.financial_profile.retirement_month
-        monthly_allowance = (
-            self.user_finances.financial_profile.monthly_allowance_before_retirement
-        )
-        starting_investment_worth = sum(
-            self.get_starting_balance(i) for i in self.sets.investments
-        )
-        return starting_investment_worth + monthly_allowance * final_month
+        return self.loan_bounds[id_]
 
     def get_bracket_marginal_tax_rate(self, e: str, b: int):
         return self.sets.income_tax_brackets[e].data[b].marginal_tax_rate_as_fraction
@@ -143,16 +129,37 @@ class MILPParameters:
         return self.sets.income_tax_brackets[e].data[b].monthly_marginal_upper_bound
 
     def get_bracket_cumulative_income(self, e: str, b: int):
-        return self.sets.income_tax_brackets[e].get_bracket_cumulative_income(b) / 12
+        return (
+            self.sets.income_tax_brackets[e].get_bracket_cumulative_income(b)
+            / MONTHS_IN_YEAR
+        )
+
+    def get_previous_bracket_cumulative_income(self, e: str, b: int):
+        if b == 0:
+            return 0
+        else:
+            return self.get_bracket_cumulative_income(e, b - 1)
 
     def get_minimum_monthly_withdrawals(self, t):
-        if t > self.get_retirement_decision_period_index():
+        if self.get_is_retired(t):
             return self.user_finances.financial_profile.monthly_retirement_spending
         else:
             return 0
 
-    def get_rrsp_limit(self, year: int):
-        return RRSPAnnualLimitGetter.get_limit(year)
+    def get_annual_income(self, year: int):
+        decision_periods = self.sets.decision_periods.get_decision_period_instances_in_year(
+            year
+        )
+        return sum(
+            self.get_before_tax_monthly_income(dp.index) for dp in decision_periods
+        )
+
+    def get_additional_rrsp_limit(self, year: int):
+        annual_income = self.get_annual_income(year)
+        return min(
+            RRSPAnnualLimitGetter.get_limit(year),
+            annual_income * RRSP_LIMIT_INCOME_FACTOR,
+        )
 
     def get_starting_rrsp_deduction_limit(self) -> float:
         return self.user_finances.financial_profile.starting_rrsp_contribution_limit
@@ -206,7 +213,7 @@ class MILPParameters:
     def get_is_rrsp_investment(self, instrument_id):
         instrument = self._get_instrument(instrument_id)
         return (
-            isinstance(instrument, Investment)
+            isinstance(instrument, NonGuaranteedInvestment)
             and instrument.account_type == InvestmentAccountType.RRSP
         )
 
@@ -215,14 +222,6 @@ class MILPParameters:
 
     def get_retirement_decision_period_index(self):
         return min(self.sets.retirement_periods_as_set)
-
-    def get_num_months_between_decision_periods(
-        self, start_dp_index: int, end_dp_index: int
-    ):
-        return sum(
-            self.sets.get_num_months_in_decision_period(dp_index)
-            for dp_index in range(start_dp_index, end_dp_index)
-        )
 
     def get_max_monthly_payment(self, instrument_id, decision_period_index):
         months = self.sets.get_months_in_horizon(decision_period_index)
@@ -242,5 +241,86 @@ class MILPParameters:
     def get_goal_due_month(self, g):
         return self.user_finances.goals[g].due_month
 
-    def get_savings_fraction(self):
-        return self.user_finances.financial_profile.percent_salary_for_spending / 100
+    def get_savings_fraction(self, t: int):
+        if self.get_is_retired(t):
+            return 0
+        else:
+            return (
+                self.user_finances.financial_profile.percent_salary_for_spending / 100
+            )
+
+    def get_capital_gains_tax_fraction(self):
+        return CAPITAL_GAINS_TAX_PERCENTAGE / 100
+
+    def get_allocation_upper_bound(self, decision_period: int):
+        savings_fraction = self.get_savings_fraction(decision_period)
+        pre_tax_income = self.get_before_tax_monthly_income(decision_period)
+        return savings_fraction * pre_tax_income * self.ADDITIONAL_ALLOCATION_FACTOR
+
+    def get_starting_debt(self):
+        return sum(self.get_starting_balance(l) for l in self.sets.loans)
+
+    def get_is_tfsa_investment(self, investment_id: UUID):
+        instrument = self._get_instrument(investment_id)
+        return (
+            isinstance(instrument, NonGuaranteedInvestment)
+            and instrument.account_type == InvestmentAccountType.TFSA
+        )
+
+    def get_annual_pre_tax_income(self, year: int):
+        decision_periods = self.sets.decision_periods.grouped_by_years[year]
+        return sum(
+            self.get_before_tax_monthly_income(dp.index) for dp in decision_periods
+        )
+
+    def get_is_guaranteed_and_matured_investment(self, i, t):
+        if not self.get_is_guaranteed_investment(i):
+            return False
+        else:
+            return self.get_has_guaranteed_investment_matured(i, t)
+
+    def get_is_before_loan_due_date(self, loan_id: UUID, decision_period: int):
+        return (
+            decision_period < self.get_instrument_due_decision_period(loan_id).index - 1
+        )
+
+    def get_is_after_loan_due_date(self, loan_id: UUID, decision_period: int):
+        return (
+            decision_period > self.get_instrument_due_decision_period(loan_id).index - 1
+        )
+
+    def get_goal_decision_period(self, goal_id: UUID):
+        month = self.get_goal_due_month(goal_id)
+        decision_period = self.sets.decision_periods.get_corresponding_period_or_closest(
+            month
+        ).index
+        return decision_period
+
+    def has_rrsp_investments(self):
+        return len(self.sets.rrsp_investments) > 0
+
+    def get_volatility_limit(self):
+        risk_tolerance = self.get_user_risk_profile_as_fraction()
+        max_volatility = self.get_max_investment_volatility()
+        return risk_tolerance * max_volatility
+
+    def get_retirement_month(self) -> int:
+        return self.user_finances.financial_profile.retirement_month
+
+    def get_taxable_income_upper_bound(self, e, b):
+        bracket_marginal_income = self.get_bracket_marginal_income(e, b)
+        max_income = MAX_MARGINAL_MONTHLY_INCOME
+        return bracket_marginal_income + max_income * 10000
+
+    def has_tfsa_investments(self):
+        return len(self.sets.tfsa_investments) > 0
+
+    def get_investment(self, investment_id):
+        return self.user_finances.portfolio.get_investment(investment_id)
+
+    def get_is_purchase_goal_due(self, decision_period: int):
+        for g in self.sets.purchase_goals:
+            goal_decision_period = self.get_goal_decision_period(g)
+            if goal_decision_period == decision_period:
+                return True
+        return False

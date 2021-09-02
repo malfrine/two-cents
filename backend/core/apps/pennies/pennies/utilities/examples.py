@@ -41,12 +41,12 @@ from pennies.strategies import StrategyName
 def financial_profile():
     return FinancialProfile(
         years_to_retirement=40,
-        risk_tolerance=0,
+        risk_tolerance=25,
         province_of_residence=Province.AB,
         starting_rrsp_contribution_limit=0,
         starting_tfsa_contribution_limit=0,
         current_age=25,
-        monthly_salary_before_tax=5000,
+        monthly_salary_before_tax=5_000,
         percent_salary_for_spending=50,
         years_to_death=65,
     )
@@ -117,6 +117,13 @@ def simple_investments() -> List[AllInvestmentTypes]:
             pre_authorized_monthly_contribution=0,
             account_type=InvestmentAccountType.TFSA,
         ),
+        MutualFund(
+            name="medium risk (non-registered)",
+            interest_rate=InvestmentReturnRate(roi=5.0, volatility=5.0),
+            current_balance=0,
+            pre_authorized_monthly_contribution=0,
+            account_type=InvestmentAccountType.NON_REGISTERED,
+        ),
     ]
 
 
@@ -185,7 +192,7 @@ def all_strategies() -> List[str]:
 
 def simple_goals():
     return [
-        NestEgg(name="nest egg", amount=100_000, due_month=1),
+        NestEgg(name="nest egg", amount=15_000, due_month=10),
         BigPurchase(name="boat", amount=15000, due_month=40),
         BigPurchase(name="car", amount=75000, due_month=80),
     ]

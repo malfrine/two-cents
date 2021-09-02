@@ -1,13 +1,15 @@
 import math
-from dataclasses import dataclass
 from typing import List
 
 from pennies.model import taxes
-from pennies.model.constants import Province
-from pennies.model.financial_profile import FinancialProfile
+from pennies.model.constants import Province, InvestmentAccountType
 from pennies.model.instrument import Instrument
-from pennies.model.portfolio import Portfolio
-from pennies.model.taxes import PROVINCIAL_TAX_MAP, IncomeTaxBrackets
+from pennies.model.investment import BaseInvestment
+from pennies.model.taxes import (
+    PROVINCIAL_TAX_MAP,
+    IncomeTaxBrackets,
+    CAPITAL_GAINS_TAX_FRACTION,
+)
 from pennies.utilities.datetime import MONTHS_IN_YEAR
 
 
@@ -101,40 +103,56 @@ def calculate_monthly_income_tax(income: float, province: Province):
     return prov_tax + fed_tax
 
 
-@dataclass
-class DiscountFactorCalculator:
-    portfolio: Portfolio
-    financial_profile: FinancialProfile
+def calculate_instrument_balance(
+    cur_balance, num_months, growth_rate, withdrawal, allocation
+):
+    """not type hinted because this can be used for pyomo constraints"""
+    if num_months < 0:
+        raise ValueError(f"Number of months cannot be negative: {num_months}")
+    elif growth_rate < -0.01:
+        raise ValueError(f"Growth rate cannot be negative: {growth_rate}")
 
-    def calculate_factor(self):
-        expected_roi = self.get_expected_roi()
-        investment_capital = self.get_investment_capital()
-        total_debt = self.get_total_debt()
-        total_weighted_debt = self.get_total_weighted_debt()
-        top = investment_capital * expected_roi + total_weighted_debt
-        bottom = total_debt + investment_capital
-        return top / bottom
+    r = 1 + growth_rate
+    if num_months == 0:
+        return cur_balance
 
-    def get_expected_roi(self):
-        portfolio = self.portfolio
-        min_return = min(i.monthly_interest_rate(0) for i in portfolio.investments())
-        max_return = max(i.monthly_interest_rate(0) for i in portfolio.investments())
-        weight = self.financial_profile.risk_tolerance / 100
-        return min_return + weight * (max_return - min_return)
+    elif r == 1:
+        return cur_balance + (allocation - withdrawal) * num_months
+    else:
+        balance_growth = cur_balance * r ** num_months
+        allocation_growth = (allocation - withdrawal) * (r ** num_months - 1) / (r - 1)
 
-    def get_investment_capital(self):
-        financial_profile = self.financial_profile
-        return (
-            financial_profile.annual_income_before_retirement
-            * financial_profile.years_to_retirement
-        )
+        return balance_growth + allocation_growth
 
-    def get_total_debt(self):
-        portfolio = self.portfolio
-        return sum(abs(l.current_balance) for l in portfolio.loans)
 
-    def get_total_weighted_debt(self):
-        portfolio = self.portfolio
-        return sum(
-            abs(l.current_balance) * l.monthly_interest_rate(0) for l in portfolio.loans
-        )
+def estimate_taxable_withdrawal(
+    investment: BaseInvestment, withdrawal, months: List[int]
+):
+    """
+    This isn't the correct way to calculate capital gains but it's an okay estimation based on the investment lifetime
+    Previous withdrawals and allocations need to be considered
+
+    For RRSPs and TFSAs, this is correct
+    But for Non-registered the ACB (adjusted cost base) is needed - introducing ACB makes the calculation non-linear
+    and not suitable for MILPs
+    """
+    if investment.account_type == InvestmentAccountType.RRSP:
+        # RRSP withdrawals are fully taxed
+        return withdrawal
+    elif investment.account_type == InvestmentAccountType.TFSA:
+        return 0
+    else:  # non-registered investment
+        # estimate based on average interest rate and decision period
+        # can't actually calculate this because of non-linear nature of capital gains calculation
+        estimated_total_return_rate = 1
+        for month in months:
+            estimated_total_return_rate *= 1 + investment.monthly_interest_rate(month)
+        if estimated_total_return_rate <= 0:
+            # TODO: there could be tax write-offs for investments that lose money
+            # but hard to estimate
+            return 0
+        else:
+            capital_gains_fraction = (
+                estimated_total_return_rate - 1
+            ) / estimated_total_return_rate
+            return withdrawal * capital_gains_fraction * CAPITAL_GAINS_TAX_FRACTION

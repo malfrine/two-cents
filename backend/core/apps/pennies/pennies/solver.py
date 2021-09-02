@@ -16,6 +16,7 @@ def solve_request(request: Dict) -> Dict:
     try:
         logging.info(request)
         pennies_request = PenniesRequest.parse_obj(request)
+        print(pennies_request.json(indent=2))
         model_input = ProblemInputFactory.from_request(pennies_request)
         solution = solve(model_input)
         processed_solution = SolutionProcessor.process(solution)

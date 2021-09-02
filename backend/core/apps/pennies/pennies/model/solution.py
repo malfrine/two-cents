@@ -66,7 +66,7 @@ class MonthlySolution(BaseModel):
     def get_total_investments_interest(self, month):
         return sum(
             investment.current_balance * investment.monthly_interest_rate(month=month)
-            for investment in self.portfolio.investments()
+            for investment in self.portfolio.non_guaranteed_investments()
         )
 
     def get_total_interest(self, month: int):
@@ -76,11 +76,14 @@ class MonthlySolution(BaseModel):
         )
 
     def get_current_investments_value(self):
-        return sum(i.current_balance for i in self.portfolio.investments())
+        return sum(
+            i.current_balance for i in self.portfolio.non_guaranteed_investments()
+        )
 
     def get_total_investment_payments(self):
         return sum(
-            self.get_investment_payment(i.id_) for i in self.portfolio.investments()
+            self.get_investment_payment(i.id_)
+            for i in self.portfolio.non_guaranteed_investments()
         )
 
     def get_total_withdrawals(self):

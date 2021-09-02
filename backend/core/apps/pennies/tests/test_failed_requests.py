@@ -14,10 +14,14 @@ def _assert_successful_solve(f: str):
     json_dao = JSONDao(data_dir=PATH_TO_DATA)
     logging.debug(f"Testing request from file {f}")
     request = json_dao.read_request(f).dict()
+
+    # pennies_request = PenniesRequest.parse_obj(request)
+    # assert_correct_milp_calculations(pennies_request)
+
     response = solve_request(request)
-    if response["status"] == PenniesStatus.FAILURE:
-        logging.debug(response["result"])
-        assert False, f"failed {f} with {response['result']}"
+    assert (
+        response["status"] == PenniesStatus.SUCCESS
+    ), f"failed {f} with {response['result']}"
     assert isinstance(response["result"], dict)
     assert len(response["result"]) == len(request["strategies"])
     assert len(response["result"][StrategyName.lp.value]["milestones"]) >= len(
@@ -32,4 +36,4 @@ def test_process_all_failed_requests():
 
 
 def test_fail_request():
-    _assert_successful_solve("fail9.json")
+    _assert_successful_solve("fail1.json")

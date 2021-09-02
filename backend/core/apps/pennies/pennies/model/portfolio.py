@@ -7,9 +7,8 @@ from pennies.model.constants import InvestmentAccountType
 from pennies.model.instrument import Instrument
 from pennies.model.interest_rate import ZeroGrowthRate
 from pennies.model.investment import (
-    Investment,
+    NonGuaranteedInvestment,
     Cash,
-    GuaranteedInvestment,
     BaseInvestment,
 )
 from pennies.model.loan import Loan, Mortgage
@@ -60,43 +59,34 @@ class Portfolio(BaseModel):
         return {loan.id_: loan for loan in self.loans}
 
     @property
-    def instruments_by_id(self) -> Dict[UUID, Instrument]:
-        return {instrument.id_: instrument for instrument in self.instruments.values()}
-
-    @property
-    def rrsp_investments_and_guaranteed_investments(self) -> List[BaseInvestment]:
+    def rrsp_investments(self) -> List[BaseInvestment]:
         return list(
-            i
-            for i in self.instruments.values()
-            if isinstance(i, (Investment, GuaranteedInvestment))
-            and i.account_type == InvestmentAccountType.RRSP
+            i for i in self.investments if i.account_type == InvestmentAccountType.RRSP
         )
 
     @property
-    def non_tfsa_investments_and_guaranteed_investments(self) -> List[BaseInvestment]:
+    def investments(self):
+        return list(
+            i for i in self.instruments.values() if isinstance(i, BaseInvestment)
+        )
+
+    def non_guaranteed_investments(self) -> List[NonGuaranteedInvestment]:
         return list(
             i
             for i in self.instruments.values()
-            if isinstance(i, (Investment, GuaranteedInvestment))
-            and i.account_type != InvestmentAccountType.TFSA
+            if isinstance(i, NonGuaranteedInvestment)
         )
 
     @property
-    def investments_by_name(self) -> Dict[str, Investment]:
-        # TODO: delete this and use id instead
-        return {investment.id_: investment for investment in self.investments()}
-
-    def investments(self) -> List[Investment]:
-        return list(i for i in self.instruments.values() if isinstance(i, Investment))
-
-    @property
-    def non_cash_investments(self) -> List[Investment]:
-        return list(i for i in self.investments() if not isinstance(i, Cash))
+    def non_cash_investments(self) -> List[NonGuaranteedInvestment]:
+        return list(
+            i for i in self.non_guaranteed_investments() if not isinstance(i, Cash)
+        )
 
     def get_loan(self, loan_name: str) -> Loan:
         return get_value_from_dict(loan_name, self.instruments)
 
-    def get_investment(self, investment_name: str) -> Investment:
+    def get_investment(self, investment_name: str) -> BaseInvestment:
         return get_value_from_dict(investment_name, self.instruments)
 
     @property
@@ -122,11 +112,13 @@ class Portfolio(BaseModel):
         return "\n\t".join(str(instrument) for instrument in self.instruments.values())
 
     def get_investments_of_types(self, types: List):
-        return list(i for i in self.investments() if isinstance(i, tuple(types)))
+        return list(
+            i for i in self.non_guaranteed_investments() if isinstance(i, tuple(types))
+        )
 
     @property
     def cash_investment(self):
-        for investment in self.investments():
+        for investment in self.non_guaranteed_investments():
             if isinstance(investment, Cash):
                 return investment
         raise ValueError("No cash investment exists")

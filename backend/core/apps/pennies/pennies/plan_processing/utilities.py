@@ -2,7 +2,6 @@ from datetime import date
 from typing import Optional, Tuple, Dict, List
 from uuid import UUID
 
-from pennies.model.decision_periods import DecisionPeriodsManagerFactory
 from pennies.model.goal import NestEgg, BigPurchase, AllGoalTypes
 from pennies.model.investment import Cash
 from pennies.model.loan import Loan
@@ -10,6 +9,7 @@ from pennies.model.solution import FinancialPlan
 from pennies.utilities.datetime import get_date_plus_month
 
 _ALMOST_ZERO_LOWER_BOUND = -1
+DOLLAR_TOLERANCE = 1
 
 
 def get_loan_pay_off_date(
@@ -27,20 +27,20 @@ def get_loan_pay_off_date(
 def get_nest_egg_completion_month_or_none(
     goal: NestEgg, plan: FinancialPlan, amount_needed: float
 ) -> Optional[int]:
-    current_month = goal.due_month - 1
-    final_month = plan.monthly_solutions[-1].portfolio.final_month
+    current_month = max(0, goal.due_month - 1)
+    final_month = plan.monthly_solutions[-1].month
     current_cash_balance = 0
     while current_month <= final_month:
         current_month += 1
-        monthly_solution = plan.monthly_solutions[current_month]
+        monthly_solution = plan.monthly_solutions[current_month - 1]
         current_cash_balance = sum(
             i.current_balance
-            for i in monthly_solution.portfolio.investments()
+            for i in monthly_solution.portfolio.non_guaranteed_investments()
             if isinstance(i, Cash)
         )
-        if current_cash_balance >= amount_needed:
+        if current_cash_balance >= amount_needed - DOLLAR_TOLERANCE:
             return current_month
-    if current_cash_balance >= amount_needed:
+    if current_cash_balance >= amount_needed - DOLLAR_TOLERANCE:
         return current_month
     else:
         return None
@@ -54,7 +54,7 @@ def get_nest_egg_cash_balance_requirements(
     nest_egg_goals = sorted(nest_egg_goals, key=lambda x: x.due_month)
     nest_egg_requirements = list()
     for i in range(len(nest_egg_goals)):
-        amount_needed = sum(goal.amount for goal in nest_egg_goals[:i])
+        amount_needed = sum(goal.amount for goal in nest_egg_goals[: i + 1])
         goal = nest_egg_goals[i]
         nest_egg_requirements.append((goal, amount_needed))
     return nest_egg_requirements
@@ -67,13 +67,10 @@ def get_actual_big_purchase_amount_and_withdrawals(
     monthly_withdrawal = plan.monthly_solutions[goal.due_month].withdrawals
     portfolio = plan.monthly_solutions[goal.due_month].portfolio
     withdrawal_list = [
-        (
-            portfolio.get_instrument(investment_id).name,
-            amount * DecisionPeriodsManagerFactory.max_months,
-        )
-        # TODO: this is a quick fix to multiply by max_months
+        (portfolio.get_instrument(investment_id).name, amount,)
         for investment_id, amount in monthly_withdrawal.items()
         if amount > 0
     ]
+    print(withdrawal_list)
     total_purchase = sum(amount for _, amount in withdrawal_list)
     return total_purchase, withdrawal_list

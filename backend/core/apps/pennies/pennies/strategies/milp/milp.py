@@ -43,32 +43,23 @@ class MILP:
         variables = MILPVariables.create(user_finances, sets)
         m.balances = variables.balances
         m.allocations = variables.allocations
+        m.goal_allocations = variables.goal_allocations
         m.paid_off_indicators = variables.not_paid_off_indicators
-        m.debt_free_indicators = variables.in_debt_indicators
         m.investment_risk_violations = variables.investment_risk_violations
         m.total_risk_violations = variables.total_risk_violations
-        m.allocation_slacks = variables.allocation_slacks
         m.loan_due_date_violations = variables.loan_due_date_violations
         m.taxable_monthly_incomes = variables.taxable_monthly_incomes
-        m.pos_overflow_in_brackets = variables.pos_overflow_in_brackets
-        m.remaining_marginal_income_in_brackets = (
-            variables.remaining_marginal_income_in_brackets
-        )
         m.taxes_accrued_in_brackets = variables.taxes_accrued_in_brackets
         m.withdrawals = variables.withdrawals
         m.retirement_spending_violations = variables.retirement_spending_violations
         m.taxable_monthly_incomes = variables.taxable_monthly_incomes
         m.rrsp_deduction_limits = variables.rrsp_deduction_limits
         m.tfsa_contribution_limits = variables.tfsa_contribution_limits
-        m.pos_withdrawal_differences = variables.pos_withdrawal_differences
-        m.neg_withdrawal_differences = variables.neg_withdrawal_differences
-        m.withdrawal_fluctuation_violation = variables.withdrawal_fluctuation_violation
-        m.max_monthly_payment_violations = variables.max_monthly_payment_violations
         m.savings_goal_violations = variables.savings_goal_violations
         m.purchase_goal_violations = variables.purchase_goal_violations
         m.min_payment_violations = variables.min_payment_violations
-
-        cls._fix_final_allocation_to_zero(sets, variables)
+        m.taxable_incomes_in_brackets = variables.taxable_incomes_in_brackets
+        m.taxable_incomes_indicator = variables.taxable_incomes_indicator
 
         constraints = MILPConstraints.create(sets, milp_parameters, variables)
         m.c1 = constraints.define_loan_paid_off_indicator
@@ -77,11 +68,8 @@ class MILP:
         m.c4 = constraints.total_payments_limit
         m.c5 = constraints.loans_are_non_positive
         m.c6 = constraints.pay_off_loans_by_end_date
-        m.c7 = constraints.limit_total_risk
-        m.c8 = constraints.define_in_debt_indicator
+        # m.c7 = constraints.limit_total_risk
         m.c9 = constraints.limit_investment_risk
-        m.c10 = constraints.define_taxable_income_in_bracket
-        m.c11 = constraints.limit_remaining_marginal_income_in_bracket
         m.c12 = constraints.define_taxes_accrued_in_bracket
         m.c13 = constraints.satisfy_retirement_spending_requirement
         m.c14 = constraints.zero_allocations_for_guaranteed_investments
@@ -90,16 +78,18 @@ class MILP:
         m.c17 = constraints.set_minimum_rrif_withdrawals
         m.c18 = constraints.define_tfsa_deduction_limits
         m.c19 = constraints.set_withdrawal_limits
-        # m.c20 = constraints.define_surplus_withdrawal_differences
-        # m.c21 = constraints.limit_surplus_withdrawal_fluctuations
-        m.c22 = constraints.limit_monthly_payment
         m.c23 = constraints.same_mortgage_payments
         m.c24 = constraints.penalize_purchase_goal_violations
         m.c25 = constraints.penalize_savings_goal_violations
+        m.c26 = constraints.bracket_taxable_income_upper_bound1
+        m.c27 = constraints.bracket_taxable_income_upper_bound2
+        m.c28 = constraints.bracket_taxable_income_lower_bound1
+        m.c29 = constraints.bracket_taxable_income_lower_bound2
+        m.c30 = constraints.income_surplus_upper_bound
+        m.c31 = constraints.bracket_band_upper_bound
+        # m.c32 = constraints.set_annual_rrsp_allocation_limit # TODO: some bug in rrsp limits
 
-        objective = MILPObjective.create(
-            sets, milp_parameters, variables, discount_factor=parameters.discount_factor
-        )
+        objective = MILPObjective.create(sets, milp_parameters, variables,)
         m.obj = objective.obj
 
         return MILP(
@@ -113,19 +103,15 @@ class MILP:
             objective=objective,
         )
 
-    #
-    @classmethod
-    def _fix_final_allocation_to_zero(cls, sets: MILPSets, variables: MILPVariables):
-        final_decision_period_index = max(sets.all_decision_periods_as_set)
-        for i in sets.instruments:
-            variables.get_allocation(i, final_decision_period_index).fix(0)
-        for i in sets.investments_and_guaranteed_investments:
-            variables.get_withdrawal(i, final_decision_period_index).fix(0)
-
     def _is_valid_solution(self, results) -> bool:
-        return (results.solver.status == pe.SolverStatus.ok) and (
-            results.solver.termination_condition == pe.TerminationCondition.optimal
-        )
+        status = results.solver.status
+        termination_condition = results.solver.termination_condition
+
+        is_aborted = status == pe.SolverStatus.aborted
+        is_okay = status == pe.SolverStatus.ok
+        is_optimal = termination_condition == pe.TerminationCondition.optimal
+
+        return (is_optimal and is_okay) or is_aborted
 
     def _make_monthly_payments(self) -> List[Dict[str, float]]:
         def get_allocation(i_, t_):
@@ -137,30 +123,17 @@ class MILP:
             for _ in range(self.sets.get_num_months_in_decision_period(t))
         ]
 
-    def _make_monthly_withdrawals(self) -> List[Dict[str, float]]:
-        def get_withdrawal(i_, t_):
-            if t_ < min(self.sets.retirement_periods_as_set):
-                return 0
-            return pe.value(self.variables.get_withdrawal(i_, t_))
-
-        return [
-            {
-                i: get_withdrawal(i, t)
-                for i in self.sets.investments_and_guaranteed_investments
-            }
-            for t in list(sorted(self.sets.all_decision_periods_as_set))
-            for _ in range(self.sets.get_num_months_in_decision_period(t))
-        ]
-
     def solve(self) -> Optional["MILP"]:
         solver = pe.SolverFactory("cbc")
-        # solver.options["ratio"] = 0.01
-        # solver.options["maxNodes"] = 200000
-        results = solver.solve(self.pyomodel)
+        solver.options["ratio"] = self.problem_parameters.optimality_gap
+        solver.options["seconds"] = self.problem_parameters.max_milp_seconds
+        solver.options["maxNodes"] = self.problem_parameters.max_milp_nodes
+        is_log_milp = self.problem_parameters.is_log_milp
+        results = solver.solve(self.pyomodel, tee=is_log_milp)
         if not self._is_valid_solution(results):
             logging.error(
                 f"Did not get a valid solution; status: {results.solver.status};"
                 f" termination condition: {results.solver.termination_condition}"
             )
-            return None
+            return self
         return self

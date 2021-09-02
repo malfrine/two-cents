@@ -1,11 +1,25 @@
 from typing import List, Dict, Optional
+from uuid import UUID
 
+from pennies.model.investment import BaseInvestment
 from pennies.model.parameters import Parameters
 from pennies.model.portfolio import Portfolio
 from pennies.model.portfolio_manager import PortfolioManager
 from pennies.model.solution import MonthlyAllocation, MonthlySolution, FinancialPlan
 from pennies.model.user_personal_finances import UserPersonalFinances
-from pennies.utilities.finance import calculate_monthly_income_tax
+from pennies.utilities.finance import (
+    calculate_monthly_income_tax,
+    estimate_taxable_withdrawal,
+)
+
+
+def calculate_taxable_withdrawals(
+    investments: List[BaseInvestment], withdrawals: Dict[UUID, float], months: List[int]
+) -> float:
+    return sum(
+        estimate_taxable_withdrawal(i, withdrawals.get(i.id_, 0), months)
+        for i in investments
+    )
 
 
 class FinancialPlanFactory:
@@ -29,33 +43,34 @@ class FinancialPlanFactory:
             month = index + parameters.starting_month
 
             total_withdrawals = sum(
-                withdrawals.get(i.id_, 0) for i in cur_portfolio.investments()
+                withdrawals.get(i.id_, 0)
+                for i in cur_portfolio.non_guaranteed_investments()
             )
             pre_tax_monthly_income = user_personal_finances.financial_profile.get_pre_tax_monthly_income(
                 month
             )
             gross_income_in_month = pre_tax_monthly_income + total_withdrawals
 
-            non_tfsa_withdrawals = sum(
-                withdrawals.get(i.id_, 0)
-                for i in cur_portfolio.non_tfsa_investments_and_guaranteed_investments
+            taxable_withdrawals = calculate_taxable_withdrawals(
+                user_personal_finances.portfolio.investments,
+                withdrawals,
+                list(range(parameters.starting_month, month)),
             )
             rrsp_contributions = sum(
-                mp.get(i.id_, 0)
-                for i in cur_portfolio.rrsp_investments_and_guaranteed_investments
+                mp.get(i.id_, 0) for i in cur_portfolio.rrsp_investments
             )
             taxable_income_in_month = (
-                pre_tax_monthly_income + non_tfsa_withdrawals - rrsp_contributions
+                pre_tax_monthly_income + taxable_withdrawals - rrsp_contributions
             )
             taxes_paid = calculate_monthly_income_tax(
                 income=taxable_income_in_month, province=province
             )
 
-            savings_fraction = (
-                user_personal_finances.financial_profile.percent_salary_for_spending
-                / 100
-            )
-            monthly_allowance = (gross_income_in_month - taxes_paid) * savings_fraction
+            savings_fraction = user_personal_finances.financial_profile.savings_fraction
+            post_tax_monthly_income = gross_income_in_month - taxes_paid
+            monthly_allowance = (
+                post_tax_monthly_income - total_withdrawals
+            ) * savings_fraction
             monthly_solutions.append(
                 MonthlySolution(
                     allocation=MonthlyAllocation(

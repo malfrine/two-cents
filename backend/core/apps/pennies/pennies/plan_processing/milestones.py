@@ -23,6 +23,7 @@ from pennies.utilities.datetime import (
 
 _ALMOST_ZERO_LOWER_BOUND = -1
 _ALMOST_ZERO_UPPER_BOUND = 1
+DOLLAR_TOLERANCE = 1
 
 
 class MilestoneTypeEnum(Enum):
@@ -30,6 +31,8 @@ class MilestoneTypeEnum(Enum):
     LOAN_PAYOFF = "LOAN PAYOFF"
     GOAL_FAILURE = "GOAL FAILURE"
     GOAL_SUCCESS = "GOAL SUCCESS"
+    POSITIVE_NET_WORTH = "POSITIVE NET WORTH"
+    RETIREMENT = "RETIREMENT"
 
 
 class Milestone(BaseModel):
@@ -37,8 +40,12 @@ class Milestone(BaseModel):
     date: date
     header: str
     text: str
+    milestone_type: MilestoneTypeEnum
     instrument_id: Optional[int] = None
     instrument_type: Optional[str] = None
+
+    class Config:
+        use_enum_values = True
 
 
 PlanMilestones = NewType("PlanMilestones", Dict[str, Milestone])
@@ -64,6 +71,7 @@ class MilestoneFactory:
             text=text,
             instrument_id=loan.db_id,
             instrument_type="loan",
+            milestone_type=MilestoneTypeEnum.LOAN_PAYOFF,
         )
 
     @classmethod
@@ -73,6 +81,7 @@ class MilestoneFactory:
             date=debt_free_date,
             header="Debt Free",
             text=f"You will be debt free on {debt_free_date}!",
+            milestone_type=MilestoneTypeEnum.DEBT_FREE,
         )
 
     @classmethod
@@ -82,6 +91,7 @@ class MilestoneFactory:
             date=milestone_date,
             header="Positive Net Worth",
             text=f"Your net worth will be positive on {milestone_date}!",
+            milestone_type=MilestoneTypeEnum.POSITIVE_NET_WORTH,
         )
 
     @classmethod
@@ -93,6 +103,7 @@ class MilestoneFactory:
             header="You Finally Retire!",
             text=f"You will retire on {retirement_date}."
             f" Your net worth at retirement will be {net_worth_str}!",
+            milestone_type=MilestoneTypeEnum.RETIREMENT,
         )
 
     @classmethod
@@ -105,17 +116,20 @@ class MilestoneFactory:
                 f"Woo! You will be able to build your nest egg on time. "
                 f"You will be able to save ${goal.amount:,.0f} by {completion_date}"
             )
+            milestone_type = MilestoneTypeEnum.GOAL_SUCCESS
         else:
             text = (
                 f"Unfortunately, you will not be able to build your nest egg on time. "
                 f"You will only be able to save ${goal.amount:,.0f} by {completion_date}"
             )
+            milestone_type = MilestoneTypeEnum.GOAL_FAILURE
 
         return Milestone(
             name=f"Complete Goal: {goal.name}",
             date=completion_date,
             header=f"{goal.name} goal will be completed on {completion_date}",
             text=text,
+            milestone_type=milestone_type,
         )
 
     @classmethod
@@ -126,23 +140,33 @@ class MilestoneFactory:
         actual_purchase_amount: float,
         withdrawals: List[Tuple[str, float]],
     ) -> Milestone:
-        is_success = actual_purchase_amount >= goal.amount
+        is_success = actual_purchase_amount >= goal.amount - DOLLAR_TOLERANCE
         if not is_success:
             name = f"Unable to purchase {goal.name}"
             header = f"Only able to save ${actual_purchase_amount:,.0f} for {goal.name}"
+            milestone_type = MilestoneTypeEnum.GOAL_FAILURE
         else:
             name = f"Successfully purchase {goal.name}"
             header = (
                 f"Complete {goal.name} big purchase for ${actual_purchase_amount:,.0f}"
             )
-        if actual_purchase_amount >= 0:
+            milestone_type = MilestoneTypeEnum.GOAL_SUCCESS
+
+        if actual_purchase_amount >= -DOLLAR_TOLERANCE:
             withdrawal_text = ", ".join(
                 (f"{name}: ${amount:,.0f}" for (name, amount) in withdrawals)
             )
             text = f"Your ${actual_purchase_amount:,.0f} can be withdrawn from the following: {withdrawal_text}"
+
         else:
             text = ""
-        return Milestone(name=name, date=goal_due_date, header=header, text=text)
+        return Milestone(
+            name=name,
+            date=goal_due_date,
+            header=header,
+            text=text,
+            milestone_type=milestone_type,
+        )
 
 
 class PlanMilestonesFactory:

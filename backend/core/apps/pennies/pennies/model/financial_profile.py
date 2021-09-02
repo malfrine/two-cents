@@ -3,13 +3,14 @@ from pydantic.main import BaseModel
 
 from pennies.model.constants import Province
 from pennies.utilities.datetime import MONTHS_IN_YEAR
+from pennies.utilities.finance import calculate_monthly_income_tax
 
 
 class FinancialProfile(BaseModel):
     # monthly_allowance_before_retirement: float
     risk_tolerance: float
 
-    monthly_salary_before_tax: float
+    monthly_salary_before_tax: float  # THIS IS NOT THE TAXABLE INCOME
     percent_salary_for_spending: float
     years_to_retirement: int
 
@@ -33,7 +34,13 @@ class FinancialProfile(BaseModel):
 
     @property
     def monthly_retirement_spending(self):
-        return self.monthly_allowance_before_retirement
+        """just a rough estimate based on pre_tax_monthly_income"""
+        gross_income = self.monthly_salary_before_tax  # just an estimate
+        income_tax = calculate_monthly_income_tax(
+            income=gross_income, province=self.province_of_residence
+        )
+        final_income = gross_income - income_tax
+        return final_income * (1 - self.percent_salary_for_spending / 100)
 
     @property
     def monthly_allowance_before_retirement(self):
@@ -54,6 +61,13 @@ class FinancialProfile(BaseModel):
     @validator("province_of_residence", pre=True)
     def parse_province(cls, v):
         if not isinstance(v, Province):
-            return Province[str(v)]
+            try:
+                return Province[str(v)]
+            except KeyError:
+                return Province(str(v))
         else:
             return v
+
+    @property
+    def savings_fraction(self):
+        return self.percent_salary_for_spending / 100

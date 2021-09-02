@@ -3,7 +3,7 @@ import math
 from typing import Dict
 
 from pennies.model.instrument import Instrument
-from pennies.model.investment import GuaranteedInvestment, Investment
+from pennies.model.investment import GuaranteedInvestment, NonGuaranteedInvestment
 from pennies.model.loan import Loan, RevolvingLoan
 from pennies.model.portfolio import Portfolio
 from pennies.utilities.dict import remove_from_dict
@@ -99,7 +99,7 @@ class PortfolioManager:
         if isinstance(instrument, RevolvingLoan):
             instrument.current_balance -= withdrawal_amount
             # TODO: add withdrawal limit
-        elif isinstance(instrument, Investment):
+        elif isinstance(instrument, NonGuaranteedInvestment):
             instrument.current_balance -= withdrawal_amount
         elif isinstance(instrument, GuaranteedInvestment):
             if month >= instrument.final_month:

@@ -1,5 +1,7 @@
+import json
 from typing import Dict, Callable
 
+from django.core.serializers.json import DjangoJSONEncoder
 from django.test import TestCase
 from rest_framework import status
 
@@ -161,3 +163,4 @@ class PlanBuildingTestCase(TestCase):
         view = UserPlanViewSet.as_view({"get": "list"})
         response = view(request)
         assert response.status_code == status.HTTP_200_OK, response.data
+        json.dumps(response.data, cls=DjangoJSONEncoder)

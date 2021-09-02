@@ -25,8 +25,9 @@ def get_date_plus_month(d: date, m: int) -> date:
 @dataclass
 class DateTimeHelper:
 
-    model_current_date: date
+    start_month: int
     max_month: int
+    model_current_date: date
 
     def get_date_from_month_int(self, month: int) -> date:
         return get_date_plus_month(self.model_current_date, month)
@@ -37,20 +38,19 @@ class DateTimeHelper:
     @property
     def month_ints_by_year(self) -> Dict[int, List[int]]:
         d = defaultdict(list)
-        for i in range(self.max_month):
+        for i in range(self.start_month, self.max_month):
             d[self.get_date_from_month_int(i).year].append(i)
-        d = dict(d)
         return d
 
-    @property
-    def start_year(self):
-        return self.model_current_date.year
-
     @classmethod
-    def create(cls, max_month: int, dt: datetime = None) -> "DateTimeHelper":
+    def create(
+        cls, start_month: int, max_month: int, dt: datetime = None
+    ) -> "DateTimeHelper":
         if dt is None:
             dt = datetime.today()
         model_current_date = get_first_date_of_next_month(dt)
         return DateTimeHelper(
-            model_current_date=model_current_date, max_month=max_month
+            start_month=start_month,
+            max_month=max_month,
+            model_current_date=model_current_date,
         )

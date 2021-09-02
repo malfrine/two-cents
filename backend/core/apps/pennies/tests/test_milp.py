@@ -1,5 +1,4 @@
 import logging
-import math
 import sys
 from typing import Tuple, Dict
 
@@ -11,6 +10,7 @@ from pennies.model.solution import FinancialPlan, MonthlySolution
 from pennies.strategies.milp.milp import MILP
 from pennies.strategies.milp.milp_solution import MILPSolution
 from pennies.utilities.examples import simple_request
+from tests.milp_validation import assert_correct_milp_calculations
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
@@ -20,8 +20,6 @@ def _solve(request: PenniesRequest) -> Tuple[MILPSolution, FinancialPlan]:
     user_finances = model_input.user_finances
     parameters = model_input.parameters
     milp = MILP.create(user_finances=user_finances, parameters=parameters).solve()
-    if milp is None:
-        assert False
     solution = MILPSolution(milp=milp)
     plan = FinancialPlanFactory.create(
         solution.get_monthly_payments(),
@@ -109,38 +107,4 @@ def print_balance_history_of_instrument(
 
 def test_simple_request():
     request = simple_request()
-    milp_solution, actual_plan = _solve(request)
-    milp_monthly_solutions = milp_solution.get_milp_monthly_solutions()
-    for month, milp_ms in milp_monthly_solutions.items():
-        actual_ms = actual_plan.monthly_solutions[month]
-        decision_period_index = milp_solution.sets.decision_periods.get_corresponding_period(
-            month
-        ).index
-        print(f"month: {month}")
-        print("milp:")
-        print(f"\tmilp taxes paid: {milp_ms.taxes_paid}")
-        print(f"\tactual taxes paid: {actual_ms.taxes_paid}")
-        if not math.isclose(milp_ms.taxes_paid, actual_ms.taxes_paid, abs_tol=5):
-            # get more info
-            print_tax_vars(milp_solution, actual_ms, milp_ms, decision_period_index)
-            assert False
-        print("\tbalances:")
-        for id_, instrument in milp_ms.portfolio.instruments.items():
-            milp_balance = instrument.current_balance
-            actual_instrument = actual_ms.portfolio.instruments.get(id_, None)
-            if actual_instrument is None:
-                actual_balance = 0
-            else:
-                actual_balance = actual_instrument.current_balance
-            print(f"\t\tmilp: {instrument.name}: {milp_balance}")
-            print(f"\t\tactual {instrument.name}: {actual_balance}")
-            if not math.isclose(actual_balance, milp_balance, abs_tol=5):
-                print_balance_history_of_instrument(
-                    instrument, milp_monthly_solutions, actual_plan
-                )
-                assert math.isclose(actual_balance, milp_balance, abs_tol=5)
-    assert math.isclose(
-        milp_solution.get_total_taxes_paid(),
-        actual_plan.get_total_income_taxes_paid(),
-        abs_tol=5,
-    )
+    assert_correct_milp_calculations(request)

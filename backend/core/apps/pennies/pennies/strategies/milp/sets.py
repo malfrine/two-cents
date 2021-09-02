@@ -11,7 +11,7 @@ from pennies.model.decision_periods import (
 from pennies.model.goal import BaseSavingsGoal, BasePurchaseGoal
 from pennies.model.instrument import Instrument
 from pennies.model.investment import (
-    Investment,
+    NonGuaranteedInvestment,
     Cash,
     GuaranteedInvestment,
     BaseInvestment,
@@ -60,8 +60,10 @@ class MILPSets:
         return list(i.id_ for i in self._instruments if isinstance(i, Mortgage))
 
     @property
-    def investments(self):
-        return list(i.id_ for i in self._instruments if isinstance(i, Investment))
+    def non_guaranteed_investments(self):
+        return list(
+            i.id_ for i in self._instruments if isinstance(i, NonGuaranteedInvestment)
+        )
 
     @property
     def taxing_entities_and_brackets(self):
@@ -72,11 +74,11 @@ class MILPSets:
         )
 
     @property
-    def investments_and_guaranteed_investments(self):
+    def investments(self):
         return list(
             i.id_
             for i in self._instruments
-            if isinstance(i, (Investment, GuaranteedInvestment))
+            if isinstance(i, (NonGuaranteedInvestment, GuaranteedInvestment))
         )
 
     @property
@@ -91,29 +93,29 @@ class MILPSets:
         )
 
     @property
-    def rrsp_investments_and_guaranteed_investments(self):
+    def rrsp_investments(self):
         return list(
             i.id_
             for i in self._instruments
-            if isinstance(i, (Investment, GuaranteedInvestment))
+            if isinstance(i, BaseInvestment)
             and i.account_type == InvestmentAccountType.RRSP
         )
 
     @property
-    def tfsa_investments_and_guaranteed_investments(self):
+    def tfsa_investments(self):
         return list(
             i.id_
             for i in self._instruments
-            if isinstance(i, (Investment, GuaranteedInvestment))
+            if isinstance(i, BaseInvestment)
             and i.account_type == InvestmentAccountType.TFSA
         )
 
     @property
-    def non_tfsa_investments_and_guaranteed_investments(self):
+    def non_tfsa_investments(self):
         return list(
             i.id_
             for i in self._instruments
-            if isinstance(i, (Investment, GuaranteedInvestment))
+            if isinstance(i, BaseInvestment)
             and i.account_type != InvestmentAccountType.TFSA
         )
 
@@ -126,9 +128,17 @@ class MILPSets:
     @property
     def non_cash_investments(self) -> Set[str]:
         return set(
-            i
-            for i in self.investments
-            if not isinstance(self._user_finances.portfolio.get_investment(i), Cash)
+            i.id_
+            for i in self._instruments
+            if isinstance(i, BaseInvestment) and not isinstance(i, Cash)
+        )
+
+    @property
+    def non_cash_non_guaranteed_investments(self) -> Set[UUID]:
+        return set(
+            i.id_
+            for i in self._instruments
+            if isinstance(i, NonGuaranteedInvestment) and not isinstance(i, Cash)
         )
 
     def get_months_in_horizon(self, order: int) -> List[int]:
@@ -165,10 +175,10 @@ class MILPSets:
             )
         )
 
-    @property
-    def goals_and_decision_periods(self) -> List[Tuple[UUID, int]]:
-        """all goal uids and their correpsonding decision periods that come after their due month"""
-        return self.get_goals_and_decision_periods(self.goals)
+    # @property
+    # def goals_and_decision_periods(self) -> List[Tuple[UUID, int]]:
+    #     """all goal uids and their correpsonding decision periods that come after their due month"""
+    #     return self.get_goals_and_decision_periods(self.goals)
 
     @property
     def purchase_goals(self):
@@ -188,9 +198,9 @@ class MILPSets:
     def savings_goals_and_decision_periods(self) -> List[Tuple[UUID, int]]:
         return self.get_goals_and_decision_periods(self.savings_goals)
 
-    @property
-    def purchase_goals_and_decision_periods(self) -> List[Tuple[UUID, int]]:
-        return self.get_goals_and_decision_periods(self.purchase_goals)
+    # @property
+    # def purchase_goals_and_decision_periods(self) -> List[Tuple[UUID, int]]:
+    #     return self.get_goals_and_decision_periods(self.purchase_goals)
 
     @classmethod
     def create(
@@ -201,11 +211,7 @@ class MILPSets:
     ) -> "MILPSets":
         decision_periods = DecisionPeriodsManagerFactory(
             max_months=max_months_in_payment_horizon
-        ).from_num_months(
-            start_month=start_month,
-            retirement_month=user_finances.financial_profile.retirement_month,
-            final_month=user_finances.financial_profile.death_month,
-        )
+        ).from_user_finances(start_month=start_month, user_finances=user_finances)
         province = user_finances.financial_profile.province_of_residence
         income_tax_brackets = {
             "federal": taxes.FEDERAL,
