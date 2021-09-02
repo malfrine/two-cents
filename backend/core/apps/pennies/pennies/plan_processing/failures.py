@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 from pennies.model.goal import BigPurchase, NestEgg
 from pennies.model.instrument import Instrument
-from pennies.model.investment import Investment
+from pennies.model.investment import NonGuaranteedInvestment
 from pennies.model.loan import Loan
 from pennies.model.problem_input import ProblemInput
 from pennies.model.solution import FinancialPlan, MonthlySolution
@@ -17,7 +17,11 @@ from pennies.plan_processing.utilities import (
     get_nest_egg_completion_month_or_none,
     get_nest_egg_cash_balance_requirements,
 )
-from pennies.utilities.datetime import get_first_date_of_next_month, get_date_plus_month
+from pennies.utilities.datetime import (
+    get_first_date_of_next_month,
+    get_date_plus_month,
+    get_months_difference,
+)
 
 """
 Plan failure types:
@@ -39,11 +43,14 @@ class PlanFailureType(Enum):
 
 
 class PlanFailure(BaseModel):
-    failure_type: str
+    failure_type: PlanFailureType
     header: str
     text: str
     instrument_id: Optional[int] = None
     instrument_type: Optional[str] = None
+
+    class Config:
+        use_enum_values = True
 
     @classmethod
     def make_loan_default(
@@ -61,7 +68,7 @@ class PlanFailure(BaseModel):
             )
 
         return PlanFailure(
-            failure_type=PlanFailureType.LOAN_DEFAULT.value,
+            failure_type=PlanFailureType.LOAN_DEFAULT,
             header=f"Unable to pay off {loan.name} on time",
             text=text,
         )
@@ -76,14 +83,14 @@ class PlanFailure(BaseModel):
             f"on dates ranging from {min_date} to {max_date}"
         )
         return PlanFailure(
-            failure_type=PlanFailureType.MIN_PAYMENT.value,
+            failure_type=PlanFailureType.MIN_PAYMENT,
             header=f"Missed some payments on {loan.name}",
             text=text,
         )
 
     @classmethod
     def make_pre_authorized_contribution_failure(
-        cls, investment: Investment, dates: List[date]
+        cls, investment: NonGuaranteedInvestment, dates: List[date]
     ):
         min_date = min(dates)
         max_date = max(dates)
@@ -108,12 +115,15 @@ class PlanFailure(BaseModel):
         if actual_completion_date is None:
             text = "You will never be able to build up this nest egg"
         else:
+            delay_months = get_months_difference(
+                actual_completion_date, expected_completion_date
+            )
             text = (
-                f"You will be x months late in reaching your nest "
-                f"egg goal and only complete goal on {actual_completion_date}"
+                f"You will be {delay_months} months late in reaching your nest "
+                f"egg goal. You will achieve your goal by {actual_completion_date}"
             )
         return PlanFailure(
-            failure_type=PlanFailureType.UNSATISFIED_GOA.value,
+            failure_type=PlanFailureType.UNSATISFIED_GOAL,
             header=f"Unable to build nest egg for {goal.name} by {expected_completion_date}",
             text=text,
         )
@@ -121,7 +131,7 @@ class PlanFailure(BaseModel):
     @classmethod
     def make_failed_big_purchase_goal(cls, goal: BigPurchase, actual_amount: float):
         return PlanFailure(
-            failure_type=PlanFailureType.UNSATISFIED_GOAL.value,
+            failure_type=PlanFailureType.UNSATISFIED_GOAL,
             header=f"Unable to purchase {goal.name} for ${goal.amount:,.0f}",
             text=f"Only able to save up ${actual_amount:,.0f}",
         )
@@ -214,7 +224,9 @@ class PlanFailuresFactory:
         cls, plan: FinancialPlan, problem_input: ProblemInput, start_date: date
     ) -> List[PlanFailure]:
         failures = []
-        for investment in problem_input.user_finances.portfolio.investments():
+        for (
+            investment
+        ) in problem_input.user_finances.portfolio.non_guaranteed_investments():
             missed_payment_dates = cls.get_missed_payment_dates(
                 investment, plan.monthly_solutions, start_date
             )

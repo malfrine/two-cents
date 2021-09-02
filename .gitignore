@@ -170,6 +170,7 @@ sw.*
 
 # ignore pennies png
 backend/core/apps/pennies/*.png
+backend/core/apps/pennies/bin/*.png
 
 # Ignore latex files
 *.aux

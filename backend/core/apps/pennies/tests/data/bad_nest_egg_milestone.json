@@ -1,0 +1,115 @@
+ {
+     "financial_profile": {
+         "risk_tolerance": 50.0,
+         "monthly_salary_before_tax": 6000.0,
+         "percent_salary_for_spending": 25.0,
+         "years_to_retirement": 37,
+         "province_of_residence": "Alberta",
+         "starting_rrsp_contribution_limit": 0.0,
+         "starting_tfsa_contribution_limit": 0.0,
+         "current_age": 28,
+         "years_to_death": 62
+     },
+     "loans": [
+         {
+             "id_": "8d6f0360-296b-429a-a945-853395467337",
+             "db_id": 33,
+             "name": "Line of Credit",
+             "interest_rate": {
+                 "interest_type": "Fixed",
+                 "apr": 5.0,
+                 "volatility": 0
+             },
+             "current_balance": -20000.0,
+             "final_month": null,
+             "loan_type": "Line of Credit"
+         },
+         {
+             "id_": "c9eeddae-1fce-4eda-b5b8-63ecf61eff85",
+             "db_id": 1,
+             "name": "Student Loan",
+             "interest_rate": {
+                 "interest_type": "Fixed",
+                 "apr": 4.0,
+                 "volatility": 0
+             },
+             "current_balance": -40000.0,
+             "final_month": 101,
+             "loan_type": "Student Loan",
+             "minimum_monthly_payment": 50.0
+         }
+     ],
+     "goals": [
+         {
+             "id_": "303c244d-4916-46eb-aa9b-966c5a601789",
+             "name": "Buy Yacht",
+             "amount": 60000.0,
+             "due_month": 221,
+             "type": "Big Purchase"
+         },
+         {
+             "id_": "dc57dc5a-bb12-4d77-b952-bf7de216567a",
+             "name": "Nest Egg",
+             "amount": 10000.0,
+             "due_month": -19,
+             "type": "Nest Egg"
+         }
+     ],
+     "investments": [
+         {
+             "id_": "40962260-4a2f-40e3-af93-6f4f5500a3a7",
+             "db_id": 1,
+             "name": "Mutual Fund",
+             "interest_rate": {
+                 "interest_type": "Investment Return Rate",
+                 "roi": 5.0,
+                 "volatility": 5.0
+             },
+             "current_balance": 0.0,
+             "final_month": null,
+             "account_type": "Non-Registered",
+             "pre_authorized_monthly_contribution": 0.0,
+             "investment_type": "Mutual Fund"
+         },
+         {
+             "id_": "3a166c2e-6894-4a63-917d-df64704a7ce5",
+             "db_id": 145,
+             "name": "Test GIC",
+             "interest_rate": {
+                 "interest_type": "Guaranteed Investment Return Rate",
+                 "interest_rate": {
+                     "interest_type": "Variable Investment Return Rate",
+                     "prime_modifier": 1.0,
+                     "volatility": 0.0
+                 },
+                 "final_month": 53
+             },
+             "current_balance": 40.11666666666667,
+             "final_month": 53,
+             "account_type": "Non-Registered",
+             "principal_investment_amount": 40.0,
+             "start_month": -1,
+             "investment_type": "GIC"
+         },
+         {
+             "id_": "928f99ef-0efb-45a3-8bda-21316c772065",
+             "db_id": 146,
+             "name": "Test Portfolio",
+             "interest_rate": {
+                 "interest_type": "Investment Return Rate",
+                 "roi": 5.0,
+                 "volatility": 5.0
+             },
+             "current_balance": 1.0,
+             "final_month": null,
+             "account_type": "RRSP",
+             "pre_authorized_monthly_contribution": 1.0,
+             "investment_type": "Portfolio"
+         }
+     ],
+     "strategies": [
+         "Two Cents Plan",
+         "Avalanche Plan",
+         "Snowball Plan"
+     ]
+ }

@@ -5,7 +5,10 @@ from pydantic.main import BaseModel
 from pennies.model.constants import Province
 from pennies.utilities.datetime import MONTHS_IN_YEAR
 
-MAX_MARGINAL_ANNUAL_INCOME = 100_000_000
+MAX_MARGINAL_ANNUAL_INCOME = 10_000_000
+MAX_MARGINAL_MONTHLY_INCOME = MAX_MARGINAL_ANNUAL_INCOME / 12
+CAPITAL_GAINS_TAX_PERCENTAGE = 50
+CAPITAL_GAINS_TAX_FRACTION = CAPITAL_GAINS_TAX_PERCENTAGE / 100
 
 
 class TaxBracket(BaseModel):

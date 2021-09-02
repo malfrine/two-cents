@@ -33,7 +33,7 @@ backend_test:
     TESTING: "True"
   script:
     - apt-get update -qy
-    - apt-get install -y python-dev python-pip
+    - apt-get install -y python-dev python3-pip
     - apt-get install -y coinor-cbc
     - cd backend
     - pip install -r requirements.txt

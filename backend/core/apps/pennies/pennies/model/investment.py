@@ -59,7 +59,7 @@ class TermDeposit(GuaranteedInvestment):
     ...
 
 
-class Investment(BaseInvestment):
+class NonGuaranteedInvestment(BaseInvestment):
     pre_authorized_monthly_contribution: float
 
     @validator("current_balance")
@@ -72,27 +72,27 @@ class Investment(BaseInvestment):
         return self.pre_authorized_monthly_contribution
 
 
-class MutualFund(Investment):
+class MutualFund(NonGuaranteedInvestment):
     investment_type: Literal["Mutual Fund"] = "Mutual Fund"
     ...
 
 
-class Portfolio(Investment):
+class Portfolio(NonGuaranteedInvestment):
     investment_type: Literal["Portfolio"] = "Portfolio"
     ...
 
 
-class ETF(Investment):
+class ETF(NonGuaranteedInvestment):
     investment_type: Literal["ETF"] = "ETF"
     ...
 
 
-class Stock(Investment):
+class Stock(NonGuaranteedInvestment):
     investment_type: Literal["Stock"] = "Stock"
     ...
 
 
-class Cash(Investment):
+class Cash(NonGuaranteedInvestment):
     investment_type: Literal["Cash"] = "Cash"
 
     # add validator to make sure no growth rate

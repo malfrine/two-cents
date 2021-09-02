@@ -260,7 +260,7 @@ LOGGING = {
     "root": {"level": "WARN", "handlers": ["sentry"]},
     "formatters": {
         "verbose": {
-            "format": "%(levelname)s %(asctime)s %(module)s "
+            "format": "%(levelname)s %(asctime)s %(module)s (%(filename)s:%(lineno)s)"
             "%(process)d %(thread)d %(message)s"
         },
     },

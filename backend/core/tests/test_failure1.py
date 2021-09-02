@@ -1,4 +1,7 @@
+import json
+
 from django.contrib.auth.models import AnonymousUser
+from django.core.serializers.json import DjangoJSONEncoder
 from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIRequestFactory, force_authenticate
@@ -56,3 +59,4 @@ class Failure1TestCase(TestCase):
         view = UserPlanViewSet.as_view({"get": "list"})
         response = view(request)
         assert response.status_code == status.HTTP_200_OK, response.data
+        json.dumps(response.data, cls=DjangoJSONEncoder)

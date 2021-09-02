@@ -103,5 +103,4 @@ class RRIFMinPaymentCalculator:
         elif age > max(cls.RRIF_PAYMENTS_BY_AGE.keys()):
             return 20
         else:
-            # age < min(cls.RRIF_PAYMENTS_BY_AGE.keys())
-            return 1 / (1 - cls.DENOMINATOR_AGE) * 100
+            return max(0, 1 / (1 - cls.DENOMINATOR_AGE) * 100)

@@ -11,7 +11,7 @@ from pennies.model.factories.financial_plan import FinancialPlanFactory
 from pennies.model.financial_profile import FinancialProfile
 from pennies.model.goal import AllGoalTypes, BigPurchase, NestEgg
 from pennies.model.instrument import Instrument
-from pennies.model.investment import Investment
+from pennies.model.investment import NonGuaranteedInvestment
 from pennies.model.loan import Loan
 from pennies.model.parameters import Parameters
 from pennies.model.portfolio import Portfolio
@@ -40,7 +40,10 @@ class GreedyAllocationStrategy(AllocationStrategy):
         start_month = user_finances.financial_profile.retirement_month
         total_goal_contributions = {goal_id: 0.0 for goal_id in user_finances.goals}
         for working_period in decision_periods.working_periods:
-            if not cur_portfolio.non_mortgage_loans and cur_portfolio.investments():
+            if (
+                not cur_portfolio.non_mortgage_loans
+                and cur_portfolio.non_guaranteed_investments()
+            ):
                 start_month = working_period.months[0]
                 break
 
@@ -92,10 +95,8 @@ class GreedyAllocationStrategy(AllocationStrategy):
     ) -> DecisionPeriodsManager:
         return DecisionPeriodsManagerFactory(
             max_months=parameters.max_months_in_payment_horizon,
-        ).from_num_months(
-            start_month=parameters.starting_month,
-            retirement_month=user_finances.financial_profile.retirement_month,
-            final_month=user_finances.financial_profile.death_month,
+        ).from_user_finances(
+            start_month=parameters.starting_month, user_finances=user_finances
         )
 
     def solve_with_milp(
@@ -172,8 +173,11 @@ class GreedyHeuristicStrategy(GreedyAllocationStrategy):
         remaining_loans = portfolio.non_mortgage_loans
 
         goal_spend_fraction = DEFAULT_GOAL_SPEND_IN_DEBT if remaining_loans else 1
-        max_goal_spend = allowance * goal_spend_fraction
-        allowance -= sum(payment for payment in payments.values())
+        total_min_payments = sum(payment for payment in payments.values())
+        max_goal_spend = min(
+            allowance * goal_spend_fraction, allowance - total_min_payments
+        )
+        allowance -= total_min_payments
 
         contributions_for_period = self.calculate_goal_contributions_for_period(
             goals=goals,
@@ -189,7 +193,7 @@ class GreedyHeuristicStrategy(GreedyAllocationStrategy):
             goals, working_period.months, portfolio.cash_investment.current_balance
         )
 
-        while remaining_loans and allowance:
+        while remaining_loans and allowance > 0:
             worst_loan = self.get_worst_loan(remaining_loans, working_period.months)
             max_additional_payment = self.calculate_max_possible_loan_payment(
                 worst_loan, allowance, working_period.months, payments[worst_loan.id_]
@@ -199,9 +203,9 @@ class GreedyHeuristicStrategy(GreedyAllocationStrategy):
             remaining_loans = list(
                 loan for loan in remaining_loans if loan.id_ != worst_loan.id_
             )
-        if allowance and portfolio.investments():
+        if allowance and portfolio.non_guaranteed_investments():
             best_investment = self.get_best_investment(
-                portfolio.investments(), working_period.months
+                portfolio.non_guaranteed_investments(), working_period.months
             )
             payments[best_investment.id_] += allowance
             allowance = 0
@@ -238,7 +242,7 @@ class GreedyHeuristicStrategy(GreedyAllocationStrategy):
                 allowance -= payment
 
             # investment min payments
-            for investment in portfolio.investments():
+            for investment in portfolio.non_guaranteed_investments():
                 investment_min_payment = max(
                     investment.get_minimum_monthly_payment(month) for month in months
                 )
@@ -339,8 +343,7 @@ class GreedyHeuristicStrategy(GreedyAllocationStrategy):
         leftover: float,
     ) -> List[MonthlyAllocation]:
         payments_by_name = {
-            portfolio.instruments_by_id[key].id_: value
-            for key, value in payments.items()
+            portfolio.instruments[key].id_: value for key, value in payments.items()
         }
         return [
             MonthlyAllocation(payments=payments_by_name, leftover=leftover)
@@ -349,9 +352,9 @@ class GreedyHeuristicStrategy(GreedyAllocationStrategy):
 
     @classmethod
     def get_best_investment(
-        cls, investments: Iterable[Investment], month
-    ) -> Optional[Investment]:
-        best_investment: Optional[Investment] = None
+        cls, investments: Iterable[NonGuaranteedInvestment], month
+    ) -> Optional[NonGuaranteedInvestment]:
+        best_investment: Optional[NonGuaranteedInvestment] = None
         for investment in investments:
             if best_investment is None or investment.monthly_interest_rate(
                 month
