@@ -206,11 +206,13 @@ class MILPSets:
     def create(
         cls,
         user_finances: UserPersonalFinances,
-        max_months_in_payment_horizon: int,
+        max_working_months: int,
+        max_retirement_months: int,
         start_month: int,
     ) -> "MILPSets":
         decision_periods = DecisionPeriodsManagerFactory(
-            max_months=max_months_in_payment_horizon
+            max_working_months=max_working_months,
+            max_retirement_months=max_retirement_months,
         ).from_user_finances(start_month=start_month, user_finances=user_finances)
         province = user_finances.financial_profile.province_of_residence
         income_tax_brackets = {

@@ -35,6 +35,7 @@ class MILP:
         sets = MILPSets.create(
             user_finances,
             parameters.max_months_in_payment_horizon,
+            parameters.max_months_in_retirement_period,
             parameters.starting_month,
         )
 

@@ -97,7 +97,7 @@ class PenniesRequestSerializer(base.ReadOnlyModelSerializer):
     goals = PenniesFinancialGoalSerializer(many=True, read_only=True)
     financial_profile = PenniesFinancialProfileSerializer(read_only=True)
     strategies = serializers.ReadOnlyField(
-        default=["Two Cents Plan", "Avalanche Plan", "Snowball Plan"]
+        default=["Two Cents Plan"]
     )
 
     class Meta:

@@ -27,6 +27,7 @@ from pennies.utilities.finance import (
 )
 
 DEFAULT_GOAL_SPEND_IN_DEBT = 0.6
+MAX_MILP_SECONDS = 1
 
 
 class GreedyAllocationStrategy(AllocationStrategy):
@@ -94,7 +95,8 @@ class GreedyAllocationStrategy(AllocationStrategy):
         cls, user_finances: UserPersonalFinances, parameters: Parameters
     ) -> DecisionPeriodsManager:
         return DecisionPeriodsManagerFactory(
-            max_months=parameters.max_months_in_payment_horizon,
+            max_working_months=parameters.max_months_in_payment_horizon,
+            max_retirement_months=parameters.max_months_in_retirement_period,
         ).from_user_finances(
             start_month=parameters.starting_month, user_finances=user_finances
         )

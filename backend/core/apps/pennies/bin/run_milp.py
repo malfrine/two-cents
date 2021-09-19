@@ -9,15 +9,16 @@ from pennies.model.factories.financial_plan import FinancialPlanFactory
 from pennies.model.factories.problem_input import ProblemInputFactory
 from pennies.strategies.milp.milp import MILP
 from pennies.strategies.milp.milp_solution import MILPSolution
+from pennies.utilities.examples import simple_request
 from pennies.utilities.visualization import visualize_solution
 
 logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.DEBUG)
 
 
 def get_request():
-    # request = simple_request()
+    request = simple_request()
     json_dao = JsonDao(data_dir=Path("tests", "data"))
-    request = json_dao.read_request("fail12.json")
+    request = json_dao.read_request("fail15.json")
     return request
 
 
@@ -61,10 +62,10 @@ def main():
             )
             print(f"\t\t{taxes_accrued=}, {e=}, {b=}")
 
-    for year in solution.sets.years:
-        rrsp_limit = pe.value(solution.vars.get_rrsp_deduction_limit(year))
-        tfsa_limit = pe.value(solution.vars.get_tfsa_contribution_limit(year))
-        print(f"{year=}, {rrsp_limit=}, {tfsa_limit=}")
+    # for year in solution.sets.years:
+    #     rrsp_limit = pe.value(solution.vars.get_rrsp_deduction_limit(year))
+    #     tfsa_limit = pe.value(solution.vars.get_tfsa_contribution_limit(year))
+    #     print(f"{year=}, {rrsp_limit=}, {tfsa_limit=}")
 
     plan = FinancialPlanFactory.create(
         solution.get_monthly_payments(),

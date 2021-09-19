@@ -34,7 +34,13 @@ class PortfolioManager:
         for instrument_name, payment in payments.items():
             if math.isclose(payment, 0, abs_tol=0.01):
                 continue
-            instrument = portfolio.get_instrument(instrument_name)
+            try:
+                instrument = portfolio.get_instrument(instrument_name)
+            except KeyError:
+                print(
+                    f"Unable to find {instrument} in portfolio - skipping payment of {payment} in month: {month}"
+                )
+                continue
             mmp = instrument.get_minimum_monthly_payment(month)
             if (
                 math.isclose(instrument.current_balance, 0)

@@ -42,10 +42,12 @@ class MILPVariables:
         allocations = pe.Var(
             sets.instruments,
             sets.all_decision_periods_as_set,
-            bounds=(0.0, user_finances.financial_profile.monthly_salary_before_tax,),
             domain=pe.NonNegativeReals,
+            initialize=0,
         )
-        goal_allocations = pe.Var(sets.purchase_goals, domain=pe.NonNegativeReals,)
+        goal_allocations = pe.Var(
+            sets.purchase_goals, domain=pe.NonNegativeReals, initialize=0
+        )
         balances = pe.Var(
             sets.instruments,
             sets.all_decision_periods_as_set,
@@ -68,7 +70,7 @@ class MILPVariables:
             initialize=0,
         )
         taxable_monthly_incomes = pe.Var(
-            sets.all_decision_periods_as_set, domain=pe.Reals
+            sets.all_decision_periods_as_set, domain=pe.Reals, initialize=0
         )
         taxable_incomes_in_brackets = pe.Var(
             sets.all_decision_periods_as_set,
@@ -79,33 +81,39 @@ class MILPVariables:
             sets.all_decision_periods_as_set,
             sets.taxing_entities_and_brackets,
             domain=pe.Binary,
+            initialize=1,
         )
         taxes_accrued_in_brackets = pe.Var(
             sets.all_decision_periods_as_set,
             sets.taxing_entities_and_brackets,
             domain=pe.NonNegativeReals,
+            initialize=20,
         )
         withdrawals = pe.Var(
             sets.investments,
             sets.all_decision_periods_as_set,
             domain=pe.NonNegativeReals,
+            initialize=0,
         )
         retirement_spending_violations = pe.Var(
-            sets.retirement_periods_as_set, domain=pe.NonNegativeReals
+            sets.retirement_periods_as_set, domain=pe.NonNegativeReals, initialize=0
         )
         rrsp_deduction_limits = pe.Var(sets.years, domain=pe.NonNegativeReals)
         tfsa_contribution_limits = pe.Var(sets.years, domain=pe.NonNegativeReals)
 
         savings_goal_violations = pe.Var(
-            sets.savings_goals_and_decision_periods, domain=pe.NonNegativeReals
+            sets.savings_goals_and_decision_periods,
+            domain=pe.NonNegativeReals,
+            initialize=0,
         )
         purchase_goal_violations = pe.Var(
-            sets.purchase_goals, domain=pe.NonNegativeReals
+            sets.purchase_goals, domain=pe.NonNegativeReals, initialize=0
         )
         min_payment_violations = pe.Var(
             sets.instruments,
             sets.all_decision_periods_as_set,
             domain=pe.NonNegativeReals,
+            initialize=0,
         )
         return MILPVariables(
             allocations=allocations,
