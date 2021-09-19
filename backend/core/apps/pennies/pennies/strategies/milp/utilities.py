@@ -11,13 +11,6 @@ from pennies.utilities.datetime import MONTHS_IN_YEAR
 from pennies.utilities.finance import estimate_taxable_withdrawal
 
 
-# G = S + W
-# PT = S + W - T
-# A = PT - W
-# A = S + W - T - W
-# A = S - T
-
-
 @dataclass
 class AttributeUtility:
     """A utility to get certain variables and parameters of the MIP"""
@@ -84,7 +77,10 @@ class AttributeUtility:
         the volatility of all other investments is 0
         """
         return sum(
-            self.vars.get_allocation(i, decision_period)
+            (
+                self.vars.get_allocation(i, decision_period)
+                - self.pars.get_minimum_monthly_payment(i, decision_period)
+            )
             * self.pars.get_instrument_volatility(i)
             for i in self.sets.non_guaranteed_investments
         )

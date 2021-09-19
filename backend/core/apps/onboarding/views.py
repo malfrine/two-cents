@@ -181,11 +181,15 @@ class OnboardingAPIView(views.APIView):
             )
         user = None
         try:
-            user = create_user(UserWriteSerializer(data=request.data.get("account")))
-            create_financial_profile(user, request.data.get("financial_profile"))
-            create_goals(user, request.data.get("goals"))
-            create_investments(user, request.data.get("investments"))
-            create_loans(user, request.data.get("loans"))
+            user = create_user(
+                UserWriteSerializer(data=request.data.get("account", dict()))
+            )
+            create_financial_profile(
+                user, request.data.get("financial_profile", dict())
+            )
+            create_goals(user, request.data.get("goals", dict()))
+            create_investments(user, request.data.get("investments", dict()))
+            create_loans(user, request.data.get("loans", dict()))
         except serializers.ValidationError as e:
             if user is not None:
                 delete_user(user)
@@ -194,7 +198,7 @@ class OnboardingAPIView(views.APIView):
                 data = e.detail
             logging.error(
                 f"Unable to onboard user because of {e.status_code} status",
-                extra=request.data,
+                extra={"data": request.data, "error": data},
             )
             return Response(status=e.status_code, data=data)
         return Response(status=status.HTTP_200_OK)

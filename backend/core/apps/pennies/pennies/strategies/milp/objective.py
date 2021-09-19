@@ -15,8 +15,8 @@ class ObjectiveComponents:
     vars: MILPVariables
 
     REGISTERED_ACCOUNT_BENEFIT = 0.025
-    PREFERENCE_VIOLATION_COST = 1000
-    MANDATORY_REQUIREMENT_VIOLATION_COST = 100_000
+    PREFERENCE_VIOLATION_COST = 500
+    MANDATORY_REQUIREMENT_VIOLATION_COST = 80_000
     # TODO: dynamic violation costs based on user income
 
     def get_risk_violation_costs(self):

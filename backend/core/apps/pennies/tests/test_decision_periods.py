@@ -23,9 +23,9 @@ def test_decision_periods():
         dt_helper=dt_helper,
     )
 
-    test_phs = DecisionPeriodsManagerFactory(max_months=3).from_num_months(
-        start_month=3, retirement_month=13, final_month=20
-    )
+    test_phs = DecisionPeriodsManagerFactory(
+        max_retirement_months=3, max_working_months=3
+    ).from_num_months(start_month=3, retirement_month=13, final_month=20)
 
     for actual, test in zip(actual_phs.data, test_phs.data):
         assert actual.months == test.months

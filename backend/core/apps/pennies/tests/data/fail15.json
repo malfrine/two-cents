@@ -1,0 +1,98 @@
+{
+   "loans": [
+      {
+         "interest_rate": {
+            "interest_type": "Fixed",
+            "apr": 3.5
+         },
+         "current_balance": -25000.0,
+         "final_month": 162,
+         "db_id": 27,
+         "name": "Student Loan",
+         "loan_type": "Student Loan",
+         "minimum_monthly_payment": 250.0
+      },
+      {
+         "interest_rate": {
+            "interest_type": "Fixed",
+            "apr": 15.0
+         },
+         "current_balance": -100.0,
+         "db_id": 26,
+         "name": "Credit Card",
+         "loan_type": "Credit Card"
+      }
+   ],
+   "investments": [
+      {
+         "name": "TFSA Portfolio",
+         "current_balance": 0.0,
+         "final_month": null,
+         "investment_type": "Portfolio",
+         "pre_authorized_monthly_contribution": 0.0,
+         "principal_investment_amount": null,
+         "start_month": null,
+         "prime_modifier": null,
+         "account_type": "TFSA",
+         "db_id": 126,
+         "interest_rate": {
+            "interest_type": "Investment Return Rate",
+            "roi": 5.0,
+            "volatility": 5
+         }
+      },
+      {
+         "name": "RRSP Portfolio",
+         "current_balance": 0.0,
+         "final_month": null,
+         "investment_type": "Portfolio",
+         "pre_authorized_monthly_contribution": 500.0,
+         "principal_investment_amount": 0.0,
+         "start_month": null,
+         "prime_modifier": null,
+         "account_type": "RRSP",
+         "db_id": 127,
+         "interest_rate": {
+            "interest_type": "Investment Return Rate",
+            "roi": 7.0,
+            "volatility": 7.5
+         }
+      }
+   ],
+   "goals": [
+      {
+         "name": "Nest egg",
+         "type": "Nest Egg",
+         "amount": 20000.0,
+         "due_month": -8
+      },
+      {
+         "name": "Get married",
+         "type": "Big Purchase",
+         "amount": 35000.0,
+         "due_month": 21
+      },
+      {
+         "name": "Buy a house",
+         "type": "Big Purchase",
+         "amount": 100000.0,
+         "due_month": 45
+      }
+   ],
+   "financial_profile": {
+      "monthly_salary_before_tax": 6000.0,
+      "years_to_retirement": 33,
+      "risk_tolerance": 0.0,
+      "percent_salary_for_spending": 40.0,
+      "province_of_residence": "AB",
+      "starting_rrsp_contribution_limit": 34000.0,
+      "starting_tfsa_contribution_limit": 0.0,
+      "current_age": 27,
+      "years_to_death": 63
+   },
+   "strategies": [
+      "Two Cents Plan",
+      "Avalanche Plan",
+      "Snowball Plan"
+   ]
+}

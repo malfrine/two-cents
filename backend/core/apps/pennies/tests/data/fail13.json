@@ -1,0 +1,86 @@
+{
+  "financial_profile": {
+    "risk_tolerance": 50.0,
+    "monthly_salary_before_tax": 8000.0,
+    "percent_salary_for_spending": 20.0,
+    "years_to_retirement": 24,
+    "province_of_residence": "British Columbia",
+    "starting_rrsp_contribution_limit": 77760.0,
+    "starting_tfsa_contribution_limit": 60500.0,
+    "current_age": 36,
+    "years_to_death": 54
+  },
+  "loans": [],
+  "goals": [
+    {
+      "id_": "4d197b3f-9cc1-4329-8b4c-6ace64770366",
+      "name": "Nest Egg",
+      "amount": 26880.0,
+      "due_month": 0,
+      "type": "Nest Egg"
+    }
+  ],
+  "investments": [
+    {
+      "id_": "6cedbd14-d39e-40ec-9b06-e1bbffcf4b48",
+      "db_id": 8,
+      "name": "Non Registerd Portfolio",
+      "interest_rate": {
+        "interest_type": "Investment Return Rate",
+        "roi": 5.0,
+        "volatility": 5.0
+      },
+      "current_balance": 15538.707495805926,
+      "final_month": null,
+      "account_type": "Non-Registered",
+      "pre_authorized_monthly_contribution": 0.0,
+      "investment_type": "Mutual Fund"
+    },
+    {
+      "id_": "8d0de98c-8fee-4cc0-b194-cb45dccbdb4f",
+      "db_id": 7,
+      "name": "RRSP Portfolio",
+      "interest_rate": {
+        "interest_type": "Investment Return Rate",
+        "roi": 3.5,
+        "volatility": 2.5
+      },
+      "current_balance": 0.0,
+      "final_month": null,
+      "account_type": "RRSP",
+      "pre_authorized_monthly_contribution": 0.0,
+      "investment_type": "Portfolio"
+    },
+    {
+      "id_": "dbc9c46f-172b-4599-a637-f032225ba444",
+      "db_id": 6,
+      "name": "TFSA Portfolio",
+      "interest_rate": {
+        "interest_type": "Investment Return Rate",
+        "roi": 5.0,
+        "volatility": 5.0
+      },
+      "current_balance": 5438.547623532073,
+      "final_month": null,
+      "account_type": "TFSA",
+      "pre_authorized_monthly_contribution": 0.0,
+      "investment_type": "Portfolio"
+    },
+    {
+      "id_": "adf7da9f-cd2e-482c-94fb-9385508b7b09",
+      "db_id": 5,
+      "name": "Cash Account",
+      "interest_rate": {
+        "interest_type": "Zero Growth"
+      },
+      "current_balance": 28709.45831932745,
+      "final_month": null,
+      "account_type": "Non-Registered",
+      "pre_authorized_monthly_contribution": 0.0,
+      "investment_type": "Cash"
+    }
+  ],
+  "strategies": [
+    "Two Cents Plan"
+  ]
+}

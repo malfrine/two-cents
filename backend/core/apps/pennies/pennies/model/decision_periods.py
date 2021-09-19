@@ -196,7 +196,8 @@ def make_sorted_events(
 
 @dataclass
 class DecisionPeriodsManagerFactory:
-    max_months: int = 4
+    max_working_months: int = 12
+    max_retirement_months: int = 12
 
     def from_num_months(
         self, start_month: int, retirement_month: int, final_month: int
@@ -204,12 +205,12 @@ class DecisionPeriodsManagerFactory:
         cur_index = 0
         data = list()
         for grouped_months in group_months(
-            start_month, retirement_month, self.max_months
+            start_month, retirement_month, self.max_working_months
         ):
             data.append(WorkingPeriod(index=cur_index, months=grouped_months))
             cur_index += 1
         for grouped_months in group_months(
-            retirement_month, final_month, self.max_months
+            retirement_month, final_month, self.max_retirement_months
         ):
             data.append(RetirementPeriod(index=cur_index, months=grouped_months))
             cur_index += 1
@@ -223,10 +224,10 @@ class DecisionPeriodsManagerFactory:
             user_finances, start_month
         )
         grouped_working_months = make_grouped_months_from_events(
-            working_events, self.max_months
+            working_events, self.max_working_months
         )
         grouped_retirement_months = make_grouped_months_from_events(
-            retirement_events, self.max_months
+            retirement_events, self.max_retirement_months
         )
         data = list()
         cur_index = 0
