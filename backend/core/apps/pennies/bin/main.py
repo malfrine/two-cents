@@ -1,11 +1,11 @@
 from pathlib import Path
 
 from pennies.dao.json_dao import JsonDao
+from pennies.main import create_solution
 from pennies.model.factories.problem_input import ProblemInputFactory
 from pennies.model.problem_input import ProblemInput
 from pennies.plan_processing.plan import ProcessedFinancialPlan
 from pennies.plan_processing.solution_processor import SolutionProcessor
-from pennies.solver import solve
 from pennies.strategies import StrategyName
 from pennies.utilities.examples import simple_request
 from pennies.utilities.visualization import visualize_solution
@@ -26,15 +26,15 @@ def main():
             StrategyName.snowball.value,
             StrategyName.avalanche.value,
             # StrategyName.avalanche_ball.value,
-            StrategyName.lp.value,
+            StrategyName.two_cents_milp.value,
         ],
     )
-    solution = solve(mi)
-    processed_solution = SolutionProcessor.process(solution)
-    for strategy, plan in processed_solution.items():
-        plan: ProcessedFinancialPlan
+    solution = create_solution(mi)
+    processed_solution = SolutionProcessor.process_solution(solution)
+    for strategy, processed_plan in processed_solution.items():
+        processed_plan: ProcessedFinancialPlan
         print(f"Strategy: {strategy}")
-        for milestone in plan.milestones.values():
+        for milestone in processed_plan.milestones.values():
             print(f"\t{milestone.text}")
     print(str(mi.user_finances))
     for strategy_name, plan in solution.plans.items():

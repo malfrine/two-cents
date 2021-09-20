@@ -184,7 +184,7 @@ def all_possible_investments() -> List[AllInvestmentTypes]:
 def all_strategies() -> List[str]:
     return [
         StrategyName.snowball.value,
-        StrategyName.lp.value,
+        StrategyName.two_cents_milp.value,
         StrategyName.avalanche.value,
         StrategyName.avalanche_ball.value,
     ]
@@ -240,7 +240,7 @@ def simple_model_input():
             StrategyName.snowball.value,
             StrategyName.avalanche.value,
             StrategyName.avalanche_ball.value,
-            StrategyName.lp.value,
+            StrategyName.two_cents_milp.value,
         ],
     )
 

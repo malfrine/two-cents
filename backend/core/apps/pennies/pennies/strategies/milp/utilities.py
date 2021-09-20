@@ -1,7 +1,10 @@
 import itertools
 from dataclasses import dataclass
 from math import ceil
+from typing import List
 from uuid import UUID
+
+from pyomo import environ as pe
 
 from pennies.model.rrsp import RRIFMinPaymentCalculator
 from pennies.strategies.milp.parameters import MILPParameters
@@ -26,7 +29,9 @@ class AttributeUtility:
         )
 
     def estimate_taxable_withdrawal(self, investment_id: UUID, decision_period: int):
-        final_withdrawal_month = max(self.sets.get_months_in_horizon(decision_period))
+        final_withdrawal_month = max(
+            self.sets.get_months_in_decision_period(decision_period)
+        )
         starting_month = self.sets.decision_periods.min_month
         months = list(range(starting_month, final_withdrawal_month))
         investment = self.pars.get_investment(investment_id)
@@ -186,3 +191,37 @@ class AttributeUtility:
                 goal_allocation = self.vars.get_goal_allocation(g)
                 total_allocations += goal_allocation
         return total_allocations
+
+
+class ConcreteModelBuilder:
+    def __init__(self):
+        self.var_id = 0
+        self.constraint_id = 0
+        self.m = pe.ConcreteModel()
+
+    def add_constraint(self, c: pe.Constraint):
+        setattr(self.m, f"c{self.constraint_id}", c)
+        self.constraint_id += 1
+
+    def add_variable(self, v: pe.Var):
+        setattr(self.m, f"v{self.var_id}", v)
+        self.var_id += 1
+
+    def add_constraints(self, constraints: List[pe.Constraint]):
+        for c in constraints:
+            self.add_constraint(c)
+
+    def add_variables(self, variables: List[pe.Var]):
+        for v in variables:
+            self.add_variable(v)
+
+    def build(
+        self,
+        constraints: List[pe.Constraint],
+        variables: List[pe.Var],
+        objective: pe.Objective,
+    ) -> pe.ConcreteModel:
+        self.add_variables(variables)
+        self.add_constraints(constraints)
+        self.m.obj = objective
+        return self.m

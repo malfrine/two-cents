@@ -204,7 +204,7 @@ export default {
   },
   data () {
     return {
-      selectedStrategy: 'Two Cents Plan',
+      selectedStrategy: 'Investment-Focused Plan',
       panel: [0, 1, 2, 3],
       tooltips: {
         netWorthProjection: 'This graph shows how your net worth will change up to retirement. To view your finances at a single point in time, move your cursor until you have reached your desired date. The legend at the top of the graph indicates the different elements of your financial picture.',

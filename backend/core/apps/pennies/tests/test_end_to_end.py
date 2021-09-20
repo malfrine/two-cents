@@ -5,12 +5,11 @@ from typing import ClassVar
 
 from pydantic import BaseModel
 
+from pennies.main import create_processed_solution, solve_request
 from pennies.model.problem_input import ProblemInput
 from pennies.model.request import PenniesRequest
-from pennies.model.solution import Solution
 from pennies.model.status import PenniesStatus
 from pennies.model.user_personal_finances import UserPersonalFinances
-from pennies.solver import solve, solve_request
 from pennies.strategies import StrategyName
 from pennies.utilities.examples import (
     simple_user_finances,
@@ -36,10 +35,10 @@ def test_simple_solve():
     assert isinstance(sp, UserPersonalFinances)
     mi = ProblemInput(
         user_finances=sp,
-        strategies=[StrategyName.avalanche.value, StrategyName.lp.value],
+        strategies=[StrategyName.avalanche.value, StrategyName.two_cents_milp.value],
     )
-    solution = solve(mi)
-    assert isinstance(solution, Solution)
+    solution = create_processed_solution(mi)
+    assert isinstance(solution, dict)
 
 
 def test_process_all_example_requests():
@@ -49,6 +48,6 @@ def test_process_all_example_requests():
         assert response["status"] == PenniesStatus.SUCCESS, response["result"]
         assert isinstance(response["result"], dict)
         assert len(response["result"]) == len(request["strategies"])
-        assert len(response["result"][StrategyName.lp.value]["milestones"]) >= len(
-            request["loans"]
-        )
+        assert len(
+            response["result"][StrategyName.two_cents_milp.value]["milestones"]
+        ) >= len(request["loans"])

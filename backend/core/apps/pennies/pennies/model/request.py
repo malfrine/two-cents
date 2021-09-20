@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from pydantic.main import BaseModel
 
@@ -13,4 +13,4 @@ class PenniesRequest(BaseModel):
     loans: List[AllLoanTypes]
     goals: List[AllGoalTypes]
     investments: List[AllInvestmentTypes]
-    strategies: List[str]
+    strategies: Optional[List[str]] = None

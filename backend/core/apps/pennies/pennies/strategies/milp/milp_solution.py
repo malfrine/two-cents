@@ -132,11 +132,12 @@ class MILPSolution:
         logging.debug(
             f"Min payment violation costs: {pe.value(c.get_min_payment_violation_cost())}"
         )
+        logging.debug(f"In Debt utility costs: {pe.value(c.get_in_debt_cost())}")
 
         # logging.debug(f"Taxes overflow costs: {pe.value(c.get_taxes_overflow_cost())}")
         logging.debug(f"Interest Earned: {pe.value(c.get_interest_earned())}")
         logging.debug(f"Final net worth: {pe.value(c.get_final_net_worth())}")
-        logging.debug(f"Total: {pe.value(c.get_obj())}")
+        logging.debug(f"Total: {pe.value(c.get_obj_rule())}")
 
     def get_milp_monthly_solutions(self) -> Dict[int, MonthlySolution]:
         monthly_payments = self.get_monthly_payments()

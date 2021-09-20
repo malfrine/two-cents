@@ -84,7 +84,7 @@ class Mortgage(Loan):
         return self.minimum_monthly_payment
 
     def get_maximum_monthly_payment(self, month: int) -> Optional[float]:
-        return self.current_balance
+        return self.minimum_monthly_payment
 
 
 AllLoanTypes = Union[

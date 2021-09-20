@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 
 from pennies.model.status import PenniesStatus
-from pennies.solver import solve_request
+from pennies.main import solve_request
 from pennies.strategies import StrategyName
 from tests.test_end_to_end import JSONDao
 
@@ -24,9 +24,9 @@ def _assert_successful_solve(f: str):
     ), f"failed {f} with {response['result']}"
     assert isinstance(response["result"], dict)
     assert len(response["result"]) == len(request["strategies"])
-    assert len(response["result"][StrategyName.lp.value]["milestones"]) >= len(
-        request["loans"]
-    )
+    assert len(
+        response["result"][StrategyName.two_cents_milp.value]["milestones"]
+    ) >= len(request["loans"])
 
 
 def test_process_all_failed_requests():
@@ -36,4 +36,4 @@ def test_process_all_failed_requests():
 
 
 def test_fail_request():
-    _assert_successful_solve("fail1.json")
+    _assert_successful_solve("fail10.json")

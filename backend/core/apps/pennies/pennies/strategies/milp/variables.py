@@ -8,9 +8,6 @@ import pyomo.environ as pe
 from pennies.model.user_personal_finances import UserPersonalFinances
 from pennies.strategies.milp.sets import MILPSets
 
-# pt_income == allocation + expenses
-# expenses == living_expenses + goal_expenses
-
 
 @dataclass
 class MILPVariables:
@@ -38,7 +35,6 @@ class MILPVariables:
     def create(
         cls, user_finances: UserPersonalFinances, sets: MILPSets
     ) -> "MILPVariables":
-
         allocations = pe.Var(
             sets.instruments,
             sets.all_decision_periods_as_set,
@@ -55,7 +51,7 @@ class MILPVariables:
             domain=pe.Reals,
         )
         not_paid_off_indicators = pe.Var(
-            sets.loans, sets.working_periods_as_set, domain=pe.Binary, initialize=1
+            sets.loans, sets.all_decision_periods_as_set, domain=pe.Binary, initialize=1
         )
         investment_risk_violations = pe.Var(
             sets.working_periods_as_set, domain=pe.NonNegativeReals, initialize=0
@@ -136,6 +132,29 @@ class MILPVariables:
             taxable_incomes_indicator=taxable_incomes_indicator,
         )
 
+    @property
+    def as_list(self) -> List[pe.Var]:
+        return [
+            self.allocations,
+            self.goal_allocations,
+            self.balances,
+            self.not_paid_off_indicators,
+            self.investment_risk_violations,
+            self.total_risk_violations,
+            self.loan_due_date_violations,
+            self.taxable_monthly_incomes,
+            self.taxes_accrued_in_brackets,
+            self.withdrawals,
+            self.retirement_spending_violations,
+            self.rrsp_deduction_limits,
+            self.tfsa_contribution_limits,
+            self.savings_goal_violations,
+            self.purchase_goal_violations,
+            self.min_payment_violations,
+            self.taxable_incomes_in_brackets,
+            self.taxable_incomes_indicator,
+        ]
+
     def get_allocation(self, instrument: UUID, decision_period: int):
         return self.allocations[instrument, decision_period]
 
@@ -143,8 +162,8 @@ class MILPVariables:
         """corresponds to the instrument balance at the end of the period"""
         return self.balances[instrument, decision_period]
 
-    def get_is_unpaid(self, loan: UUID, month: int):
-        return self.not_paid_off_indicators[loan, month]
+    def get_is_unpaid(self, loan: UUID, decision_period: int):
+        return self.not_paid_off_indicators[loan, decision_period]
 
     def get_total_risk_violation(self, decision_period: int):
         return self.total_risk_violations[decision_period]

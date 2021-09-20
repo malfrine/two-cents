@@ -11,16 +11,16 @@ from pennies.model.solution import Solution, FinancialPlan
 
 class SolutionProcessor:
     @classmethod
-    def process(cls, solution: Solution) -> ProcessedSolution:
+    def process_solution(cls, solution: Solution) -> ProcessedSolution:
         return ProcessedSolution(
             {
-                strategy_name: cls._process_plan(plan, solution.problem_input)
+                strategy_name: cls.process_plan(plan, solution.problem_input)
                 for strategy_name, plan in solution.plans.items()
             }
         )
 
     @classmethod
-    def _process_plan(
+    def process_plan(
         cls, plan: FinancialPlan, problem_input: ProblemInput
     ) -> ProcessedFinancialPlan:
         return ProcessedFinancialPlan(

@@ -1,5 +1,5 @@
 from pennies.model.status import PenniesStatus
-from pennies.solver import solve_request
+from pennies.main import solve_request
 from pennies.utilities.examples import only_investments_request
 
 

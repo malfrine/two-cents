@@ -14,13 +14,8 @@ class ObjectiveComponents:
     pars: MILPParameters
     vars: MILPVariables
 
-    REGISTERED_ACCOUNT_BENEFIT = 0.025
-    PREFERENCE_VIOLATION_COST = 500
-    MANDATORY_REQUIREMENT_VIOLATION_COST = 80_000
-    # TODO: dynamic violation costs based on user income
-
     def get_risk_violation_costs(self):
-        return self.MANDATORY_REQUIREMENT_VIOLATION_COST * (
+        return self.pars.get_mandatory_requirement_violation_cost() * (
             sum(
                 self.vars.get_total_risk_violation(t)
                 + self.vars.get_investment_risk_violation(t)
@@ -29,7 +24,7 @@ class ObjectiveComponents:
         )
 
     def get_loan_due_date_violation_costs(self):
-        return self.MANDATORY_REQUIREMENT_VIOLATION_COST * (
+        return self.pars.get_mandatory_requirement_violation_cost() * (
             sum(
                 self.vars.get_loan_due_date_violation(l, t)
                 for l, t in itertools.product(
@@ -39,7 +34,7 @@ class ObjectiveComponents:
         )
 
     def get_retirement_spending_violation_cost(self):
-        return self.MANDATORY_REQUIREMENT_VIOLATION_COST * (
+        return self.pars.get_mandatory_requirement_violation_cost() * (
             sum(
                 self.vars.get_retirement_spending_violation(t)
                 for t in self.sets.retirement_periods_as_set
@@ -61,18 +56,18 @@ class ObjectiveComponents:
         )
 
     def get_savings_goal_violation_cost(self):
-        return self.PREFERENCE_VIOLATION_COST * sum(
+        return self.pars.get_goal_violation_cost() * sum(
             self.vars.get_savings_goal_violation(g, t)
             for g, t in self.sets.savings_goals_and_decision_periods
         )
 
     def get_purchase_goal_violation_cost(self):
-        return self.PREFERENCE_VIOLATION_COST * sum(
+        return self.pars.get_goal_violation_cost() * sum(
             self.vars.get_purchase_goal_violation(g) for g in self.sets.purchase_goals
         )
 
     def get_registered_account_incentive(self):
-        return self.REGISTERED_ACCOUNT_BENEFIT * sum(
+        return self.pars.get_registered_account_benefit() * sum(
             self.vars.get_allocation(i, t)
             for i, t in itertools.product(
                 self.sets.registered_investments, self.sets.working_periods_as_set
@@ -94,11 +89,20 @@ class ObjectiveComponents:
             )
         )
         return (
-            self.MANDATORY_REQUIREMENT_VIOLATION_COST * loan_violations
-            + self.PREFERENCE_VIOLATION_COST * investment_violations
+            self.pars.get_mandatory_requirement_violation_cost() * loan_violations
+            + self.pars.get_preference_violation_cost() * investment_violations
         )
 
-    def get_obj(self):
+    def get_in_debt_cost(self):
+        return self.pars.get_debt_utility_cost() * sum(
+            -self.vars.get_balance(l, t)
+            for l, t in itertools.product(
+                self.sets.loans, self.sets.all_decision_periods_as_set
+            )
+            for _ in self.sets.get_months_in_decision_period(t)
+        )
+
+    def get_obj_rule(self):
         obj = (
             -self.get_risk_violation_costs()
             - self.get_loan_due_date_violation_costs()
@@ -106,11 +110,11 @@ class ObjectiveComponents:
             - self.get_savings_goal_violation_cost()
             - self.get_purchase_goal_violation_cost()
             - self.get_min_payment_violation_cost()
+            - self.get_in_debt_cost()
+            + self.get_interest_earned()
         )
         if self.pars.has_investments():
             obj += self.get_final_net_worth() + self.get_registered_account_incentive()
-        else:
-            obj += self.get_interest_earned()
         return obj
 
 
@@ -126,6 +130,10 @@ class MILPObjective:
     ) -> "MILPObjective":
         components = ObjectiveComponents(sets, pars, vars_)
         return MILPObjective(
-            obj=pe.Objective(expr=components.get_obj(), sense=pe.maximize,),
+            obj=pe.Objective(
+                rule=lambda _: components.get_obj_rule(),
+                # wrap a pyomo rule around the get_obj method
+                sense=pe.maximize,
+            ),
             components=components,
         )
