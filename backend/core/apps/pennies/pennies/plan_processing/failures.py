@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime, date
 from enum import Enum
-from typing import Optional, NewType, List
+from typing import Optional, List
 
 from pydantic import BaseModel
 
@@ -137,7 +137,7 @@ class PlanFailure(BaseModel):
         )
 
 
-PlanFailures = NewType("PlanMilestones", List[PlanFailure])
+PlanFailures = List[PlanFailure]
 
 
 class PlanFailuresFactory:
@@ -155,8 +155,6 @@ class PlanFailuresFactory:
             )
         )
         failures.extend(cls.get_goal_failures(plan, problem_input, start_date))
-        for failure in failures:
-            print(failure.text)
         return failures
 
     @classmethod

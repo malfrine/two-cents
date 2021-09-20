@@ -10,7 +10,7 @@ from pennies.plan_processing.plan import ProcessedFinancialPlan
 from pennies.model.request import PenniesRequest
 from pennies.model.response import PenniesResponse
 from pennies.model.status import PenniesStatus
-from pennies.solver import solve_request
+from pennies.main import solve_request
 from pennies.strategies import get_strategy, StrategyName
 
 
@@ -20,10 +20,10 @@ def test_lp_equals_avalanche():
     # assert equality for unprocessed objects
     problem_input = ProblemInputFactory.from_request(request)
     loan = problem_input.user_finances.portfolio.loans[0]
-    avalanche_solution = get_strategy(StrategyName.avalanche.value).create_solution(
+    avalanche_solution = get_strategy(StrategyName.avalanche.value).create_plan(
         problem_input.user_finances, Parameters()
     )
-    milp_solution = get_strategy(StrategyName.lp.value).create_solution(
+    milp_solution = get_strategy(StrategyName.two_cents_milp.value).create_plan(
         problem_input.user_finances, Parameters()
     )
     assert len(milp_solution.monthly_solutions) == len(
@@ -40,7 +40,9 @@ def test_lp_equals_avalanche():
     response = PenniesResponse.parse_obj(solve_request(request.dict()))
     assert response.status == PenniesStatus.SUCCESS
     assert isinstance(response.result, dict)
-    milp_plan: ProcessedFinancialPlan = response.result.get(StrategyName.lp.value)
+    milp_plan: ProcessedFinancialPlan = response.result.get(
+        StrategyName.two_cents_milp.value
+    )
     av_plan: ProcessedFinancialPlan = response.result.get(StrategyName.avalanche.value)
     assert len(milp_plan.net_worth.datasets) == len(av_plan.net_worth.datasets)
 
@@ -68,6 +70,6 @@ def get_request() -> PenniesRequest:
             )
         ],
         investments=list(),
-        strategies=[StrategyName.avalanche.value, StrategyName.lp.value],
+        strategies=[StrategyName.avalanche.value, StrategyName.two_cents_milp.value],
         goals=list(),
     )

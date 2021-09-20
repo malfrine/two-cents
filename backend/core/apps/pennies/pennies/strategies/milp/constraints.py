@@ -1,5 +1,6 @@
 import itertools
 from dataclasses import dataclass
+from typing import List
 
 import pyomo.environ as pe
 
@@ -540,6 +541,38 @@ class MILPConstraints:
     income_surplus_upper_bound: pe.Constraint
     bracket_band_upper_bound: pe.Constraint
     set_annual_rrsp_allocation_limit: pe.Constraint
+
+    @property
+    def as_list(self) -> List[pe.Constraint]:
+        return [
+            self.define_loan_paid_off_indicator,
+            self.allocate_minimum_payments,
+            self.define_account_balance,
+            self.total_payments_limit,
+            self.loans_are_non_positive,
+            self.pay_off_loans_by_end_date,
+            self.limit_total_risk,
+            self.limit_investment_risk,
+            self.define_taxes_accrued_in_bracket,
+            self.satisfy_retirement_spending_requirement,
+            self.zero_allocations_for_guaranteed_investments,
+            self.define_taxable_monthly_income,
+            self.define_rrsp_deduction_limits,
+            self.set_minimum_rrif_withdrawals,
+            self.define_tfsa_deduction_limits,
+            self.set_withdrawal_limits,
+            self.limit_monthly_payment,
+            self.same_mortgage_payments,
+            self.penalize_purchase_goal_violations,
+            self.penalize_savings_goal_violations,
+            self.bracket_taxable_income_upper_bound1,
+            self.bracket_taxable_income_upper_bound2,
+            self.bracket_taxable_income_lower_bound1,
+            self.bracket_taxable_income_lower_bound2,
+            self.income_surplus_upper_bound,
+            self.bracket_band_upper_bound,
+            self.set_annual_rrsp_allocation_limit,
+        ]
 
     @classmethod
     def create(

@@ -141,11 +141,11 @@ class MILPSets:
             if isinstance(i, NonGuaranteedInvestment) and not isinstance(i, Cash)
         )
 
-    def get_months_in_horizon(self, order: int) -> List[int]:
+    def get_months_in_decision_period(self, order: int) -> List[int]:
         return self.decision_periods.data[order].months
 
     def get_num_months_in_decision_period(self, index: int) -> int:
-        return len(self.get_months_in_horizon(index))
+        return len(self.get_months_in_decision_period(index))
 
     @property
     def years(self):

@@ -18,7 +18,7 @@ from pennies.model.portfolio import Portfolio
 from pennies.model.portfolio_manager import PortfolioManager
 from pennies.model.solution import FinancialPlan, MonthlySolution, MonthlyAllocation
 from pennies.model.user_personal_finances import UserPersonalFinances
-from pennies.strategies.allocation_strategy import AllocationStrategy
+from pennies.strategies.allocation_strategy import PlanningStrategy
 from pennies.strategies.milp.strategy import MILPStrategy
 from pennies.utilities.finance import (
     calculate_loan_ending_payment,
@@ -30,8 +30,8 @@ DEFAULT_GOAL_SPEND_IN_DEBT = 0.6
 MAX_MILP_SECONDS = 1
 
 
-class GreedyAllocationStrategy(AllocationStrategy):
-    def create_solution(
+class GreedyPlanningStrategy(PlanningStrategy):
+    def create_plan(
         self, user_finances: UserPersonalFinances, parameters: Parameters
     ) -> FinancialPlan:
         cur_portfolio: Portfolio = user_finances.portfolio.copy(deep=True)
@@ -115,7 +115,7 @@ class GreedyAllocationStrategy(AllocationStrategy):
         user_finances = UserPersonalFinances(
             portfolio=portfolio, financial_profile=financial_profile, goals=goals
         )
-        financial_plan = MILPStrategy().create_solution(
+        financial_plan = MILPStrategy().create_plan(
             user_finances=user_finances, parameters=milp_parameters
         )
         return financial_plan.monthly_solutions
@@ -131,7 +131,7 @@ class GreedyAllocationStrategy(AllocationStrategy):
         ...
 
 
-class GreedyHeuristicStrategy(GreedyAllocationStrategy):
+class GreedyHeuristicStrategy(GreedyPlanningStrategy):
     @classmethod
     def get_monthly_allowance(cls, financial_profile: FinancialProfile, month: int):
         # this only works if greedy algorithm doesn't make rrsp contributions

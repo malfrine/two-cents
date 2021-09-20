@@ -10,7 +10,7 @@ from pennies.model.loan import (
 from pennies.model.request import PenniesRequest
 from pennies.model.response import PenniesResponse
 from pennies.model.status import PenniesStatus
-from pennies.solver import solve_request
+from pennies.main import solve_request
 from pennies.utilities.examples import financial_profile
 
 
@@ -47,7 +47,7 @@ def make_request():
         ],
         goals=list(),
         strategies=[
-            strategies.StrategyName.lp.value,
+            strategies.StrategyName.two_cents_milp.value,
             strategies.StrategyName.snowball.value,
         ],
     )

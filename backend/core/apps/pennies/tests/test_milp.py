@@ -19,7 +19,8 @@ def _solve(request: PenniesRequest) -> Tuple[MILPSolution, FinancialPlan]:
     model_input = ProblemInputFactory.from_request(request)
     user_finances = model_input.user_finances
     parameters = model_input.parameters
-    milp = MILP.create(user_finances=user_finances, parameters=parameters).solve()
+    milp = MILP.create(user_finances=user_finances, parameters=parameters)
+    milp.solve()
     solution = MILPSolution(milp=milp)
     plan = FinancialPlanFactory.create(
         solution.get_monthly_payments(),

@@ -122,3 +122,7 @@ class Portfolio(BaseModel):
             if isinstance(investment, Cash):
                 return investment
         raise ValueError("No cash investment exists")
+
+    @property
+    def has_loans(self):
+        return len(self.loans) > 0

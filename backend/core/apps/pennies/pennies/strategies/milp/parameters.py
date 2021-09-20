@@ -11,6 +11,7 @@ from pennies.model.investment import (
     BaseInvestment,
 )
 from pennies.model.loan import RevolvingLoan
+from pennies.model.parameters import Parameters as ModelParameters
 from pennies.model.rrsp import RRSPAnnualLimitGetter, RRSP_LIMIT_INCOME_FACTOR
 from pennies.model.taxes import (
     CAPITAL_GAINS_TAX_PERCENTAGE,
@@ -26,10 +27,8 @@ from pennies.utilities.datetime import MONTHS_IN_YEAR
 class MILPParameters:
     user_finances: UserPersonalFinances
     sets: MILPSets
+    model_parameters: ModelParameters
     loan_bounds: Dict[str, float] = None
-    MAX_VOLATILITY = 10
-    INSTRUMENT_UPPER_BOUND_FACTOR = 1.4
-    ADDITIONAL_ALLOCATION_FACTOR = 1.5
 
     def __post_init__(self):
         self.loan_bounds = dict()
@@ -43,7 +42,7 @@ class MILPParameters:
                 loan.current_balance * (1 + max_monthly_interest_rate) ** final_month
             )
             self.loan_bounds[loan_id] = (
-                ceil(upper_bound) * self.INSTRUMENT_UPPER_BOUND_FACTOR
+                ceil(upper_bound) * self.get_instrument_upper_bound_factor()
             )
 
     def _get_instrument(self, id_: UUID) -> Instrument:
@@ -60,7 +59,7 @@ class MILPParameters:
         return self._get_instrument(id).volatility
 
     def get_max_investment_volatility(self):
-        return self.MAX_VOLATILITY
+        return self.model_parameters.max_volatility
 
     def get_starting_balance(self, id_: UUID):
         return self._get_instrument(id_).current_balance
@@ -74,7 +73,7 @@ class MILPParameters:
         instrument = self._get_instrument(instrument_id)
         return max(
             instrument.get_minimum_monthly_payment(m)
-            for m in self.sets.get_months_in_horizon(payment_horizon_order)
+            for m in self.sets.get_months_in_decision_period(payment_horizon_order)
         )
 
     def get_before_tax_monthly_income(self, decision_period_index: int):
@@ -224,7 +223,7 @@ class MILPParameters:
         return min(self.sets.retirement_periods_as_set)
 
     def get_max_monthly_payment(self, instrument_id, decision_period_index):
-        months = self.sets.get_months_in_horizon(decision_period_index)
+        months = self.sets.get_months_in_decision_period(decision_period_index)
         instrument = self.user_finances.portfolio.instruments[instrument_id]
         return min(
             (
@@ -255,7 +254,9 @@ class MILPParameters:
     def get_allocation_upper_bound(self, decision_period: int):
         savings_fraction = self.get_savings_fraction(decision_period)
         pre_tax_income = self.get_before_tax_monthly_income(decision_period)
-        return savings_fraction * pre_tax_income * self.ADDITIONAL_ALLOCATION_FACTOR
+        return (
+            savings_fraction * pre_tax_income * self.get_additional_allocation_factor()
+        )
 
     def get_starting_debt(self):
         return sum(self.get_starting_balance(l) for l in self.sets.loans)
@@ -310,7 +311,7 @@ class MILPParameters:
     def get_taxable_income_upper_bound(self, e, b):
         bracket_marginal_income = self.get_bracket_marginal_income(e, b)
         max_income = MAX_MARGINAL_MONTHLY_INCOME
-        return bracket_marginal_income + max_income * 10000
+        return bracket_marginal_income + max_income
 
     def has_tfsa_investments(self):
         return len(self.sets.tfsa_investments) > 0
@@ -324,3 +325,43 @@ class MILPParameters:
             if goal_decision_period == decision_period:
                 return True
         return False
+
+    def get_instrument_upper_bound_factor(self):
+        return self.model_parameters.instrument_upper_bound_factor
+
+    def get_additional_allocation_factor(self):
+        return self.model_parameters.additional_allocation_factor
+
+    def get_starting_before_tax_monthly_income(self):
+        """User's monthly tax at the start of the planning - not accounting for any growth in income over the years"""
+        return self.user_finances.financial_profile.monthly_salary_before_tax
+
+    def get_mandatory_requirement_violation_cost(self):
+        return (
+            self.model_parameters.mandatory_requirement_violation_cost
+            * self.get_starting_before_tax_monthly_income()
+        )
+
+    def get_preference_violation_cost(self):
+        return (
+            self.model_parameters.preference_violation_cost
+            * self.get_starting_before_tax_monthly_income()
+        )
+
+    def get_registered_account_benefit(self):
+        return (
+            self.model_parameters.registered_account_benefit
+            * self.get_starting_before_tax_monthly_income()
+        )
+
+    def get_debt_utility_cost(self):
+        return (
+            self.model_parameters.debt_utility_cost
+            * self.get_starting_before_tax_monthly_income()
+        )
+
+    def get_goal_violation_cost(self):
+        return (
+            self.model_parameters.goal_violation_cost
+            * self.get_starting_before_tax_monthly_income()
+        )

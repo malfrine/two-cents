@@ -71,6 +71,5 @@ def get_actual_big_purchase_amount_and_withdrawals(
         for investment_id, amount in monthly_withdrawal.items()
         if amount > 0
     ]
-    print(withdrawal_list)
     total_purchase = sum(amount for _, amount in withdrawal_list)
     return total_purchase, withdrawal_list
