@@ -7,7 +7,7 @@ class Parameters(BaseModel):
     optimality_gap = 0.01
     is_log_milp = False
     max_milp_nodes = 500_000
-    max_milp_seconds = 5
+    max_milp_seconds = 1
     starting_month = 0
     instrument_upper_bound_factor = 1.4
     # multiplying the max possible value of an instrument upper bound just to be safe
