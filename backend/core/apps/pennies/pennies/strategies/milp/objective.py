@@ -15,7 +15,7 @@ class ObjectiveComponents:
     vars: MILPVariables
 
     def get_risk_violation_costs(self):
-        return self.pars.get_mandatory_requirement_violation_cost() * (
+        return self.pars.get_risk_violation_cost() * (
             sum(
                 self.vars.get_total_risk_violation(t)
                 + self.vars.get_investment_risk_violation(t)
@@ -111,10 +111,11 @@ class ObjectiveComponents:
             - self.get_purchase_goal_violation_cost()
             - self.get_min_payment_violation_cost()
             - self.get_in_debt_cost()
-            + self.get_interest_earned()
         )
         if self.pars.has_investments():
             obj += self.get_final_net_worth() + self.get_registered_account_incentive()
+        else:
+            obj += self.get_interest_earned()
         return obj
 
 

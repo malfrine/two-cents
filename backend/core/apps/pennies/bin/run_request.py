@@ -7,7 +7,6 @@ from pennies.model.problem_input import ProblemInput
 from pennies.plan_processing.plan import ProcessedFinancialPlan
 from pennies.plan_processing.solution_processor import SolutionProcessor
 from pennies.strategies import StrategyName
-from pennies.utilities.examples import simple_request
 from pennies.utilities.visualization import visualize_solution
 
 
@@ -17,16 +16,15 @@ def main():
     pr = cProfile.Profile()
     pr.enable()
     json_dao = JsonDao(data_dir=Path("tests", "data"))
-    request = json_dao.read_request("fail14.json")
-    request = simple_request()
+    request = json_dao.read_request("bad_nest_egg_milestone.json")
+    # request = simple_request()
     sp = ProblemInputFactory.from_request(request).user_finances
     mi = ProblemInput(
         user_finances=sp,
         strategies=[
-            StrategyName.snowball.value,
-            StrategyName.avalanche.value,
-            # StrategyName.avalanche_ball.value,
-            StrategyName.two_cents_milp.value,
+            StrategyName.goal_milp.value,
+            StrategyName.loan_milp.value,
+            StrategyName.investment_milp.value,
         ],
     )
     solution = create_solution(mi)
@@ -46,10 +44,11 @@ def main():
         )
         print(f"\t total withdrawals: {plan.get_total_withdrawals()}")
     pr.disable()
-    # pr.print_stats(sort="cumulative")
+    pr.print_stats(sort="tottime")
     for strategy_name, plan in solution.plans.items():
         visualize_solution(plan, suffix=strategy_name)
 
 
 if __name__ == "__main__":
     main()
+#

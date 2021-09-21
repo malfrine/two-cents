@@ -365,3 +365,9 @@ class MILPParameters:
             self.model_parameters.goal_violation_cost
             * self.get_starting_before_tax_monthly_income()
         )
+
+    def get_risk_violation_cost(self):
+        return (
+            self.model_parameters.risk_violation_cost
+            * self.get_starting_before_tax_monthly_income()
+        )

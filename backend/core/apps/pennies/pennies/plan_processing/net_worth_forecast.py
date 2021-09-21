@@ -2,12 +2,11 @@ from datetime import datetime, date
 from typing import List
 from uuid import UUID
 
-from dateutil.relativedelta import relativedelta
 from pydantic import BaseModel
 
 from pennies.model.loan import Loan
 from pennies.model.solution import FinancialPlan, MonthlySolution
-from pennies.utilities.datetime import get_first_date_of_next_month
+from pennies.utilities.datetime import get_first_date_of_next_month, get_date_plus_month
 
 _SAMPLE_RATE = 6  # months
 
@@ -41,7 +40,7 @@ class NetWorthForecastFactory:
     def _get_all_datetime(cls, monthly_solutions: List[MonthlySolution]) -> List[date]:
         cur_date: date = get_first_date_of_next_month(datetime.today())
         return list(
-            cur_date + relativedelta(months=index * _SAMPLE_RATE)
+            get_date_plus_month(cur_date, index * _SAMPLE_RATE)
             for index in range(len(monthly_solutions))
         )
 
