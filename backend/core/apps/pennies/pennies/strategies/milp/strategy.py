@@ -17,6 +17,11 @@ pyutilib.subprocess.GlobalData.DEFINE_SIGNAL_HANDLERS_DEFAULT = False
 
 
 class MILPStrategy(PlanningStrategy):
+
+    DEBT_UTILITY_COST = 0.001
+    RISK_VIOLATION_COST = 0.4
+    GOAL_VIOLATION_COST = 0.25
+
     def create_plan(
         self, user_finances: UserPersonalFinances, parameters: Parameters
     ) -> Optional[FinancialPlan]:
@@ -57,28 +62,26 @@ class MILPStrategy(PlanningStrategy):
         return milp_components.variables.as_list
 
     def overwrite_parameters(self, parameters: Parameters) -> Parameters:
+        parameters.goal_violation_cost = self.GOAL_VIOLATION_COST
+        parameters.debt_utility_cost = self.DEBT_UTILITY_COST
+        parameters.risk_violation_cost = self.RISK_VIOLATION_COST
         return parameters
 
 
 class InvestmentMILPStrategy(MILPStrategy):
     """same as the default MILP strategy"""
 
-    pass
+    DEBT_UTILITY_COST = 0
+    GOAL_VIOLATION_COST = 0.1
 
 
 class LoanMILPStrategy(MILPStrategy):
 
-    DEBT_UTILITY_COST = 0.5
-
-    def overwrite_parameters(self, parameters: Parameters) -> Parameters:
-        parameters.debt_utility_cost = self.DEBT_UTILITY_COST
-        return parameters
+    DEBT_UTILITY_COST = 1
+    GOAL_VIOLATION_COST = 0.1
 
 
 class GoalMILPStrategy(MILPStrategy):
 
-    GOAL_VIOLATION_COST = 0.5
-
-    def overwrite_parameters(self, parameters: Parameters) -> Parameters:
-        parameters.goal_violation_cost = self.GOAL_VIOLATION_COST
-        return parameters
+    DEBT_UTILITY_COST = 0
+    GOAL_VIOLATION_COST = 0.7

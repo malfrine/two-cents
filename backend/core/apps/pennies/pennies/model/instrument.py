@@ -45,5 +45,5 @@ class Instrument(BaseModel):
             "N/A" if self.final_month is None else self.final_month,
         )
 
-    # class Meta:
-    #     underscore_attrs_are_private = True
+    class Config:
+        underscore_attrs_are_private = True
