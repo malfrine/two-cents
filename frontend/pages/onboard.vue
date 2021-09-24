@@ -329,11 +329,6 @@
                 type="password"
                 :rules="[mandatoryField('Password')]"
               />
-              <div class="text-caption">
-                <p class="mt-n3">
-                  <em>Note that you can only join if you are an approved beta tester. Please join our <a href="/waitlist/join">waitlist</a> if you are not on it already! </em>
-                </p>
-              </div>
             </v-form>
           </BaseQuestion>
         </v-stepper-content>
