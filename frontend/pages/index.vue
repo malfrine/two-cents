@@ -16,7 +16,7 @@
       </v-col>
     </v-row>
     <v-row justify="center" class="mt-15">
-      <JoinWaitlistButton />
+      <RegisterButton />
     </v-row>
     <v-row align="center" justify="center" class="mt-6">
       <v-col>
@@ -63,7 +63,7 @@
         </div>
       </v-row>
       <v-row justify="center" class="mb-15">
-        <JoinWaitlistButton />
+        <RegisterButton />
       </v-row>
     </v-container>
     <v-container />
@@ -77,7 +77,7 @@
       </v-col>
     </v-row>
     <v-row justify="center" align="center" class="mt-3">
-      <JoinWaitlistButton />
+      <RegisterButton />
     </v-row>
     <v-spacer style="height: 10vh" />
   </div>
@@ -87,7 +87,7 @@
 import FeaturePointCard from '@/components/landing/FeaturePointCard.vue'
 import BigLogo from '@/components/logo/BigLogo.vue'
 import DashboardExample from '@/components/landing/DashboardExample.vue'
-import JoinWaitlistButton from '@/components/landing/JoinWaitlistButton.vue'
+import RegisterButton from '@/components/landing/RegisterButton.vue'
 import PlanSteps from '@/components/landing/steps/PlanSteps.vue'
 
 export default {
@@ -96,7 +96,7 @@ export default {
     DashboardExample,
     BigLogo,
     FeaturePointCard,
-    JoinWaitlistButton,
+    RegisterButton,
     PlanSteps
   },
   data () {
