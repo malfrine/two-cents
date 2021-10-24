@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.urls import path
 
 from core.apps.onboarding.views import OnboardingAPIView
+from core.apps.payments.views import StripeWebhookAPIView
 from core.apps.users.views import SessionAPIView, WaitlistUserAPIView
 from core.config.api import api
 
@@ -13,4 +14,5 @@ urlpatterns = [
     path("api/waitlist", WaitlistUserAPIView.as_view()),
     path("api/my/account/onboard", OnboardingAPIView.as_view()),
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
+    path("api/stripe-hooks", StripeWebhookAPIView.as_view()),
 ]

@@ -6,6 +6,7 @@ from django.template.loader import render_to_string
 from rest_framework import serializers, status
 
 from core.apps.finances.models.financial_profile import FinancialProfile
+from core.apps.payments.models import CurrentPaymentPlan
 from core.apps.users.models import User
 from core.apps.users.serializers import UserWriteSerializer
 from core.config.settings import DOMAIN
@@ -28,19 +29,25 @@ def send_welcome_email(to_email, referral_id):
 
 
 def create_user(serializer: UserWriteSerializer):
-
     serializer.is_valid(raise_exception=True)
     email = serializer.validated_data.get("email")
     password = serializer.validated_data.get("password")
-
+    first_name = serializer.validated_data.get("first_name")
     try:
         firebase_auth.create_user(email=email, password=password)
     except Exception as e:
         raise serializers.ValidationError(e, code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    user = serializer.save()
+    user: User = User.objects.create_user(email=email, first_name=first_name)
     user.save()
-    FinancialProfile.objects.create_default(user)
+
+    try:
+        FinancialProfile.objects.create_default(user)
+        CurrentPaymentPlan.objects.create_default(user)
+    except Exception:
+        delete_user(user)
+        return None
+
     return user
 
 

@@ -57,6 +57,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     registered_at = models.DateTimeField(
         verbose_name="Registered at", auto_now_add=timezone.now
     )
+    stripe_id = models.CharField(
+        verbose_name="Stripe ID", max_length=50, default=None, null=True
+    )
 
     # Fields settings
     EMAIL_FIELD = "email"
