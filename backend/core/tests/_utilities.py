@@ -8,6 +8,7 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework.viewsets import ModelViewSet
 
 from core.apps.users import utilities as user_utilities
+from core.apps.users.models import User
 from core.apps.users.serializers import UserWriteSerializer
 from core.apps.users.utilities import delete_user
 
@@ -20,10 +21,21 @@ def delete_firebase_user_if_exists(email: str):
         return
 
 
-def create_user(email="test@email.ca", password="random_password"):
+def delete_user_if_exists(email: str):
+    try:
+        user = User.objects.get(email__iexact=email)
+        user.delete()
+    except User.DoesNotExist:
+        return
+
+
+def create_user(
+    email="test@email.ca", password="random_password", first_name="first name"
+):
     # delete firebase user in case it already exists
+    delete_user_if_exists(email)
     delete_firebase_user_if_exists(email)
-    data = {"email": email, "password": password}
+    data = {"email": email, "password": password, "first_name": first_name}
     user = user_utilities.create_user(UserWriteSerializer(data=data))
     return user
 

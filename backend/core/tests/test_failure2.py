@@ -9,18 +9,19 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 from core.apps.onboarding.views import OnboardingAPIView
 from core.apps.plan.views import UserPlanViewSet
 from core.apps.users.models import User
-from core.tests._utilities import delete_firebase_user_if_exists
+from core.tests._utilities import delete_firebase_user_if_exists, delete_user_if_exists
 
 
 class Failure1TestCase(TestCase):
     def setUp(self) -> None:
-        self.email = "xxx.xxx@gmail.com"
+        self.email = "test.failure2@gmail.com"
         delete_firebase_user_if_exists(self.email)
+        delete_user_if_exists(self.email)
         self.data = {
             "account": {
-                "email": "xxx.xxx@gmail.com",
+                "email": self.email,
                 "first_name": "Kyle",
-                "password": "chucknorris",
+                "password": "test_password",
             },
             "financial_profile": {
                 "birth_date": "1992-01-01",

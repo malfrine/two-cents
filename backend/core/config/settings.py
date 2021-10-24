@@ -8,6 +8,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/dev/ref/settings/
 """
 import environ
+import stripe
+from mailchimp_marketing import Client
 
 ROOT_DIR = environ.Path(__file__) - 3
 
@@ -32,10 +34,7 @@ THIRD_PARTY_APPS = [
     "anymail",
 ]
 
-LOCAL_APPS = [
-    "core.apps.users",
-    "core.apps.finances",
-]
+LOCAL_APPS = ["core.apps.users", "core.apps.finances", "core.apps.payments"]
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -300,3 +299,19 @@ RAVEN_CONFIG = {"DSN": SENTRY_DSN}
 # Hashid Field Settings
 HASHID_FIELD_ALLOW_INT_LOOKUP = True
 HASHID_FIELD_SALT = env.str("DJANGO_HASHID_FIELD_SALT")
+
+# Stripe
+STRIPE_PUBLISHABLE_KEY = env.str("STRIPE_PUBLISHABLE_KEY", "")
+STRIPE_SECRET_KEY = env.str("STRIPE_SECRET_KEY", "")
+stripe.api_key = STRIPE_SECRET_KEY
+stripe = stripe
+
+# Mailchimp
+mailchimp = Client()
+mailchimp.set_config(
+    {
+        "api_key": env.str("MAILCHIMP_API_KEY"),
+        "server": env.str("MAILCHIMP_SERVER_PREFIX"),
+    }
+)
+TWO_CENTS_AUDIENCE_ID = "f4b38887b5"

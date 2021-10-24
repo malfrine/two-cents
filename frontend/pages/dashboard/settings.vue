@@ -1,5 +1,10 @@
 <template>
   <v-container class="pa-5">
+    <PlanUpgradeDialog
+      :visible="showPlanUpgradeDialog"
+      @close="showPlanUpgradeDialog=false"
+      @payment-made="showPlanUpgradeDialog=false"
+    />
     <v-row justify="center" align="center">
       <v-col cols="12" md="8" lg="7">
         <v-card>
@@ -13,15 +18,7 @@
               <v-col cols="12" sm="10" class="mb-n6">
                 <v-text-field
                   v-model="firstName"
-                  label="First Name"
-                  outlined
-                  disabled
-                />
-              </v-col>
-              <v-col cols="12" sm="10" class="mb-n6">
-                <v-text-field
-                  v-model="lastName"
-                  label="Last Name"
+                  label="Name"
                   outlined
                   disabled
                 />
@@ -46,6 +43,35 @@
                 Reset Password
               </v-btn>
             </v-row>
+            <v-divider class="my-3" />
+            <v-row justify="center" class="mt-6">
+              <v-col cols="12" sm="10">
+                <v-text-field
+                  v-model="detailedPlanType"
+                  label="Plan Type"
+                  outlined
+                  disabled
+                />
+              </v-col>
+              <v-btn
+                v-if="!isPremiumPlan || isCancelledPlan"
+                large
+                color="primary"
+                class="mb-5"
+                @click.prevent="showPlanUpgradeDialog = true"
+              >
+                Upgrade Plan
+              </v-btn>
+              <v-btn
+                v-if="isSubscriptionPlan && !isCancelledPlan"
+                large
+                color="primary"
+                class="mb-5"
+                @click.prevent="cancelPlan"
+              >
+                Cancel Plan
+              </v-btn>
+            </v-row>
           </v-container>
         </v-card>
       </v-col>
@@ -54,12 +80,15 @@
 </template>
 
 <script>
+import PlanUpgradeDialog from '@/components/plan/PlanUpgradeDialog.vue'
 export default {
+  components: { PlanUpgradeDialog },
   middleware: 'auth',
   layout: 'dashboard',
   data () {
     return {
-      emailing: false
+      emailing: false,
+      showPlanUpgradeDialog: false
     }
   },
   computed: {
@@ -71,6 +100,25 @@ export default {
     },
     email () {
       return this.$store.getters['finances/getEmail']
+    },
+    planType () {
+      return this.$store.getters['finances/getVerbosePlanType']
+    },
+    isPremiumPlan () {
+      return this.$store.getters['finances/getIsPremiumPlan']
+    },
+    isSubscriptionPlan () {
+      return this.$store.getters['finances/getIsSubscriptionPlan']
+    },
+    isCancelledPlan () {
+      return this.$store.getters['finances/getIsCancelledPlan']
+    },
+    detailedPlanType () {
+      if (this.isCancelledPlan) {
+        return this.planType + ' (cancelled)'
+      } else {
+        return this.planType
+      }
     }
   },
   methods: {
@@ -84,6 +132,15 @@ export default {
           this.$toast.error(e.message)
         })
       this.emailing = false
+    },
+    async cancelPlan () {
+      try {
+        const paymentPlan = await this.$axios.$delete('/api/my/payment-plan')
+        this.$store.commit('finances/SET_PAYMENT_PLAN', paymentPlan)
+        this.$toast.success('Successfully cancelled plan')
+      } catch (err) {
+        this.$toast.error('Looks like something went wrong, please try again')
+      }
     }
   }
 }

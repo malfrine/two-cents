@@ -106,7 +106,8 @@ class UserFinancesViewset(viewsets.GenericViewSet):
 
     def list(self, request):
         if isinstance(request.user, User):
-            return Response(self.get_serializer(request.user).data)
+            data = self.get_serializer(request.user).data
+            return Response(data=data)
         elif isinstance(request.user, FirebaseUserRecord):
             user = User.objects.create_user(email=request.user.email)
             FinancialProfile.objects.create_default(user)

@@ -47,7 +47,6 @@ class PenniesInvestmentSerializer(serializers.ModelSerializer):
             }
         interest_rate = drop_none_fields(interest_rate)
         rep["interest_rate"] = interest_rate
-        print(rep)
         return rep
 
     class Meta:

@@ -16,4 +16,6 @@ $header-font-family: 'Lato', sans-serif;
   word-break: normal;
 }
 
-$gradient: -webkit-linear-gradient(90deg, hsla(134, 66%, 42%, 1) 0%, hsla(164, 61%, 72%, 1) 46%, hsla(66, 86%, 86%, 1) 93%);
+$gradient-background: (
+  'background': -webkit-linear-gradient(90deg, hsla(134, 66%, 42%, 1) 0%, hsla(164, 61%, 72%, 1) 46%, hsla(66, 86%, 86%, 1) 93%)
+) 

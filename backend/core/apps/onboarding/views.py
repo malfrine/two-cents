@@ -4,6 +4,7 @@ from datetime import datetime
 from dateutil.parser import parse
 from rest_framework import views, serializers, status
 from rest_framework.response import Response
+from core.apps.email.mailchimp import create_mailchimp_user
 
 from core.apps.finances.models.constants import InterestTypes
 from core.apps.finances.models.financial_profile import FinancialProfile
@@ -33,7 +34,10 @@ NEST_EGG_MONTHS = 6
 
 
 def create_financial_profile(user, data):
-    financial_profile = FinancialProfile.objects.get(user=user)
+    try:
+        financial_profile = FinancialProfile.objects.get(user=user)
+    except FinancialProfile.DoesNotExist:
+        financial_profile = FinancialProfile.objects.create_default()
     fp_serializer = FinancialProfileSerializer(financial_profile, data=data)
     fp_serializer.is_valid(raise_exception=True)
     financial_profile = fp_serializer.save(user=user)
@@ -184,9 +188,12 @@ class OnboardingAPIView(views.APIView):
             user = create_user(
                 UserWriteSerializer(data=request.data.get("account", dict()))
             )
-            create_financial_profile(
+            if user is None:
+                return Response(data=None, status=status.HTTP_400_BAD_REQUEST)
+            financial_profile = create_financial_profile(
                 user, request.data.get("financial_profile", dict())
             )
+            create_mailchimp_user(user, financial_profile)
             create_goals(user, request.data.get("goals", dict()))
             create_investments(user, request.data.get("investments", dict()))
             create_loans(user, request.data.get("loans", dict()))

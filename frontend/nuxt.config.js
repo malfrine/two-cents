@@ -1,6 +1,5 @@
 import colors from 'vuetify/es5/util/colors'
 import { makeSeoHeaders } from './assets/utils.js'
-
 const isDev = process.env.NODE_ENV === 'development'
 let firebaseConfig
 let domain
@@ -57,6 +56,7 @@ export default {
       }
     ],
     script: [
+      { src: 'https://js.stripe.com/v3' }
     ]
   },
 
@@ -79,6 +79,7 @@ export default {
     '~/plugins/axios.js',
     '~/plugins/instrument-colors.js',
     '~/plugins/constants.js',
+    { src: '~/plugins/stripe.js', ssr: false },
     { src: '~/plugins/vue-toastification.js', mode: 'client' },
     { src: '~/plugins/typed.js', mode: 'client' }
   ],
@@ -141,7 +142,8 @@ export default {
   },
 
   env: {
-    baseUrl: domain
+    baseUrl: domain,
+    stripePublishableKey: process.env.STRIPE_PUBLISHABLE_KEY
   },
 
   sentry: {
@@ -177,21 +179,6 @@ export default {
       }
     }
   },
-
-  // toast: {
-  //   position: 'top-center',
-  //   keepOnHover: true,
-  //   duration: 3000,
-  //   register: [ // Register custom toasts
-  //     {
-  //       name: 'my-error',
-  //       message: 'Oops...Something went wrong',
-  //       options: {
-  //         type: 'error'
-  //       }
-  //     }
-  //   ]
-  // },
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)
   build: {

@@ -16,6 +16,7 @@
     "@nuxtjs/firebase": "^7.5.0",
     "@nuxtjs/pwa": "^3.0.2",
     "@nuxtjs/sentry": "^5.1.0",
+    "@vue-stripe/vue-stripe": "^4.2.5",
     "chart.js": "^2.9.4",
     "core-js": "^3.6.5",
     "firebase": "^8.4.2",
@@ -36,7 +37,7 @@
     "eslint": "^7.10.0",
     "eslint-plugin-nuxt": "^1.0.0",
     "jest": "^26.5.0",
-    "vue-jest": "^3.0.4",
-    "sass": "~1.32.12"
+    "sass": "~1.32.12",
+    "vue-jest": "^3.0.4"
   }
 }

@@ -11,7 +11,15 @@
         </div>
         <v-spacer />
         <div class="text-h6">
-          {{ asDollar(payment.payment) }}
+          <div
+            v-if="!isPremiumPlan"
+            @click="$emit('show-upgrade-dialog')"
+          >
+            $XX.XX
+          </div>
+          <div v-else>
+            {{ asDollar(payment.payment) }}
+          </div>
         </div>
       </v-row>
       <v-divider />
@@ -21,7 +29,7 @@
         </div>
         <v-spacer class="my-2" />
         <div class="text-h6">
-          {{ asDollar(monthlyAllowance) }}
+          {{ isPremiumPlan ? asDollar(monthlyAllowance) : '$XX.XX' }}
         </div>
       </v-row>
     </v-card-subtitle>
@@ -32,7 +40,16 @@
 import { asDollar } from '~/assets/utils.js'
 
 export default {
-  props: ['selectedStrategy'],
+  props: {
+    selectedStrategy: {
+      type: String,
+      required: true
+    },
+    isPremiumPlan: {
+      type: Boolean,
+      required: true
+    }
+  },
   computed: {
     actionPlan () {
       return this.$store.getters['plan/getActionPlan'](this.selectedStrategy)

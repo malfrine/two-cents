@@ -4,6 +4,7 @@ from core.apps.finances.models.financial_profile import FinancialProfile
 from core.apps.finances.models.goals import FinancialGoal
 from core.apps.finances.models.investments import Investment
 from core.apps.finances.serializers.views.loan import LoanSerializer
+from core.apps.payments.serializers import PaymentPlanSerializer
 from core.apps.users.models import User
 
 
@@ -34,6 +35,7 @@ class UserFinancesSerializer(serializers.ModelSerializer):
     investments = InvestmentSerializer(many=True, read_only=True)
     goals = FinancialGoalSerializer(many=True, read_only=True)
     financial_profile = FinancialProfileSerializer(read_only=True)
+    payment_plan = PaymentPlanSerializer(read_only=True)
 
     DICTIFY_FIELDS = ("loans", "investments", "goals")
 
@@ -53,4 +55,5 @@ class UserFinancesSerializer(serializers.ModelSerializer):
             "investments",
             "goals",
             "financial_profile",
+            "payment_plan",
         )

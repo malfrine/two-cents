@@ -30,6 +30,8 @@ services:
     volumes:
       - two-cents_data:/var/lib/postgresql/data
     env_file: .env
+    ports:
+      - "5432:5432"
 
   # firebase:
   #   build:
