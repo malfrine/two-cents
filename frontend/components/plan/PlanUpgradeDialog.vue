@@ -1,12 +1,41 @@
 <template>
   <v-dialog v-model="show" max-width="1000">
-    <v-card height="70vh" width="100vw" class="pa-3">
+    <v-card class="pa-6">
       <v-row class="fill-height my-0" justify="center">
-        <v-col cols="4">
-          // insert information and features
+        <v-col cols="12" md="4">
+          <div class="text-h5 mt-2">
+            Why should you upgrade your plan?
+          </div>
+          <div class="text-caption mt-2 grey--text">
+            You will get all features from the basic financial plan plus:
+          </div>
+          <v-container class="my-3">
+            <v-row>
+              <v-col
+                v-for="(sellingPoint, index) in sellingPoints"
+                :key="index"
+                cols="12"
+                sm="6"
+                md="12"
+              >
+                <div class="text-headline">
+                  <v-icon color="primary" large class="mr-2">
+                    {{ sellingPoint.icon }}
+                  </v-icon>
+                  {{ sellingPoint.title }}
+                </div>
+              </v-col>
+            </v-row>
+          </v-container>
         </v-col>
-        <v-col cols="8">
-          <v-sheet elevation="12" class="fill-height">
+        <v-col cols="12" md="8">
+          <v-sheet class="fill-height pa-4" elevation="12">
+            <div class="text-h5 text-center mt-2">
+              Upgrade your plan now
+            </div>
+            <div class="text-caption text-center grey--text">
+              Choose your preferred plan
+            </div>
             <v-item-group mandatory>
               <v-container>
                 <v-row>
@@ -14,26 +43,39 @@
                     v-for="(subscription, index) in subscriptionTypes"
                     :key="index"
                     cols="12"
-                    md="4"
+                    sm="4"
                   >
                     <v-item v-slot="{ active, toggle }">
                       <v-card
-                        :color="active ? 'primary' : ''"
-                        class="d-flex align-center fill-height"
+                        :color="active ? 'primary' : null"
+                        class="align-center py-4 px-2"
                         dark
                         @click="toggle(); setActiveIndex(index)"
                       >
-                        <v-card-title>
+                        <div class="text-h4 text-center">
                           {{ subscription.amount }}
-                        </v-card-title>
+                        </div>
+                        <div class="text-subtitle1 text-center">
+                          {{ subscription.frequency }}
+                        </div>
                       </v-card>
                     </v-item>
                   </v-col>
                 </v-row>
               </v-container>
             </v-item-group>
-            {{ subscriptionType }}
-            <PaymentForm :subscription-type="subscriptionType" @payment-made="$emit('payment-made')" />
+            <v-container>
+              <div class="text-caption font-italic">
+                {{ chosenSubscription.details }}
+              </div>
+            </v-container>
+            <v-divider class="mb-1 mt-4" />
+            <v-container>
+              <div class="">
+                Billing Information
+              </div>
+              <PaymentForm :subscription-type="chosenSubscription.type" @payment-made="$emit('payment-made')" />
+            </v-container>
           </v-sheet>
         </v-col>
       </v-row>
@@ -56,35 +98,65 @@ export default {
   },
   data () {
     return {
-      activeSubscriptionIndex: 0,
+      activeSubscriptionIndex: 2,
       subscriptionTypes: [
         {
           name: 'One Time Fee',
-          amount: '$25 one-time',
+          amount: '$25',
           accessDuration: '24 hours',
-          detais: "You'll be able to change and update your plan for the next 24 hours if you have any changes",
-          type: 'one-time'
+          details: "You'll be able to access update your plan for the next 24 hours in case you want to make any changes.",
+          type: 'one-time',
+          frequency: 'one time'
         },
         {
           name: 'Monthly Subscription',
-          amount: '$10 / month ',
+          amount: '$10',
           accessDuration: '1 month',
-          details: "You'll be automatically charged every month for your subscription",
-          type: 'monthly'
+          details: "You'll be automatically charged $10 every month for your subscription. You can update and build your plan as many times as you want. You can cancel any time.",
+          type: 'monthly',
+          frequency: 'monthly'
         },
         {
           name: 'Annual Subscription',
-          amount: '$100 / year',
+          amount: '$100',
           accessDuration: '1 year',
-          details: "You'll be automatically charged every year for your subscription",
-          type: 'annual'
+          details: "You'll be automatically charged $100 every year for your subscription. You can update and build your plan as many times as you want. You can cancel any time.",
+          type: 'annual',
+          frequency: 'annual'
+        }
+      ],
+      sellingPoints: [
+        {
+          title: 'Net worth projection',
+          detail: 'Get detailed projections of how your investments and loans will grow until you retire',
+          icon: 'mdi-chart-areaspline'
+        },
+        {
+          title: 'Detailed action plan',
+          detail: 'Get month to month spending plans to execute your financial plan',
+          icon: 'mdi-book-open'
+        },
+        {
+          title: 'Unlimited goals',
+          detail: 'Add more than 3 financial goals',
+          icon: 'mdi-trophy'
+        },
+        {
+          title: 'Unlimited loans',
+          detail: 'Add more than 5 loans',
+          icon: 'mdi-credit-card-multiple'
+        },
+        {
+          title: 'Unlimited investments',
+          detail: 'Add more than 5 investments',
+          icon: 'mdi-rocket'
         }
       ]
     }
   },
   computed: {
-    subscriptionType () {
-      return this.subscriptionTypes[this.activeSubscriptionIndex].type
+    chosenSubscription () {
+      return this.subscriptionTypes[this.activeSubscriptionIndex]
     },
     // dialog functionality
     show: {

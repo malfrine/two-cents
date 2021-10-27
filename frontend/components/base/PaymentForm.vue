@@ -4,7 +4,7 @@
       <div ref="cardRef" class="mt-3 mb-1 pa-2" />
     </v-sheet>
     <v-btn color="primary" block :loading="loading" @click="purchase">
-      Purchase
+      Upgrade Now
     </v-btn>
   </v-container>
 </template>
@@ -22,7 +22,7 @@ export default {
       loading: false,
       token: null,
       cardStyle: {
-        iconStyle: 'default',
+        iconStyle: 'solid',
         style: {
           base: {
             iconColor: '#25b245',
@@ -31,7 +31,7 @@ export default {
             fontSize: '20px',
             fontSmoothing: 'antialiased',
             padding: '2px',
-
+            color: '#25b245',
             ':-webkit-autofill': {
               color: '#25b245'
             },
@@ -40,8 +40,8 @@ export default {
             }
           },
           invalid: {
-            iconColor: '#FFC7EE',
-            color: '#FFC7EE'
+            iconColor: '#e33a53',
+            color: '#e33a53'
           }
         }
 
