@@ -35,7 +35,6 @@ if (isProdStripe) {
 } else {
   stripePublishableKey = process.env.STRIPE_TEST_PUBLISHABLE_KEY
 }
-
 export default {
   // Global page headers (https://go.nuxtjs.dev/config-head)
   head: {
@@ -150,7 +149,7 @@ export default {
 
   env: {
     baseUrl: domain,
-    stripePublishableKey
+    stripePublishableKey: stripePublishableKey || process.env.STRIPE_TEST_PUBLISHABLE_KEY
   },
 
   sentry: {
