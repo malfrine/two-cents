@@ -28,6 +28,13 @@ if (isDev) {
   }
   domain = 'https://two-cents.ca'
 }
+const isProdStripe = process.env.STRIPE_TEST.toLowerCase() === 'false'
+let stripePublishableKey
+if (isProdStripe) {
+  stripePublishableKey = process.env.STRIPE_PROD_PUBLISHABLE_KEY
+} else {
+  stripePublishableKey = process.env.STRIPE_TEST_PUBLISHABLE_KEY
+}
 
 export default {
   // Global page headers (https://go.nuxtjs.dev/config-head)
@@ -143,7 +150,7 @@ export default {
 
   env: {
     baseUrl: domain,
-    stripePublishableKey: process.env.STRIPE_PUBLISHABLE_KEY
+    stripePublishableKey
   },
 
   sentry: {

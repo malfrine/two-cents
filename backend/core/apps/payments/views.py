@@ -1,5 +1,3 @@
-import os
-
 from rest_framework.response import Response
 from rest_framework import status, views, viewsets, permissions
 
@@ -9,7 +7,7 @@ from core.apps.payments.serializers import (
     PaymentPlanIntentSerializer,
     PaymentPlanSerializer,
 )
-from core.config.settings import stripe
+from core.config.settings import STRIPE_WEBHOOK_SECRET, stripe
 
 
 class PaymentPlanIntentViewset(viewsets.GenericViewSet):
@@ -83,7 +81,6 @@ class CurrentPaymentPlanViewSet(viewsets.GenericViewSet):
 # TODO: successful subscription payment method
 class StripeWebhookAPIView(views.APIView):
 
-    WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
     CREATED_SUBSCRIPTION_EVENT = "customer.subscription.created"
     UPDATED_SUBSCRIPTION_EVENT = "customer.subscription.updated"
     DELETED_SUBSCRIPTION_EVENT = "customer.subscription.deleted"
@@ -96,7 +93,7 @@ class StripeWebhookAPIView(views.APIView):
             event = stripe.Webhook.construct_event(
                 payload=request.body,
                 sig_header=stripe_signatures,
-                secret=self.WEBHOOK_SECRET,
+                secret=STRIPE_WEBHOOK_SECRET,
             )
             data = event["data"]
         except Exception as e:
