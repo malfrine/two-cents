@@ -149,7 +149,7 @@ export default {
 
   env: {
     baseUrl: domain,
-    stripePublishableKey: stripePublishableKey || process.env.STRIPE_TEST_PUBLISHABLE_KEY
+    stripePublishableKey
   },
 
   sentry: {
