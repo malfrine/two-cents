@@ -6,7 +6,7 @@ from django.utils import timezone
 from core.apps.payments.utilities import get_or_create_stripe_customer
 
 from core.apps.users.models import User as AuthUser
-from core.config.settings import stripe
+from core.config.settings import IS_STRIPE_TEST, stripe
 
 
 class PlanType(models.TextChoices):
@@ -18,11 +18,18 @@ class PlanType(models.TextChoices):
 
 
 def get_price_id(plan_type: PlanType):
-    map_ = {
-        PlanType.ONE_TIME: "price_1Jem3MIV4zbGa3wDs1ZvkoT5",
-        PlanType.MONTHLY: "price_1Jelq5IV4zbGa3wDAZZTXuVd",
-        PlanType.ANNUAL: "price_1Jem3xIV4zbGa3wDnNzWqxFq",
-    }
+    if IS_STRIPE_TEST:
+        map_ = {
+            PlanType.ONE_TIME: "price_1Jem3MIV4zbGa3wDs1ZvkoT5",
+            PlanType.MONTHLY: "price_1Jelq5IV4zbGa3wDAZZTXuVd",
+            PlanType.ANNUAL: "price_1Jem3xIV4zbGa3wDnNzWqxFq",
+        }
+    else:
+        map_ = {
+            PlanType.ONE_TIME: "price_1JqOF4IV4zbGa3wD4SqDMB4Z",
+            PlanType.MONTHLY: "price_1JqOFWIV4zbGa3wD9Dczw84H",
+            PlanType.ANNUAL: "price_1JqOG0IV4zbGa3wD9U9xGibJ"
+        }
     return map_.get(plan_type)
 
 
