@@ -87,7 +87,7 @@ class StripeWebhookAPIView(views.APIView):
     INVOICE_PAYMENT_SUCCEEDED = "invoice.payment_succeeded"
 
     def get_event_type_and_data(self, request, stripe_signatures):
-        if not self.WEBHOOK_SECRET:
+        if not STRIPE_WEBHOOK_SECRET:
             raise ValueError("Stripe webhook secret not set")
         try:
             event = stripe.Webhook.construct_event(
