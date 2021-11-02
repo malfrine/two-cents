@@ -28,7 +28,7 @@ def get_price_id(plan_type: PlanType):
         map_ = {
             PlanType.ONE_TIME: "price_1JqOF4IV4zbGa3wD4SqDMB4Z",
             PlanType.MONTHLY: "price_1JqOFWIV4zbGa3wD9Dczw84H",
-            PlanType.ANNUAL: "price_1JqOG0IV4zbGa3wD9U9xGibJ"
+            PlanType.ANNUAL: "price_1JqOG0IV4zbGa3wD9U9xGibJ",
         }
     return map_.get(plan_type)
 

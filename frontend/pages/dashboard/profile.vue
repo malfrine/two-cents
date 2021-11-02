@@ -31,6 +31,8 @@ export default {
         .catch((e) => {
           this.$sentry.captureException('Unable to get users financial information', e)
           this.$toast.error('Could not get your financial information')
+          // todo show an error modal
+          this.isLoading = false
           return null
         })
       this.$store.commit('finances/SET_USER_FINANCES', response)

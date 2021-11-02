@@ -14,31 +14,31 @@ const state = function () {
 
 const getters = {
   getFinancialProfile (state) {
-    return state.user_finances.financial_profile
+    return state.user_finances?.financial_profile
   },
   getMonthlyAllowance (state) {
-    return state.user_finances.financial_profile.monthly_allowance
+    return state.user_finances?.financial_profile?.monthly_allowance
   },
   getFirstName (state) {
-    return state.user_finances.first_name
+    return state.user_finances?.first_name
   },
   getLastName (state) {
-    return state.user_finances.last_name
+    return state.user_finances?.last_name
   },
   getEmail (state) {
-    return state.user_finances.email
+    return state.user_finances?.email
   },
   getLoans (state) {
-    return state.user_finances.loans
+    return state.user_finances?.loans
   },
   getInvestments (state) {
-    return state.user_finances.investments
+    return state.user_finances?.investments
   },
   getLoanById: state => (id) => {
-    return state.user_finances.loans[id]
+    return state.user_finances?.loans[id]
   },
   getInvestmentById: state => (id) => {
-    return state.user_finances.investments[id]
+    return state.user_finances?.investments[id]
   },
   getUserFinancesExists (state) {
     return state.user_finances != null
@@ -47,10 +47,10 @@ const getters = {
     return state.finances_updated_since_plan_built
   },
   getGoals (state) {
-    return state.user_finances.goals
+    return state.user_finances?.goals
   },
   getGoalById: state => (id) => {
-    return state.user_finances.goals[id]
+    return state.user_finances?.goals[id]
   },
   getShowFullPlan (state) {
     if (!state.user_finances.payment_plan?.is_premium_plan) {
@@ -72,10 +72,10 @@ const getters = {
     return state.user_finances.payment_plan?.plan_type
   },
   getIsCancelledPlan (state) {
-    return state.user_finances.payment_plan.is_cancelled
+    return state.user_finances.payment_plan?.is_cancelled
   },
   getVerbosePlanType (state) {
-    return state.user_finances.payment_plan.verbose_plan_type
+    return state.user_finances.payment_plan?.verbose_plan_type
   }
 }
 
