@@ -1,4 +1,5 @@
 from datetime import date, datetime
+from typing import Optional
 
 MIN_PAYMENT_THRESHOLD = 10
 
@@ -10,10 +11,11 @@ def calculate_months_between_dates(date1: date, date2: date):
     return months
 
 
-def get_first_date_of_next_month():
-    d = datetime.today().date()
-    if d.month == 11:
-        return date(year=d.year + 1, month=0, day=1)
+def get_first_date_of_next_month(d: Optional[date] = None):
+    if d is None:
+        d = datetime.today().date()
+    if d.month == 12:
+        return date(year=d.year + 1, month=1, day=1)
     else:
         return date(year=d.year, month=d.month + 1, day=1)
 
