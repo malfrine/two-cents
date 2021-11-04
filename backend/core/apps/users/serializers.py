@@ -32,7 +32,7 @@ class UserSerializer(serializers.ModelSerializer):
 class UserWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["email", "first_name", "last_name"]
+        fields = ["email", "password", "first_name"]
 
 
 class WaitlistUserSerializer(serializers.ModelSerializer):
