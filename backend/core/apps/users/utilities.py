@@ -31,7 +31,7 @@ def send_welcome_email(to_email, referral_id):
 def create_user(serializer: UserWriteSerializer):
     serializer.is_valid(raise_exception=True)
     email = serializer.validated_data.get("email")
-    password = serializer.validated_data.get("password")
+    password = serializer.validated_data.pop("password")
     first_name = serializer.validated_data.get("first_name")
     try:
         firebase_auth.create_user(email=email, password=password)
