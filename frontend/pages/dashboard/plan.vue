@@ -52,6 +52,7 @@ export default {
     PlanUpgradeDialog
   },
   async fetch () {
+    this.$fire.analytics.logEvent('plan_creation_attempt')
     if (this.userFinancesValidationError) {
       return null
     }

@@ -155,6 +155,7 @@ const actions = {
             this.$toast.error('Could not update loan')
           }
         )
+      this.$fire.analytics.logEvent('updated_finances')
     }
   },
   deleteLoan (context, payload) {
@@ -170,6 +171,7 @@ const actions = {
           this.$toast.error('Could not delete loan')
         }
       )
+    this.$fire.analytics.logEvent('updated_finances')
   },
   createOrUpdateInvestment (context, payload) {
     if (payload.id == null) {
@@ -198,6 +200,7 @@ const actions = {
             this.$toast.error('Could not update investment')
           }
         )
+      this.$fire.analytics.logEvent('updated_finances')
     }
   },
   deleteInvestment (context, payload) {
@@ -213,6 +216,7 @@ const actions = {
           this.$toast.error('Could not delete investment')
         }
       )
+    this.$fire.analytics.logEvent('updated_finances')
   },
   createOrUpdateGoal (context, payload) {
     if (payload.id == null) {
@@ -241,6 +245,7 @@ const actions = {
             this.$toast.error('Could not update goal')
           }
         )
+      this.$fire.analytics.logEvent('updated_finances')
     }
   },
   deleteGoal (context, payload) {
@@ -256,6 +261,7 @@ const actions = {
           this.$toast.error('Could not delete goal')
         }
       )
+    this.$fire.analytics.logEvent('updated_finances')
   }
 }
 

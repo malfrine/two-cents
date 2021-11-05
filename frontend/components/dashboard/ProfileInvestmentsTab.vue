@@ -5,7 +5,7 @@
         fab
         large
         color="primary"
-        @click.stop="showInvestmentDialog=true"
+        @click.stop="registerAddButtonClick"
       >
         <v-icon>mdi-plus</v-icon>
       </v-btn>
@@ -18,23 +18,46 @@
       />
     </v-row>
     <InvestmentDialog :visible="showInvestmentDialog" :investment-id="null" @close="showInvestmentDialog=false" />
+    <PlanUpgradeDialog
+      :visible="showPlanUpgradeDialog"
+      @close="showPlanUpgradeDialog=false"
+      @payment-made="showPlanUpgradeDialog=false"
+    />
   </div>
 </template>
 
 <script>
 import InvestmentCard from '@/components/finances/InvestmentCard.vue'
 import InvestmentDialog from '@/components/finances/InvestmentDialog.vue'
+import PlanUpgradeDialog from '@/components/plan/PlanUpgradeDialog.vue'
 
 export default {
-  components: { InvestmentCard, InvestmentDialog },
+  components: { InvestmentCard, InvestmentDialog, PlanUpgradeDialog },
   data () {
     return {
-      showInvestmentDialog: false
+      showInvestmentDialog: false,
+      maxBasicUserInvestments: 4,
+      showPlanUpgradeDialog: false
     }
   },
   computed: {
     investments () {
       return this.$store.getters['finances/getInvestments']
+    },
+    numInvestments () {
+      return Object.keys(this.investments).length
+    },
+    isPremiumPlan () {
+      return this.$store.getters['finances/getShowFullPlan']
+    }
+  },
+  methods: {
+    registerAddButtonClick () {
+      if (this.isPremiumPlan || this.numInvestments < this.maxBasicUserInvestments) {
+        this.showInvestmentDialog = true
+      } else {
+        this.showPlanUpgradeDialog = true
+      }
     }
   }
 }

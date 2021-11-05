@@ -564,7 +564,7 @@ export default {
         .then(
           () => {
             this.$fire.auth.signOut() // just in case they were signed in as someone else
-            this.$router.push('login')
+            this.$router.push('/login')
             this.$fire.analytics.logEvent('onboarded_user')
           }
         )

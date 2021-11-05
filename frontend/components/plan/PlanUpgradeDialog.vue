@@ -31,7 +31,7 @@
         <v-col cols="12" md="8">
           <v-sheet class="fill-height pa-4" elevation="12">
             <div class="text-h5 text-center mt-2">
-              Upgrade your plan now
+              You'll need to upgrade your plan to do that!
             </div>
             <div class="text-caption text-center grey--text">
               Choose your preferred plan
@@ -169,6 +169,9 @@ export default {
         }
       }
     }
+  },
+  created () {
+    this.$fire.analytics.logEvent('premium_interest')
   },
   methods: {
     setActiveIndex (index) {

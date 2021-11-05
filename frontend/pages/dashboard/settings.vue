@@ -127,6 +127,7 @@ export default {
       this.$fire.auth.sendPasswordResetEmail(this.email)
         .then(() => {
           this.$toast.success('Please check your email to reset your password')
+          this.$fire.analytics.logEvent('reset_password')
         })
         .catch((e) => {
           this.$toast.error(e.message)
@@ -135,6 +136,7 @@ export default {
     },
     async cancelPlan () {
       try {
+        this.$fire.analytics.logEvent('cancel_plan')
         const paymentPlan = await this.$axios.$delete('/api/my/payment-plan')
         this.$store.commit('finances/SET_PAYMENT_PLAN', paymentPlan)
         this.$toast.success('Successfully cancelled plan')

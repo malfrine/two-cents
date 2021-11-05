@@ -78,12 +78,14 @@ export default {
   watch: {
     isLoggedIn () {
       if (this.isLoggedIn) {
+        this.$fire.analytics.logEvent('login')
         this.$router.push('/dashboard/profile')
       }
     }
   },
   created () {
     if (this.isLoggedIn) {
+      this.$fire.analytics.logEvent('login')
       this.$router.push('/dashboard/profile')
     }
   },
