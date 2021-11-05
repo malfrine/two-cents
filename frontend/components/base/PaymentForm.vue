@@ -83,6 +83,7 @@ export default {
         this.$toast.error('Looks like something went wrong, please try again')
       }
       this.loading = false
+      this.$fire.analytics.logEvent('payment')
     }
   }
 }

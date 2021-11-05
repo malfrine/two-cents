@@ -1,6 +1,6 @@
 from firebase_admin.auth import UserRecord as FirebaseUserRecord
-from rest_framework import status
-from rest_framework import viewsets
+from rest_framework import status, viewsets
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
 from core.apps.finances.models.constants import InterestTypes
@@ -26,6 +26,11 @@ from core.apps.finances.serializers.serializers import (
     FinancialGoalSerializer,
 )
 from core.apps.finances.serializers.views.loan import LoanSerializer
+from core.apps.finances.utilities import (
+    can_create_goal,
+    can_create_investment,
+    can_create_loan,
+)
 
 # Create your views here.
 from core.apps.users.models import User
@@ -42,7 +47,10 @@ class LoanViewset(viewsets.ModelViewSet):
             return self.request.user.loans.all()
 
     def perform_create(self, serializer):
-        return serializer.save(user=self.request.user)
+        if can_create_loan(self.request.user):
+            return serializer.save(user=self.request.user)
+        else:
+            raise PermissionDenied()
 
 
 class InvestmentViewset(viewsets.ModelViewSet):
@@ -56,8 +64,10 @@ class InvestmentViewset(viewsets.ModelViewSet):
             return self.request.user.investments.all()
 
     def perform_create(self, serializer):
-        # TODO: check if anonymous users can actually add investments
-        return serializer.save(user=self.request.user)
+        if can_create_investment(self.request.user):
+            return serializer.save(user=self.request.user)
+        else:
+            raise PermissionDenied()
 
 
 class FinancialGoalViewset(viewsets.ModelViewSet):
@@ -71,7 +81,10 @@ class FinancialGoalViewset(viewsets.ModelViewSet):
             return self.request.user.goals.all()
 
     def perform_create(self, serializer):
-        return serializer.save(user=self.request.user)
+        if can_create_goal(self.request.user):
+            return serializer.save(user=self.request.user)
+        else:
+            raise PermissionDenied()
 
 
 class FinancialProfileView(viewsets.GenericViewSet):

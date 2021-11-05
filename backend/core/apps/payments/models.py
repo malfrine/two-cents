@@ -43,7 +43,7 @@ class PaymentPlanIntentManager(models.Manager):
         if price.recurring:
             subscription = stripe.Subscription.create(
                 customer=stripe_customer.id,
-                items=[{"price": price_id, }],
+                items=[{"price": price_id,}],  # noqa: E231
                 payment_behavior="default_incomplete",
                 expand=["latest_invoice.payment_intent"],
             )
