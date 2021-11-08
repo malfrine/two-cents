@@ -2,6 +2,8 @@ import json
 
 import requests
 
+from core.config.settings import SLACK_WEBHOOK_URL
+
 
 def _make_data(data):
     return {
@@ -23,14 +25,9 @@ def _make_data(data):
     }
 
 
-WEBHOOK_URL = (
-    "https://hooks.slack.com/services/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"
-)
-
-
 def send_failed_request_data_to_slack(pennies_request):
     response = requests.post(
-        WEBHOOK_URL,
+        SLACK_WEBHOOK_URL,
         data=json.dumps(_make_data(pennies_request.data), indent=4),
         headers={"Content-Type": "application/json"},
     )
@@ -54,7 +51,7 @@ def send_failed_request_message():
         ]
     }
     response = requests.post(
-        WEBHOOK_URL,
+        SLACK_WEBHOOK_URL,
         data=json.dumps(error_block, indent=4),
         headers={"Content-Type": "application/json"},
     )

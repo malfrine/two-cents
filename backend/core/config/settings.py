@@ -34,7 +34,12 @@ THIRD_PARTY_APPS = [
     "anymail",
 ]
 
-LOCAL_APPS = ["core.apps.users", "core.apps.finances", "core.apps.payments"]
+LOCAL_APPS = [
+    "core.apps.users",
+    "core.apps.finances",
+    "core.apps.payments",
+    "core.apps.utilities",
+]
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -255,8 +260,11 @@ SENTRY_DSN = "" if DEBUG else env.str("SENTRY_DSN", "")
 SENTRY_CLIENT = "raven.contrib.django.raven_compat.DjangoClient"
 LOGGING = {
     "version": 1,
-    "disable_existing_loggers": True,
-    "root": {"level": "WARN", "handlers": ["sentry"]},
+    "disable_existing_loggers": False,
+    "root": {
+        "level": "WARN",
+        "handlers": ["console"] if DEBUG else ["sentry", "slack"],
+    },
     "formatters": {
         "verbose": {
             "format": "%(levelname)s %(asctime)s %(module)s (%(filename)s:%(lineno)s)"
@@ -273,17 +281,21 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "formatter": "verbose",
         },
+        "slack": {
+            "level": "INFO",
+            "class": "core.apps.utilities.slack_logger.SlackExceptionHandler",
+        },
     },
     "loggers": {
         "django.db.backends": {
             "level": "ERROR",
-            "handlers": ["console"],
+            "handlers": ["console", "sentry", "slack"],
             "propagate": False,
         },
         "raven": {"level": "DEBUG", "handlers": ["console"], "propagate": False},
         "sentry.errors": {
             "level": "DEBUG",
-            "handlers": ["console"],
+            "handlers": ["console", "sentry"],
             "propagate": False,
         },
         "django.security.DisallowedHost": {
@@ -321,3 +333,8 @@ mailchimp.set_config(
     }
 )
 TWO_CENTS_AUDIENCE_ID = "f4b38887b5"
+
+# Slack
+SLACK_WEBHOOK_URL = (
+    "https://hooks.slack.com/services/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"
+)
