@@ -4,6 +4,7 @@ import firebase_admin.auth as firebase_auth
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from rest_framework import serializers, status
+from core.apps.email.mailchimp import delete_mailchimp_user
 
 from core.apps.finances.models.financial_profile import FinancialProfile
 from core.apps.payments.models import CurrentPaymentPlan
@@ -55,4 +56,5 @@ def delete_user(user: User):
     logging.info(f"Deleteing user {user.email}")
     firebase_user = firebase_auth.get_user_by_email(email=user.email)
     firebase_auth.delete_user(firebase_user.uid)
+    delete_mailchimp_user(user)
     user.delete()

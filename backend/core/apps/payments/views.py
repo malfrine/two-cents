@@ -61,6 +61,7 @@ class CurrentPaymentPlanViewSet(viewsets.GenericViewSet):
             )
             plan_serializer = self.get_serializer(instance=payment_plan)
             intent.delete()
+
             return Response(data=plan_serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(data=None, status=status.HTTP_400_BAD_REQUEST)
