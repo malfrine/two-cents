@@ -61,6 +61,10 @@ class SlackExceptionHandler(AdminEmailHandler):
         )
 
         color = self._get_record_color(record.levelname)
+        if request:
+            user_email = getattr(request.user, "email", "Unknown User")
+        else:
+            user_email = ""
 
         attachments = [
             {
@@ -88,19 +92,8 @@ class SlackExceptionHandler(AdminEmailHandler):
                         "short": True,
                     },
                     {
-                        "title": "User",
-                        "value": (
-                            (
-                                request.user.username
-                                + " ("
-                                + str(request.user.pk)
-                                + ")"
-                                if request.user.is_authenticated
-                                else "Anonymous"
-                            )
-                            if request
-                            else "No Request"
-                        ),
+                        "title": "User Email",
+                        "value": user_email,
                         "short": True,
                     },
                     {
