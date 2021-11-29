@@ -1,12 +1,12 @@
 <template>
-  <v-container>
+  <div>
     <v-sheet elevation="4" rounded>
       <div ref="cardRef" class="mt-3 mb-1 pa-2" />
     </v-sheet>
     <v-btn color="primary" block :loading="loading" @click="purchase">
       Upgrade Now
     </v-btn>
-  </v-container>
+  </div>
 </template>
 
 <script>
@@ -15,6 +15,10 @@ export default {
     subscriptionType: {
       required: true,
       type: String
+    },
+    promotionCode: {
+      type: String,
+      default: ''
     }
   },
   data () {
@@ -63,7 +67,10 @@ export default {
       try {
         const paymentPlanIntent = await this.$axios.$post(
           '/api/my/payment-plan/intent',
-          { plan_type: this.subscriptionType }
+          {
+            plan_type: this.subscriptionType,
+            promotion_code: this.promotionCode
+          }
         )
         const result = await this.$stripe.confirmCardPayment(
           paymentPlanIntent.client_secret,
@@ -78,6 +85,7 @@ export default {
         )
         this.$store.commit('finances/SET_PAYMENT_PLAN', paymentPlan)
         this.$toast.success('Payment successful')
+        this.card.clear()
         this.$emit('payment-made')
       } catch (err) {
         this.$toast.error('Looks like something went wrong, please try again')

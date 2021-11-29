@@ -9,7 +9,11 @@ from core.apps.finances.views import (
     PenniesRequestViewset,
     FinancialGoalViewset,
 )
-from core.apps.payments.views import CurrentPaymentPlanViewSet, PaymentPlanIntentViewset
+from core.apps.payments.views import (
+    CurrentPaymentPlanViewSet,
+    PaymentPlanIntentViewset,
+    PromotionCodeViewset,
+)
 from core.apps.plan.views import UserPlanViewSet
 from core.apps.users.views import AccountViewSet
 
@@ -32,3 +36,6 @@ api.register(
     r"my/payment-plan/intent", PaymentPlanIntentViewset, basename="payment-plan-intent"
 )
 api.register(r"my/payment-plan", CurrentPaymentPlanViewSet, basename="payment-plan")
+api.register(
+    r"my/payment-plan/promotion-code", PromotionCodeViewset, basename="promotion-code"
+)
