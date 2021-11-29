@@ -53,7 +53,7 @@
                         @click="toggle(); setActiveIndex(index)"
                       >
                         <div class="text-h4 text-center">
-                          {{ subscription.amount }}
+                          {{ asDollar(subscription.amount) }}
                         </div>
                         <div class="text-subtitle1 text-center">
                           {{ subscription.frequency }}
@@ -67,14 +67,40 @@
             <v-container>
               <div class="text-caption font-italic">
                 {{ chosenSubscription.details }}
+                <div v-if="!!validatedPromotionCode" class="mt-3">
+                  Applied promotion code: {{ customerCode }}
+                </div>
               </div>
             </v-container>
-            <v-divider class="mb-1 mt-4" />
+            <v-divider class="mb-1 mt-3" />
             <v-container>
-              <div class="">
-                Billing Information
-              </div>
-              <PaymentForm :subscription-type="chosenSubscription.type" @payment-made="$emit('payment-made')" />
+              <v-text-field
+                v-if="!validatedPromotionCode"
+                ref="promotionCodeTextField"
+                v-model="customerCode"
+                :disabled="validatedPromotionCode !== null"
+                outlined
+                label="Promotion Code"
+                color="primary"
+                class="mb-n4"
+              >
+                <template v-slot:append>
+                  <v-btn
+                    text
+                    color="primary"
+                    class="mt-n2"
+                    :disabled="!customerCode"
+                    @click.prevent="applyCustomerCode"
+                  >
+                    Apply
+                  </v-btn>
+                </template>
+              </v-text-field>
+              <PaymentForm
+                :subscription-type="chosenSubscription.type"
+                :promotion-code="validatedPromotionCode"
+                @payment-made="$emit('payment-made')"
+              />
             </v-container>
           </v-sheet>
         </v-col>
@@ -85,6 +111,7 @@
 
 <script>
 import PaymentForm from '@/components/base/PaymentForm.vue'
+import { asDollar } from '~/assets/utils.js'
 
 export default {
   components: {
@@ -99,10 +126,12 @@ export default {
   data () {
     return {
       activeSubscriptionIndex: 2,
+      validatedPromotionCode: null,
+      customerCode: null,
       subscriptionTypes: [
         {
           name: 'One Time Fee',
-          amount: '$25',
+          amount: 25,
           accessDuration: '24 hours',
           details: "You'll be able to access update your plan for the next 24 hours in case you want to make any changes.",
           type: 'one-time',
@@ -110,7 +139,7 @@ export default {
         },
         {
           name: 'Monthly Subscription',
-          amount: '$10',
+          amount: 10,
           accessDuration: '1 month',
           details: "You'll be automatically charged $10 every month for your subscription. You can update and build your plan as many times as you want. You can cancel any time.",
           type: 'monthly',
@@ -118,7 +147,7 @@ export default {
         },
         {
           name: 'Annual Subscription',
-          amount: '$100',
+          amount: 100,
           accessDuration: '1 year',
           details: "You'll be automatically charged $100 every year for your subscription. You can update and build your plan as many times as you want. You can cancel any time.",
           type: 'annual',
@@ -158,6 +187,7 @@ export default {
     chosenSubscription () {
       return this.subscriptionTypes[this.activeSubscriptionIndex]
     },
+
     // dialog functionality
     show: {
       get () {
@@ -176,7 +206,34 @@ export default {
   methods: {
     setActiveIndex (index) {
       this.activeSubscriptionIndex = index
-    }
+    },
+    async applyCustomerCode () {
+      try {
+        const response = await this.$axios.$get(
+          `/api/my/payment-plan/promotion-code/${this.customerCode}`
+        )
+        this.validatedPromotionCode = response.id
+        this.adjustPrices(
+          Number(response.coupon?.amount_off),
+          Number(response.coupon?.percent_off)
+        )
+        this.$toast.success("Woo! We've applied the discount")
+      } catch (err) {
+        this.$toast.error("Looks like that code doesn't work :(")
+      }
+    },
+    adjustPrices (amountOff, percentageOff) {
+      for (const type of this.subscriptionTypes) {
+        if (amountOff) {
+          type.amount -= amountOff
+        }
+        if (percentageOff) {
+          type.amount = (1 - percentageOff / 100) * type.amount
+        }
+        type.amount = Math.max(0, type.amount)
+      }
+    },
+    asDollar
   }
 }
 </script>

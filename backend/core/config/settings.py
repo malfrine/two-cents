@@ -332,7 +332,7 @@ mailchimp.set_config(
         "server": env.str("MAILCHIMP_SERVER_PREFIX"),
     }
 )
-TWO_CENTS_AUDIENCE_ID = "f4b38887b5"
+TWO_CENTS_AUDIENCE_ID = ""
 
 # Slack
 SLACK_WEBHOOK_URL = (

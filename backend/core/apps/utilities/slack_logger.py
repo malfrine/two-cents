@@ -75,7 +75,7 @@ class SlackExceptionHandler(AdminEmailHandler):
                         "title": "Level",
                         "value": record.levelname,
                         "short": True,
-                    },  # noqa E231
+                    },  # noqa: E231
                     {
                         "title": "Datetime",
                         "value": str(timezone.now()),
@@ -95,7 +95,7 @@ class SlackExceptionHandler(AdminEmailHandler):
                         "title": "User Email",
                         "value": user_email,
                         "short": True,
-                    },
+                    },  # noqa: E231
                     {
                         "title": "Status Code",
                         "value": record.status_code

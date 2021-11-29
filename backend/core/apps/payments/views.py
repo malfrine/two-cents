@@ -1,5 +1,6 @@
 from rest_framework.response import Response
 from rest_framework import status, views, viewsets, permissions
+import stripe
 
 from core.apps.users.models import User
 from core.apps.payments.models import CurrentPaymentPlan, PaymentPlanIntent
@@ -7,7 +8,7 @@ from core.apps.payments.serializers import (
     PaymentPlanIntentSerializer,
     PaymentPlanSerializer,
 )
-from core.config.settings import STRIPE_WEBHOOK_SECRET, stripe
+from core.config.settings import STRIPE_WEBHOOK_SECRET
 
 
 class PaymentPlanIntentViewset(viewsets.GenericViewSet):
@@ -18,13 +19,35 @@ class PaymentPlanIntentViewset(viewsets.GenericViewSet):
     def create(self, request, *args, **kwargs):
         user: User = request.user
         plan_type = request.data.get("plan_type")
+        promotion_code = request.data.get("promotion_code")
         if plan_type is None:
             return Response(data=None, status=status.HTTP_400_BAD_REQUEST)
         payment_plan_intent = PaymentPlanIntent.objects.from_plan_type(
-            user=user, plan_type=plan_type,
+            user=user, plan_type=plan_type, promotion_code=promotion_code
         )
         serializer = self.get_serializer(instance=payment_plan_intent)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+
+class PromotionCodeViewset(viewsets.GenericViewSet):
+
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def retrieve(self, request, pk: str, format=None):
+        customer_code = pk
+        if customer_code is None or customer_code.lower() == "null":
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        try:
+            promotion_codes = stripe.PromotionCode.list()
+            for code in promotion_codes:
+                if not code.get("active", False):
+                    continue
+                if code.get("code") == customer_code:
+                    return Response(data=code, status=status.HTTP_200_OK)
+            raise stripe.error.InvalidRequestError()
+        except stripe.error.InvalidRequestError as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class CurrentPaymentPlanViewSet(viewsets.GenericViewSet):

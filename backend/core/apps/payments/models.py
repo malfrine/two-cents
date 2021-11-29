@@ -1,5 +1,5 @@
 from datetime import datetime, time, timedelta
-from typing import Union
+from typing import Optional, Union
 
 from django.db import models
 from django.utils import timezone
@@ -34,7 +34,12 @@ def get_price_id(plan_type: PlanType):
 
 
 class PaymentPlanIntentManager(models.Manager):
-    def from_plan_type(self, user: AuthUser, plan_type: Union[PlanType, str]):
+    def from_plan_type(
+        self,
+        user: AuthUser,
+        plan_type: Union[PlanType, str],
+        promotion_code: Optional[str] = None,
+    ):
         if isinstance(plan_type, str):
             plan_type = PlanType(plan_type)
         stripe_customer = get_or_create_stripe_customer(user)
@@ -46,6 +51,7 @@ class PaymentPlanIntentManager(models.Manager):
                 items=[{"price": price_id,}],  # noqa: E231
                 payment_behavior="default_incomplete",
                 expand=["latest_invoice.payment_intent"],
+                promotion_code=promotion_code,
             )
             payment_intent = subscription.latest_invoice.payment_intent
             subscription_id = subscription.id
@@ -54,6 +60,7 @@ class PaymentPlanIntentManager(models.Manager):
                 amount=price.unit_amount,
                 currency=price.currency,
                 customer=stripe_customer.id,
+                promotion_code=promotion_code,
             )
             subscription_id = None
 
