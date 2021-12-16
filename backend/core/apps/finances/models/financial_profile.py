@@ -2,6 +2,7 @@ from datetime import datetime
 
 from django.db import models
 
+from core.apps.finances.models.financial_data import FinancialData
 from core.apps.users.models import User as AuthUser
 from core.utilities import get_current_age
 from core.apps.finances.models.loans import Loan  # noqa
@@ -26,14 +27,14 @@ class Province(models.TextChoices):
 
 class FinancialProfileManager(models.Manager):
     def create_default(self, user: AuthUser):
-        profile = self.model(user=user)
+        profile = self.model(financial_data=user.financial_data)
         profile.save()
         return profile
 
 
 class FinancialProfile(models.Model):
-    user = models.OneToOneField(
-        AuthUser, on_delete=models.CASCADE, related_name="financial_profile"
+    financial_data = models.OneToOneField(
+        FinancialData, on_delete=models.CASCADE, related_name="financial_profile"
     )
     birth_date = models.DateField(default=DEFAULT_BIRTH_DATE, verbose_name="Birth Date")
     retirement_age = models.IntegerField(default=65, verbose_name="Retirement Age")
@@ -80,6 +81,6 @@ class FinancialProfile(models.Model):
         )
 
     def __str__(self):
-        return "Profile" + " - " + str(self.user.pk)
+        return "Profile" + " - " + str(self.financial_data.pk)
 
     objects = FinancialProfileManager()

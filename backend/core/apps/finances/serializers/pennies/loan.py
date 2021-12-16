@@ -66,7 +66,6 @@ class LoanSerializer(ReadOnlyModelSerializer):
     class Meta:
         model = Loan
         exclude = (
-            "user",
             "id",
             "loan_interest",
             "end_date",

@@ -1,12 +1,12 @@
 from rest_framework import serializers
 
+from core.apps.finances.models.financial_data import FinancialData
 from core.apps.finances.models.financial_profile import FinancialProfile
 from core.apps.finances.models.goals import FinancialGoal
 from core.apps.finances.models.investments import Investment, InvestmentType
 from core.apps.finances.serializers.pennies.loan import (
     LoanSerializer as PenniesLoanSerializer,
 )
-from core.apps.users.models import User
 from core.config import base
 from core.config.base import drop_none_fields
 
@@ -97,7 +97,7 @@ class PenniesRequestSerializer(base.ReadOnlyModelSerializer):
     financial_profile = PenniesFinancialProfileSerializer(read_only=True)
 
     class Meta:
-        model = User
+        model = FinancialData
         fields = (
             "loans",
             "investments",

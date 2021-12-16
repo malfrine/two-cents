@@ -71,7 +71,6 @@ def create_mailchimp_user(user: User, financial_profile: FinancialProfile):
             d = json.loads(error.text)
             if d.get("title") == MailchimpErrors.MEMBER_EXISTS.value:
                 return  # nbd if member already exists
-        print("logging error")
         logging.error(
             f"Unable to add {user.email} to mailchimp Two Cents audience becase of {error.text}"
         )

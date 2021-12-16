@@ -15,7 +15,7 @@ from pennies.model.status import PenniesStatus
 
 class UserPlanViewSet(viewsets.GenericViewSet):
     def list(self, request, format=None):
-        pennies_request = PenniesRequestSerializer(request.user)
+        pennies_request = PenniesRequestSerializer(request.user.financial_data)
         logging.info(
             f"Info About to build a plan for {request.user.email}",
             exc_info=True,

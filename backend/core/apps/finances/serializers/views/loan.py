@@ -38,7 +38,7 @@ class LoanSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Loan
-        exclude = ("user",)
+        exclude = ("financial_data",)
 
     def create(self, validated_data):
         for nested_field in ("loan_interest",):

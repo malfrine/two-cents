@@ -13,7 +13,6 @@ class SessionAPIView(views.APIView):
     def get(self, request, format=None):
         """Return session cookie in header if session exists"""
         user = get_user(request)
-        print(user)
         if not user.is_anonymous and user.is_authenticated:
             return Response(status=status.HTTP_200_OK)
         else:

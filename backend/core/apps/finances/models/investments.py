@@ -4,7 +4,7 @@ from typing import Dict, Tuple
 from django.db import models
 
 from core.apps.finances.models.constants import InterestTypes
-from core.apps.users.models import User as AuthUser
+from core.apps.finances.models.financial_data import FinancialData
 from core.utilities import get_months_between
 
 
@@ -150,8 +150,8 @@ class Investment(models.Model):
         else:
             raise ValueError("Given investment type has unknown volatility")
 
-    user = models.ForeignKey(
-        AuthUser, on_delete=models.CASCADE, related_name="investments"
+    financial_data = models.ForeignKey(
+        FinancialData, on_delete=models.CASCADE, related_name="investments"
     )
     name = models.CharField(max_length=50)
     current_balance = models.FloatField(

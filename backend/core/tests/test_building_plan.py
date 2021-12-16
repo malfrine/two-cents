@@ -160,6 +160,7 @@ class PlanBuildingTestCase(TestCase):
         factory = APIRequestFactory()
         request = factory.get("api/my/plan", format="json")
         force_authenticate(request, user=self.user)
+        assert not self.user.is_anonymous
         view = UserPlanViewSet.as_view({"get": "list"})
         response = view(request)
         assert response.status_code == status.HTTP_200_OK, response.data
