@@ -3,7 +3,7 @@ from datetime import date
 from django.db import models
 
 from core.apps.finances.models.constants import InterestTypes
-from core.apps.users.models import User as AuthUser
+from core.apps.finances.models.financial_data import FinancialData
 from core.utilities import get_months_between
 
 
@@ -94,7 +94,9 @@ class LoanInterest(models.Model):
 
 
 class Loan(models.Model):
-    user = models.ForeignKey(AuthUser, on_delete=models.CASCADE, related_name="loans")
+    financial_data = models.ForeignKey(
+        FinancialData, on_delete=models.CASCADE, related_name="loans"
+    )
     name = models.CharField(max_length=50)
     loan_type = models.CharField(
         max_length=50, choices=LoanType.choices, default=LoanType.PERSONAL_LOAN

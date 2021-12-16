@@ -68,6 +68,8 @@ class ModelCRUDTestCaseMixin:
         raise NotImplementedError()
 
     def set_pk(self, create_response: Response):
+        print(f"setting primary key of {self.__class__}")
+        print(create_response.data)
         self.pk = create_response.data[self.PK_FIELD]
 
     def get_obj(self):
@@ -128,8 +130,8 @@ class ModelCRUDTestCaseMixin:
 
     def test_crud(self):
         create_response = self.create()
-        self.set_pk(create_response)
         self.run_create_assertions(create_response)
+        self.set_pk(create_response)
         read_response = self.read()
         self.run_read_assertions(read_response)
         update_response = self.update()

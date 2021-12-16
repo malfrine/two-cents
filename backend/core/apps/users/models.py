@@ -4,12 +4,17 @@ from django.contrib.auth.models import (
     BaseUserManager,
     AbstractBaseUser,
     PermissionsMixin,
+    AnonymousUser,
 )
 from django.db import models
 from django.utils import timezone
 from hashid_field import HashidField
 
 UNINITIALIZED_POSITION = -1
+
+
+class TwoCentsAnonymousUser(AnonymousUser):
+    financial_data = None
 
 
 class UserManager(BaseUserManager):
@@ -91,6 +96,22 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.full_name
+
+    @property
+    def loans(self):
+        return self.financial_data.loans  # financial_data is a related_name
+
+    @property
+    def goals(self):
+        return self.financial_data.goals  # financial_data is a related_name
+
+    @property
+    def investments(self):
+        return self.financial_data.investments  # financial_data is a related_name
+
+    @property
+    def financial_profile(self):
+        return self.financial_data.financial_profle  # financial_data is a related_name
 
 
 class WaitlistUser(models.Model):

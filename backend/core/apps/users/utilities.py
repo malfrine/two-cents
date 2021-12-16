@@ -5,6 +5,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from rest_framework import serializers, status
 from core.apps.email.mailchimp import delete_mailchimp_user
+from core.apps.finances.models.financial_data import FinancialData
 
 from core.apps.finances.models.financial_profile import FinancialProfile
 from core.apps.payments.models import CurrentPaymentPlan
@@ -41,14 +42,13 @@ def create_user(serializer: UserWriteSerializer):
 
     user: User = User.objects.create_user(email=email, first_name=first_name)
     user.save()
-
     try:
+        FinancialData.objects.create(user=user)
         FinancialProfile.objects.create_default(user)
         CurrentPaymentPlan.objects.create_default(user)
     except Exception:
         delete_user(user)
         return None
-
     return user
 
 

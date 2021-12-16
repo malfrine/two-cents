@@ -11,13 +11,13 @@ from core.apps.users.models import User
 class InvestmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Investment
-        exclude = ("user",)
+        exclude = ("financial_data",)
 
 
 class FinancialGoalSerializer(serializers.ModelSerializer):
     class Meta:
         model = FinancialGoal
-        exclude = ("user",)
+        exclude = ("financial_data",)
 
 
 class FinancialProfileSerializer(serializers.ModelSerializer):
@@ -26,7 +26,7 @@ class FinancialProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FinancialProfile
-        exclude = ("user",)
+        exclude = ("financial_data",)
 
 
 class UserFinancesSerializer(serializers.ModelSerializer):

@@ -9,7 +9,7 @@ from core.apps.finances.views import LoanViewset, InvestmentViewset
 from core.tests._utilities import ModelCRUDTestCaseMixin
 
 
-class LoanCRUDTestCaseMixin(ModelCRUDTestCaseMixin, TestCase):
+class LoanCRUDTestCase(ModelCRUDTestCaseMixin, TestCase):
 
     url = "api/my/finances/loans"
     model = Loan
@@ -36,7 +36,7 @@ class LoanCRUDTestCaseMixin(ModelCRUDTestCaseMixin, TestCase):
         assert self.get_obj().name == "updated test loan"
 
 
-class InvestmentCRUDTestCaseMixin(ModelCRUDTestCaseMixin, TestCase):
+class InvestmentCRUDTestCase(ModelCRUDTestCaseMixin, TestCase):
 
     url = "api/my/finances/investments"
     model = Investment

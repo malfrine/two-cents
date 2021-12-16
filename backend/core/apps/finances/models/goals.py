@@ -2,7 +2,7 @@ from datetime import date
 
 from django.db import models
 
-from core.apps.users.models import User
+from core.apps.finances.models.financial_data import FinancialData
 from core.utilities import get_months_between
 
 
@@ -12,7 +12,9 @@ class GoalType(models.TextChoices):
 
 
 class FinancialGoal(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="goals")
+    financial_data = models.ForeignKey(
+        FinancialData, on_delete=models.CASCADE, related_name="goals"
+    )
     name = models.CharField(max_length=50)
     type = models.CharField(
         max_length=50, choices=GoalType.choices, default=GoalType.BIG_PURCHASE

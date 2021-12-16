@@ -35,12 +35,14 @@ NEST_EGG_MONTHS = 6
 
 def create_financial_profile(user, data):
     try:
-        financial_profile = FinancialProfile.objects.get(user=user)
+        financial_profile = FinancialProfile.objects.get(
+            financial_data=user.financial_data
+        )
     except FinancialProfile.DoesNotExist:
         financial_profile = FinancialProfile.objects.create_default()
     fp_serializer = FinancialProfileSerializer(financial_profile, data=data)
     fp_serializer.is_valid(raise_exception=True)
-    financial_profile = fp_serializer.save(user=user)
+    financial_profile = fp_serializer.save(financial_data=user.financial_data)
     return financial_profile
 
 
@@ -48,7 +50,7 @@ def create_goals(user, data):
     big_purchase = data.get("big_purchase")
     if big_purchase is not None:
         big_purchase_goal = FinancialGoal(
-            user=user,
+            financial_data=user.financial_data,
             name="Big Purchase",
             type=GoalType.BIG_PURCHASE,
             amount=big_purchase.get("amount"),
@@ -58,17 +60,19 @@ def create_goals(user, data):
     nest_egg = data.get("current_nest_egg_amount")
     if nest_egg is not None:
         cash_account = Investment(
-            user=user,
+            financial_data=user.financial_data,
             name="Cash Account",
             current_balance=nest_egg,
             investment_type=InvestmentType.CASH,
             account_type=InvestmentAccountType.NON_REGISTERED.value,
         )
         cash_account.save()
-        financial_profile, _ = FinancialProfile.objects.get_or_create(user=user)
+        financial_profile, _ = FinancialProfile.objects.get_or_create(
+            financial_data=user.financial_data
+        )
         nest_egg_target = financial_profile.monthly_expenses_estimate * NEST_EGG_MONTHS
         nest_egg_goal = FinancialGoal(
-            user=user,
+            financial_data=user.financial_data,
             name="Nest Egg",
             type=GoalType.NEST_EGG,
             amount=nest_egg_target,
@@ -90,10 +94,12 @@ def get_default_investment_risk_level(risk_tolerance: float):
 
 
 def create_investments(user, data):
-    financial_profile, _ = FinancialProfile.objects.get_or_create(user=user)
+    financial_profile, _ = FinancialProfile.objects.get_or_create(
+        financial_data=user.financial_data
+    )
     risk_level = get_default_investment_risk_level(financial_profile.risk_tolerance)
     tfsa = Investment(
-        user=user,
+        financial_data=user.financial_data,
         name="TFSA Portfolio",
         current_balance=data.get("tfsa", 0),
         investment_type=InvestmentType.PORTFOLIO,
@@ -102,7 +108,7 @@ def create_investments(user, data):
     )
     tfsa.save()
     rrsp = Investment(
-        user=user,
+        financial_data=user.financial_data,
         name="RRSP Portfolio",
         current_balance=data.get("rrsp", 0),
         investment_type=InvestmentType.PORTFOLIO,
@@ -111,7 +117,7 @@ def create_investments(user, data):
     )
     rrsp.save()
     non_registered = Investment(
-        user=user,
+        financial_data=user.financial_data,
         name="Non Registerd Portfolio",
         current_balance=data.get("non_registered", 0),
         account_type=InvestmentAccountType.NON_REGISTERED.value,
@@ -127,7 +133,7 @@ def create_loans(user, data):
         balance = abs(float(loan_info.get("balance", 0)))
         data = {
             "name": loan_type,
-            "user": user,
+            "financial_data": user.financial_data.pk,
             "current_balance": balance,
             "loan_interest": {"interest_type": InterestTypes.FIXED.value, "apr": apr},
             "loan_type": loan_type_enum.value,
@@ -160,7 +166,7 @@ def create_loans(user, data):
             )
         serializer = LoanSerializer(data=data)
         serializer.is_valid(raise_exception=True)
-        serializer.save(user=user)
+        serializer.save(financial_data=user.financial_data)
 
 
 class OnboardingAPIView(views.APIView):

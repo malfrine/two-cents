@@ -48,7 +48,7 @@ class LoanViewset(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         if can_create_loan(self.request.user):
-            return serializer.save(user=self.request.user)
+            return serializer.save(financial_data=self.request.user.financial_data)
         else:
             raise PermissionDenied()
 
@@ -65,7 +65,7 @@ class InvestmentViewset(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         if can_create_investment(self.request.user):
-            return serializer.save(user=self.request.user)
+            return serializer.save(financial_data=self.request.user.financial_data)
         else:
             raise PermissionDenied()
 
@@ -82,7 +82,7 @@ class FinancialGoalViewset(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         if can_create_goal(self.request.user):
-            return serializer.save(user=self.request.user)
+            return serializer.save(financial_data=self.request.user.financial_data)
         else:
             raise PermissionDenied()
 
@@ -92,7 +92,11 @@ class FinancialProfileView(viewsets.GenericViewSet):
 
     def get_object(self):
         try:
-            return FinancialProfile.objects.get(user=self.request.user)
+            if self.request.user.is_anonymous:
+                return None
+            return FinancialProfile.objects.get(
+                financial_data=self.request.user.financial_data
+            )
         except FinancialProfile.DoesNotExist:
             return None
 
@@ -110,7 +114,7 @@ class FinancialProfileView(viewsets.GenericViewSet):
             serializer = self.get_serializer(data=request.data)
             success_status = status.HTTP_201_CREATED
         serializer.is_valid(raise_exception=True)
-        serializer.save(user=request.user)
+        serializer.save(financial_data=request.user.financial_data)
         return Response(serializer.data, status=success_status)
 
 
@@ -133,7 +137,7 @@ class PenniesRequestViewset(viewsets.GenericViewSet):
     serializer_class = PenniesRequestSerializer
 
     def list(self, request):
-        return Response(self.get_serializer(request.user).data)
+        return Response(self.get_serializer(request.user.financial_data).data)
 
 
 class FinancesEnumsViewset(viewsets.GenericViewSet):

@@ -61,13 +61,13 @@ class OnboardingTestCase(TestCase):
         assert isinstance(user, User)
 
         try:  # if any of the assertions fail make sure to delete the firebase user
-            loans = Loan.objects.filter(user=user)
+            loans = Loan.objects.filter(financial_data=user.financial_data)
             assert len(loans) == len(self.loans.values())
 
-            investments = Investment.objects.filter(user=user)
+            investments = Investment.objects.filter(financial_data=user.financial_data)
             assert len(investments) == 4
 
-            goals = FinancialGoal.objects.filter(user=user)
+            goals = FinancialGoal.objects.filter(financial_data=user.financial_data)
             assert len(goals) == 2
         except Exception:
             delete_user(user)

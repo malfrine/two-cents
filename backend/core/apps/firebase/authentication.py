@@ -2,14 +2,13 @@ import logging
 import os
 
 import firebase_admin
-from django.contrib.auth.models import AnonymousUser
 from firebase_admin import auth, credentials
 from firebase_admin.auth import InvalidIdTokenError
 from rest_framework import authentication
 from rest_framework.authentication import get_authorization_header
 from rest_framework.exceptions import AuthenticationFailed
 
-from core.apps.users.models import User
+from core.apps.users.models import User, TwoCentsAnonymousUser
 
 cred = credentials.Certificate(
     {
@@ -40,12 +39,12 @@ class FirebaseAuthentication(authentication.TokenAuthentication):
             )
 
         if not id_token:
-            return (AnonymousUser, None)
+            return TwoCentsAnonymousUser, None
 
         try:
             decoded_token = auth.verify_id_token(id_token)
         except InvalidIdTokenError:
-            return (AnonymousUser, None)
+            return TwoCentsAnonymousUser, None
         uid = decoded_token.get("uid")
         firebase_user = auth.get_user(uid)
 
@@ -57,7 +56,7 @@ class FirebaseAuthentication(authentication.TokenAuthentication):
         except User.DoesNotExist:
             user = firebase_user
             logging.info(
-                f"Firebase recognized the user to be a non-registered user {(user.email)}"
+                f"Firebase recognized the user to be a non-registered user {user.email}"
             )
 
-        return (user, None)
+        return user, None
