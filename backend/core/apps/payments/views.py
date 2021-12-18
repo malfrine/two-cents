@@ -45,8 +45,7 @@ class PromotionCodeViewset(viewsets.GenericViewSet):
                 if code.get("code") == customer_code:
                     return Response(data=code, status=status.HTTP_200_OK)
             raise stripe.error.InvalidRequestError()
-        except stripe.error.InvalidRequestError as e:
-            print(e)
+        except stripe.error.InvalidRequestError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 

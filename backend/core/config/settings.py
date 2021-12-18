@@ -39,6 +39,7 @@ LOCAL_APPS = [
     "core.apps.finances",
     "core.apps.payments",
     "core.apps.utilities",
+    "core.apps.published_plans",
 ]
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
