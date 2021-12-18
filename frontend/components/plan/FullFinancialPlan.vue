@@ -8,6 +8,11 @@
               {{ possessiveUserName }} Financial Plan
             </div>
           </v-col>
+          <!-- <v-col cols="12" sm="8" md="4" class="d-flex align-center justify-center justify-md-start">
+            <v-btn ref="publishPlanButton" x-large block color="primary" @click="publishPlan">
+              Publish Plan
+            </v-btn>
+          </v-col> -->
           <v-col v-if="!$vuetify.breakpoint.mdAndUp" cols="12" sm="8" md="4">
             <v-select
               v-model="selectedStrategy"
@@ -177,6 +182,16 @@ export default {
     handlePremiumFeatureInterest () {
       if (!this.isPaidUser) {
         this.$emit('show-upgrade-dialog')
+      }
+    },
+    async publishPlan () {
+      try {
+        const response = await this.$axios.$post(
+          '/api/published-plan'
+        )
+        console.log(response)
+      } catch (e) {
+        console.log(e)
       }
     }
   },

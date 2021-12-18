@@ -15,6 +15,7 @@ from core.apps.payments.views import (
     PromotionCodeViewset,
 )
 from core.apps.plan.views import UserPlanViewSet
+from core.apps.published_plans.views import PublishedPlansViewset
 from core.apps.users.views import AccountViewSet
 
 # Settings
@@ -39,3 +40,4 @@ api.register(r"my/payment-plan", CurrentPaymentPlanViewSet, basename="payment-pl
 api.register(
     r"my/payment-plan/promotion-code", PromotionCodeViewset, basename="promotion-code"
 )
+api.register(r"published-plan", PublishedPlansViewset, basename="published-plans")

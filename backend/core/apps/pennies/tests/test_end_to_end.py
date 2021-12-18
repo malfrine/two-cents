@@ -44,7 +44,6 @@ def test_simple_solve():
 def test_process_all_example_requests():
     for request in all_requests_as_dicts():
         response = solve_request(request)
-        print(request)
         assert response["status"] == PenniesStatus.SUCCESS, response["result"]
         assert isinstance(response["result"], dict)
         assert len(response["result"]) == len(request["strategies"])

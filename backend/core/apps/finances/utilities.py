@@ -1,6 +1,8 @@
+from copy import deepcopy
 from datetime import date, datetime
 from typing import Optional
 
+from core.apps.finances.models.financial_data import FinancialData
 from core.apps.payments.models import CurrentPaymentPlan, PlanType
 
 MIN_PAYMENT_THRESHOLD = 10
@@ -70,3 +72,31 @@ def _can_user_create(
         if current_number_of_items >= max_items_allowed:
             return False
     return True
+
+
+def copy_financial_data(old: FinancialData) -> FinancialData:
+    # TODO: make a generalized function to copy django models
+    new = FinancialData.objects.create()
+    for loan in old.loans.all():
+        new_loan_interest = deepcopy(loan.loan_interest)
+        new_loan_interest.pk = None
+        new_loan_interest.save()
+        loan.pk = None
+        loan._state.adding = True
+        loan.financial_data = new
+        loan.loan_interest = new_loan_interest
+        loan.save()
+    for investment in old.investments.all():
+        investment.pk = None
+        investment.financial_data = new
+        investment.save()
+    for goal in old.goals.all():
+        goal.pk = None
+        goal.financial_data = new
+        goal.save()
+    fp = old.financial_profile
+    fp.pk = None
+    fp.financial_data = new
+    fp.save()
+    new.save()
+    return new
