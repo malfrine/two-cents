@@ -73,20 +73,23 @@ export default {
   computed: {
     isLoggedIn () {
       return this.$store.getters['firebase-auth/isLoggedIn']
+    },
+    pushPath () {
+      return this.$route.query.from || '/dashboard/profile'
     }
   },
   watch: {
     isLoggedIn () {
       if (this.isLoggedIn) {
         this.$fire.analytics.logEvent('login')
-        this.$router.push('/dashboard/profile')
+        this.$router.push(this.pushPath)
       }
     }
   },
   created () {
     if (this.isLoggedIn) {
       this.$fire.analytics.logEvent('login')
-      this.$router.push('/dashboard/profile')
+      this.$router.push(this.pushPath)
     }
   },
   methods: {

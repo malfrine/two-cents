@@ -3,6 +3,7 @@
     :name="goal.name"
     :summary-value="asDollar(goal.amount)"
     :icon="$instrument.icons.getIcon(goal.type)"
+    :read-only="readOnly"
     @open-dialog="showDialog = true"
     @delete-object="deleteGoal()"
   >
@@ -34,6 +35,14 @@ export default {
     goalId: {
       type: Number,
       required: true
+    },
+    readOnly: {
+      type: Boolean,
+      default: false
+    },
+    publishedPlanId: {
+      type: Number,
+      default: null
     }
   },
   data () {
@@ -43,11 +52,18 @@ export default {
   },
   computed: {
     goal () {
-      return this.$store.getters['finances/getGoalById'](this.goalId)
+      if (this.publishedPlanId != null) {
+        return this.$store.getters['published-plans/getGoalById'](this.publishedPlanId, this.goalId)
+      } else {
+        return this.$store.getters['finances/getGoalById'](this.goalId)
+      }
     }
   },
   methods: {
     deleteGoal () {
+      if (this.isPublishedPlan) {
+        return null
+      }
       this.$store.dispatch('finances/deleteGoal', this.goal)
     },
     asDollar

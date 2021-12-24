@@ -71,4 +71,7 @@ class UserFinancesSerializer(serializers.ModelSerializer):
             "last_name",
             "financial_data",
             "payment_plan",
+            "is_admin",
+            "is_staff",
+            "is_active",
         )

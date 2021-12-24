@@ -28,22 +28,22 @@
 
       <v-tab-item>
         <tab-container>
-          <ProfileProfileTab class="mx-2 my-2" />
+          <ProfileProfileTab class="mx-2 my-2" :read-only="readOnly" :published-plan-id="publishedPlanId" />
         </tab-container>
       </v-tab-item>
       <v-tab-item>
         <tab-container>
-          <ProfileLoansTab />
+          <ProfileLoansTab :read-only="readOnly" :published-plan-id="publishedPlanId" />
         </tab-container>
       </v-tab-item>
       <v-tab-item>
         <tab-container>
-          <ProfileInvestmentsTab />
+          <ProfileInvestmentsTab :read-only="readOnly" :published-plan-id="publishedPlanId" />
         </tab-container>
       </v-tab-item>
       <v-tab-item>
         <tab-container>
-          <ProfileGoalsTab />
+          <ProfileGoalsTab :read-only="readOnly" :published-plan-id="publishedPlanId" />
         </tab-container>
       </v-tab-item>
     </v-tabs>
@@ -64,6 +64,17 @@ export default {
     ProfileLoansTab,
     TabContainer,
     ProfileGoalsTab
+  },
+  props: {
+    publishedPlanId: {
+      type: Number,
+      default: null
+    }
+  },
+  computed: {
+    readOnly () {
+      return this.publishedPlanId != null
+    }
   }
 }
 </script>

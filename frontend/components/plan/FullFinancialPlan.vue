@@ -3,16 +3,16 @@
     <v-card>
       <v-container fluid>
         <v-row align="center" align-content="center" justify="center" justify-md="space-between">
-          <v-col cols="12" md="8" class="d-flex align-center justify-center justify-md-start">
+          <v-col cols="12" :md="canPublishPlan ? 8 : 12" class="d-flex align-center justify-center justify-md-start">
             <div class="text-h4 text-sm-h3 text-md-h2 text-center text-md-start">
               {{ possessiveUserName }} Financial Plan
             </div>
           </v-col>
-          <!-- <v-col cols="12" sm="8" md="4" class="d-flex align-center justify-center justify-md-start">
+          <v-col v-if="canPublishPlan" cols="12" sm="8" md="4" class="d-flex align-center justify-center justify-md-start">
             <v-btn ref="publishPlanButton" x-large block color="primary" @click="publishPlan">
               Publish Plan
             </v-btn>
-          </v-col> -->
+          </v-col>
           <v-col v-if="!$vuetify.breakpoint.mdAndUp" cols="12" sm="8" md="4">
             <v-select
               v-model="selectedStrategy"
@@ -41,7 +41,7 @@
                 </div>
               </v-expansion-panel-header>
               <v-expansion-panel-content>
-                <PlanSummary :selected-strategy="selectedStrategy" />
+                <PlanSummary :selected-strategy="selectedStrategy" :published-plan-id="publishedPlanId" />
               </v-expansion-panel-content>
             </v-expansion-panel>
           </v-container>
@@ -69,7 +69,7 @@
                 </v-card-title>
               </v-expansion-panel-header>
               <v-expansion-panel-content>
-                <PlanCurrentFinances />
+                <PlanCurrentFinances :published-plan-id="publishedPlanId" />
               </v-expansion-panel-content>
             </v-expansion-panel>
           </v-container>
@@ -84,7 +84,7 @@
               <v-expansion-panel-content style="max-height: 600px" class="overflow-y-auto">
                 <v-card>
                   <v-container>
-                    <PlanMilestones :selected-strategy="selectedStrategy" />
+                    <PlanMilestones :selected-strategy="selectedStrategy" :published-plan-id="publishedPlanId" />
                   </v-container>
                 </v-card>
               </v-expansion-panel-content>
@@ -102,6 +102,7 @@
                   <PlanActionPlan
                     :selected-strategy="selectedStrategy"
                     :is-premium-plan="isPaidUser"
+                    :published-plan-id="publishedPlanId"
                     @show-upgrade-dialog="handlePremiumFeatureInterest"
                   />
                 </v-container>
@@ -140,7 +141,7 @@
             </v-btn>
           </v-container>
           <v-divider class="my-2" />
-          <PlanSummary :selected-strategy="selectedStrategy" />
+          <PlanSummary :selected-strategy="selectedStrategy" :published-plan-id="publishedPlanId" />
         </v-card>
       </v-col>
     </v-row>
@@ -170,12 +171,28 @@ export default {
     isPaidUser: {
       default: false,
       type: Boolean
+    },
+    isAdminUser: {
+      default: false,
+      type: Boolean
+    },
+    publishedPlanId: {
+      type: Number,
+      default: null
     }
   },
   data () {
     return {
       panel: this.isPaidUser ? [0] : [2],
       showPlanUpgradeDialog: false
+    }
+  },
+  computed: {
+    isPublishedPlan () {
+      return this.publishedPlanId != null
+    },
+    canPublishPlan () {
+      return this.isAdminUser && !this.isPublishedPlan
     }
   },
   methods: {
@@ -189,9 +206,12 @@ export default {
         const response = await this.$axios.$post(
           '/api/published-plan'
         )
-        console.log(response)
+        const url = `/published-plans/${response.id}/profile`
+        this.$router.push(url)
+        this.$toast.success('Plan has been published!')
       } catch (e) {
-        console.log(e)
+        this.$sentry.captureException(e)
+        this.$toast.error('Sorry, could not publish that plan -- check the logs.')
       }
     }
   },

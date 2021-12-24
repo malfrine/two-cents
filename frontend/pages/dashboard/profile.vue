@@ -22,10 +22,6 @@ export default {
       this.isLoading = true
       const response = await this.$axios.$get('/api/my/finances')
         .then((response) => {
-          if (response.financial_profile == null) {
-            response.financial_profile = {}
-          // TODO: do this in a cleaner way
-          }
           return response
         })
         .catch((e) => {
@@ -35,7 +31,8 @@ export default {
           this.isLoading = false
           return null
         })
-      this.$store.commit('finances/SET_USER_FINANCES', response)
+      this.$store.commit('finances/SET_USER_FINANCES', response.financial_data)
+      this.$store.commit('users/SET_USER_INFO', response)
       this.isLoading = false
     }
   },

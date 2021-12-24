@@ -4,6 +4,7 @@
     :summary-value="summaryValue"
     :summary-color="$instrument.colors.getColor('investment', investmentId)"
     :icon="$instrument.icons.getIcon(investment.investment_type)"
+    :read-only="readOnly"
     @open-dialog="showInvestmentDialog = true"
     @delete-object="deleteInvestment(investment)"
   >
@@ -59,7 +60,20 @@ export default {
   components: {
     InvestmentDialog
   },
-  props: ['investmentId'],
+  props: {
+    investmentId: {
+      type: Number,
+      required: true
+    },
+    readOnly: {
+      type: Boolean,
+      default: false
+    },
+    publishedPlanId: {
+      type: Number,
+      default: null
+    }
+  },
   data () {
     return {
       showInvestmentDialog: false,
@@ -69,7 +83,11 @@ export default {
   },
   computed: {
     investment () {
-      return this.$store.getters['finances/getInvestmentById'](this.investmentId)
+      if (this.publishedPlanId != null) {
+        return this.$store.getters['published-plans/getInvestmentById'](this.publishedPlanId, this.investmentId) || {}
+      } else {
+        return this.$store.getters['finances/getInvestmentById'](this.investmentId)
+      }
     },
     requiredFields () {
       return this.$store.getters['enums/getRequiredFields'](this.investment.investment_type)

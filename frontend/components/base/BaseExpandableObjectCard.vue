@@ -20,6 +20,7 @@
           </v-col>
           <v-col cols="2">
             <v-speed-dial
+              v-if="!readOnly"
               v-model="fab"
               direction="bottom"
               class="ml-4"
@@ -31,6 +32,7 @@
                   fab
                   small
                   class="mb-n2"
+                  :disabled="readOnly"
                 >
                   <v-icon v-if="fab">
                     mdi-close
@@ -44,6 +46,7 @@
                 fab
                 small
                 color="blue"
+                :disabled="readOnly"
                 @click.stop="$emit('open-dialog')"
               >
                 <v-icon>mdi-pencil</v-icon>
@@ -52,6 +55,7 @@
                 fab
                 small
                 color="red"
+                :disabled="readOnly"
                 @click.prevent="$emit('delete-object')"
               >
                 <v-icon>mdi-delete</v-icon>
@@ -99,6 +103,10 @@ export default {
     icon: {
       type: String,
       default: ''
+    },
+    readOnly: {
+      type: Boolean,
+      default: false
     }
   },
   data: () => ({

@@ -1,8 +1,6 @@
 import json
 import logging
-
-from rest_framework import status
-from rest_framework.response import Response
+from typing import Optional, Dict
 
 from core.apps.finances.models.financial_data import FinancialData
 from core.apps.finances.serializers.pennies.request import PenniesRequestSerializer
@@ -16,7 +14,7 @@ from pennies.model.status import PenniesStatus
 
 def make_pennies_request_and_run(
     financial_data: FinancialData, email: str = "unknown"
-) -> Response:
+) -> Optional[Dict]:
     pennies_request = PenniesRequestSerializer(financial_data)
     logging.info(
         f"Info About to build a plan for {email}",
@@ -25,7 +23,7 @@ def make_pennies_request_and_run(
     )
     pennies_response = solve_request(pennies_request.data)
     if pennies_response["status"] == PenniesStatus.SUCCESS:
-        return Response(status=status.HTTP_200_OK, data=pennies_response["result"])
+        return pennies_response["result"]
     else:
         if not DEBUG:
             logging.error(
@@ -40,7 +38,4 @@ def make_pennies_request_and_run(
         else:
             print(json.dumps(pennies_request.data, indent=3))
             print(pennies_response["result"])
-        return Response(
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            data=pennies_response["result"],
-        )
+        return None

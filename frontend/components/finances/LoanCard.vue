@@ -4,6 +4,7 @@
     :summary-value="summaryValue"
     :summary-color="$instrument.colors.getColor('loan', loanId)"
     :icon="$instrument.icons.getIcon(loanType)"
+    :read-only="readOnly"
     @open-dialog="showLoanDialog = true"
     @delete-object="deleteLoan(loan)"
   >
@@ -45,7 +46,11 @@ export default {
     LoanDialog
   },
   mixins: [LoanDetailsMixin],
-  props: { loanId: { type: Number, required: true } },
+  props: {
+    loanId: { type: Number, required: true },
+    readOnly: { type: Boolean, default: false },
+    publishedPlanId: { type: Number, default: null }
+  },
   data () {
     const mortgageFields = {
       minimum_monthly_payment: {
@@ -96,7 +101,11 @@ export default {
       return `${rateStr} ${mortgageSuffix}`
     },
     loan () {
-      return this.$store.getters['finances/getLoanById'](this.loanId) || {}
+      if (this.publishedPlanId != null) {
+        return this.$store.getters['published-plans/getLoanById'](this.publishedPlanId, this.loanId) || {}
+      } else {
+        return this.$store.getters['finances/getLoanById'](this.loanId) || {}
+      }
     },
     loanInterest () {
       return this.loan.loan_interest || {}
