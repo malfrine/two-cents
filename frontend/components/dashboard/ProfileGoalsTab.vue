@@ -1,7 +1,8 @@
 <template>
   <div>
-    <v-row class="mb-4 ml-1">
+    <v-row v-if="!readOnly" class="mb-4 ml-1">
       <v-btn
+
         fab
         large
         color="primary"
@@ -12,9 +13,11 @@
     </v-row>
     <v-row justify="center" justify-lg="start">
       <GoalCard
-        v-for="goal in $store.state.finances.user_finances.goals"
+        v-for="goal in goals"
         :key="goal.id"
         :goal-id="goal.id"
+        :read-only="readOnly"
+        :published-plan-id="publishedPlanId"
       />
     </v-row>
     <GoalDialog :visible="showDialog" @close="showDialog=false" />
@@ -33,6 +36,16 @@ import PlanUpgradeDialog from '@/components/plan/PlanUpgradeDialog.vue'
 
 export default {
   components: { GoalCard, GoalDialog, PlanUpgradeDialog },
+  props: {
+    readOnly: {
+      type: Boolean,
+      default: true
+    },
+    publishedPlanId: {
+      type: Number,
+      default: null
+    }
+  },
   data () {
     return {
       showDialog: false,
@@ -42,13 +55,17 @@ export default {
   },
   computed: {
     goals () {
-      return this.$store.state.finances.user_finances.goals
+      if (this.publishedPlanId != null) {
+        return this.$store.getters['published-plans/getGoals'](this.publishedPlanId) || {}
+      } else {
+        return this.$store.getters['finances/getGoals'] || {}
+      }
     },
     numGoals () {
       return Object.keys(this.goals).length
     },
     premiumPlan () {
-      return this.$store.getters['finances/getShowFullPlan']
+      return this.$store.getters['users/getShowFullPlan']
     }
   },
   methods: {

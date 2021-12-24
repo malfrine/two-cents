@@ -14,16 +14,32 @@ export default {
   computed: {
 
     netWorthData () {
-      const refData = this.$store.getters['plan/getNetWorth'](this.selectedStrategy)
+      let refData
+      if (this.isPublishedPlan) {
+        refData = this.$store.getters['published-plans/getNetWorth'](this.publishedPlanId, this.selectedStrategy)
+      } else {
+        refData = this.$store.getters['plan/getNetWorth'](this.selectedStrategy)
+      }
       return JSON.parse(JSON.stringify(refData))
     },
     strategies () {
-      return this.$store.getters['plan/getStrategies']
+      if (this.isPublishedPlan) {
+        return this.$store.getters['published-plans/getStrategies'](this.publishedPlanId)
+      } else {
+        return this.$store.getters['plan/getStrategies']
+      }
     },
     possessiveUserName () {
-      const firstName = this.$store.getters['finances/getFirstName']
-      const posession = firstName.slice(-1) === 's' ? "'" : "'s"
-      return `${firstName}${posession}`
+      if (this.isPublishedPlan) {
+        return 'Your Potential'
+      } else {
+        const firstName = this.$store.getters['users/getFirstName']
+        if (!firstName) {
+          return 'Your '
+        }
+        const posession = firstName.slice(-1) === 's' ? "'" : "'s"
+        return `${firstName}${posession}`
+      }
     },
 
     chartHeight () {

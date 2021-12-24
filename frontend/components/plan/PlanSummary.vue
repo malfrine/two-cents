@@ -70,7 +70,16 @@ export default {
   components: {
     TCTooltip
   },
-  props: ['selectedStrategy'],
+  props: {
+    selectedStrategy: {
+      type: String,
+      required: true
+    },
+    publishedPlanId: {
+      type: Number,
+      default: null
+    }
+  },
   data () {
     return {
       tooltips: {
@@ -82,8 +91,11 @@ export default {
   },
   computed: {
     summaries () {
-      // return this.summaryData[this.selectedStrategy].summaries
-      return this.$store.getters['plan/getSummaries'](this.selectedStrategy)
+      if (this.publishedPlanId != null) {
+        return this.$store.getters['published-plans/getSummaries'](this.publishedPlanId, this.selectedStrategy)
+      } else {
+        return this.$store.getters['plan/getSummaries'](this.selectedStrategy)
+      }
     },
     finalNetWorth () {
       return this.summaries.net_worth

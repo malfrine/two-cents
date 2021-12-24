@@ -93,25 +93,25 @@ export default {
   },
   computed: {
     firstName () {
-      return this.$store.getters['finances/getFirstName']
+      return this.$store.getters['users/getFirstName']
     },
     lastName () {
-      return this.$store.getters['finances/getLastName']
+      return this.$store.getters['users/getLastName']
     },
     email () {
-      return this.$store.getters['finances/getEmail']
+      return this.$store.getters['users/getEmail']
     },
     planType () {
-      return this.$store.getters['finances/getVerbosePlanType']
+      return this.$store.getters['users/getVerbosePlanType']
     },
     isPremiumPlan () {
-      return this.$store.getters['finances/getIsPremiumPlan']
+      return this.$store.getters['users/getIsPremiumPlan']
     },
     isSubscriptionPlan () {
-      return this.$store.getters['finances/getIsSubscriptionPlan']
+      return this.$store.getters['users/getIsSubscriptionPlan']
     },
     isCancelledPlan () {
-      return this.$store.getters['finances/getIsCancelledPlan']
+      return this.$store.getters['users/getIsCancelledPlan']
     },
     detailedPlanType () {
       if (this.isCancelledPlan) {
@@ -138,7 +138,7 @@ export default {
       try {
         this.$fire.analytics.logEvent('cancel_plan')
         const paymentPlan = await this.$axios.$delete('/api/my/payment-plan')
-        this.$store.commit('finances/SET_PAYMENT_PLAN', paymentPlan)
+        this.$store.commit('users/SET_PAYMENT_PLAN', paymentPlan)
         this.$toast.success('Successfully cancelled plan')
       } catch (err) {
         this.$toast.error('Looks like something went wrong, please try again')

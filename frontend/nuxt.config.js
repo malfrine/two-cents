@@ -110,7 +110,8 @@ export default {
     'vue-toastification/nuxt',
     '@nuxtjs/firebase',
     'nuxt-user-agent',
-    '@nuxtjs/sentry'
+    '@nuxtjs/sentry',
+    'nuxt-helmet'
 
   ],
 
@@ -137,13 +138,13 @@ export default {
 
   publicRuntimeConfig: {
     axios: {
-      browserBaseURL: process.env.AXIOS_BASE_URL
+      browserBaseURL: process.env.AXIOS_BASE_URL || '/'
     }
   },
 
   privateRuntimeConfig: {
     axios: {
-      baseURL: process.env.AXIOS_BASE_URL
+      baseURL: process.env.AXIOS_BASE_URL || '/'
     }
   },
 
@@ -190,4 +191,9 @@ export default {
   build: {
     vendo: ['~/assets/plan-utils.js']
   }
+
+  // TODO: figure out csp stuff
+  // render: {
+  //   csp: true
+  // }
 }

@@ -1,10 +1,11 @@
 <template>
   <div>
-    <v-row class="mb-4 ml-1">
+    <v-row v-if="!readOnly" class="mb-4 ml-1">
       <v-btn
         fab
         large
         color="primary"
+        :disabled="readOnly"
         @click.stop="registerAddButtonClick"
       >
         <v-icon>mdi-plus</v-icon>
@@ -15,6 +16,8 @@
         v-for="investment in investments"
         :key="investment.id"
         :investment-id="investment.id"
+        :read-only="readOnly"
+        :published-plan-id="publishedPlanId"
       />
     </v-row>
     <InvestmentDialog :visible="showInvestmentDialog" :investment-id="null" @close="showInvestmentDialog=false" />
@@ -33,6 +36,16 @@ import PlanUpgradeDialog from '@/components/plan/PlanUpgradeDialog.vue'
 
 export default {
   components: { InvestmentCard, InvestmentDialog, PlanUpgradeDialog },
+  props: {
+    readOnly: {
+      type: Boolean,
+      default: false
+    },
+    publishedPlanId: {
+      type: Number,
+      default: null
+    }
+  },
   data () {
     return {
       showInvestmentDialog: false,
@@ -42,13 +55,17 @@ export default {
   },
   computed: {
     investments () {
-      return this.$store.getters['finances/getInvestments']
+      if (this.publishedPlanId != null) {
+        return this.$store.getters['published-plans/getInvestments'](this.publishedPlanId) || {}
+      } else {
+        return this.$store.getters['finances/getInvestments'] || {}
+      }
     },
     numInvestments () {
       return Object.keys(this.investments).length
     },
     isPremiumPlan () {
-      return this.$store.getters['finances/getShowFullPlan']
+      return this.$store.getters['users/getShowFullPlan']
     }
   },
   methods: {

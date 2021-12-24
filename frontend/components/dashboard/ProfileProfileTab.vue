@@ -1,10 +1,11 @@
 <template>
   <div>
-    <v-row class="mb-4 ml-1">
+    <v-row v-if="!readOnly" class="mb-4 ml-1">
       <v-btn
         fab
         large
         color="primary"
+        :disabled="readOnly"
         @click.prevent="toggleEditMode()"
       >
         <v-icon v-if="!editMode" color="white">
@@ -143,6 +144,16 @@ import TCTooltip from '@/components/base/TCTooltip.vue'
 
 export default {
   components: { TooltipTextField, TCTooltip },
+  props: {
+    readOnly: {
+      type: Boolean,
+      default: false
+    },
+    publishedPlanId: {
+      type: Number,
+      default: null
+    }
+  },
   data () {
     const defaultFinProfile = {
       birth_date: new Date(),
@@ -154,10 +165,16 @@ export default {
       death_age: 90,
       province_of_residence: 'AB'
     }
+    let currentProfile
+    if (this.publishedPlanId != null) {
+      currentProfile = this.$store.getters['published-plans/getFinancialProfile'](this.publishedPlanId)
+    } else {
+      currentProfile = this.$store.getters['finances/getFinancialProfile']
+    }
     return {
       editMode: false,
       defaultFinProfile,
-      financial_profile: { ...this.$store.getters['finances/getFinancialProfile'] }
+      financial_profile: { ...currentProfile }
     }
   },
   computed: {
@@ -167,6 +184,9 @@ export default {
   },
   methods: {
     toggleEditMode () {
+      if (this.readOnly) {
+        return
+      }
       if (this.editMode) {
         const fp = { ...this.defaultFinProfile, ...this.financial_profile }
         this.$axios.$post('/api/my/finances/profile', fp)

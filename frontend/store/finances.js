@@ -22,12 +22,6 @@ const getters = {
   getFirstName (state) {
     return state.user_finances?.first_name
   },
-  getLastName (state) {
-    return state.user_finances?.last_name
-  },
-  getEmail (state) {
-    return state.user_finances?.email
-  },
   getLoans (state) {
     return state.user_finances?.loans
   },
@@ -51,31 +45,6 @@ const getters = {
   },
   getGoalById: state => (id) => {
     return state.user_finances?.goals[id]
-  },
-  getShowFullPlan (state) {
-    if (!state.user_finances.payment_plan?.is_premium_plan) {
-      return false
-    }
-    const dateString = state.user_finances.payment_plan?.expiration_dt
-    if (dateString) {
-      return new Date(dateString) >= new Date()
-    }
-    return false
-  },
-  getIsPremiumPlan (state) {
-    return state.user_finances.payment_plan?.is_premium_plan
-  },
-  getIsSubscriptionPlan (state) {
-    return state.user_finances.payment_plan?.is_subscription_plan
-  },
-  getPlanType (state) {
-    return state.user_finances.payment_plan?.plan_type
-  },
-  getIsCancelledPlan (state) {
-    return state.user_finances.payment_plan?.is_cancelled
-  },
-  getVerbosePlanType (state) {
-    return state.user_finances.payment_plan?.verbose_plan_type
   }
 }
 

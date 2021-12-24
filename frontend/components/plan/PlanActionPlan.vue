@@ -48,11 +48,19 @@ export default {
     isPremiumPlan: {
       type: Boolean,
       required: true
+    },
+    publishedPlanId: {
+      type: Number,
+      default: null
     }
   },
   computed: {
     actionPlan () {
-      return this.$store.getters['plan/getActionPlan'](this.selectedStrategy)
+      if (this.publishedPlanId != null) {
+        return this.$store.getters['published-plans/getActionPlan'](this.publishedPlanId, this.selectedStrategy)
+      } else {
+        return this.$store.getters['plan/getActionPlan'](this.selectedStrategy)
+      }
     },
     payments () {
       return this.actionPlan.payments

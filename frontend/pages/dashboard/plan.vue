@@ -33,6 +33,7 @@
     <template v-if="receivedValidPlanData">
       <FullFinancialPlan
         :is-paid-user="isPaidUser"
+        :is-admin-user="isAdminUser"
         @show-upgrade-dialog="showPlanUpgradeDialog=true"
       />
     </template>
@@ -92,10 +93,10 @@ export default {
       return ''
     },
     isPaidUser () {
-      return this.$store.getters['finances/getShowFullPlan']
+      return this.$store.getters['users/getShowFullPlan'] || this.isAdminUser
     },
-    askForPayment () {
-      return this.receivedValidPlanData && !this.userCanAccessFullPlan
+    isAdminUser () {
+      return this.$store.getters['users/getIsAdminUser']
     },
     errorBuildingPlan () {
       return !this.userFinancesValidationError && !this.$fetchState.pending && !this.planExists

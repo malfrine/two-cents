@@ -83,7 +83,7 @@ export default {
           '/api/my/payment-plan',
           { plan_payment_intent: paymentPlanIntent }
         )
-        this.$store.commit('finances/SET_PAYMENT_PLAN', paymentPlan)
+        this.$store.commit('users/SET_PAYMENT_PLAN', paymentPlan)
         this.$toast.success('Payment successful')
         this.card.clear()
         this.$emit('payment-made')

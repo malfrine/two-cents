@@ -79,18 +79,32 @@
 import { asDollar } from '~/assets/utils.js'
 
 export default {
+  props: {
+    publishedPlanId: {
+      type: Number,
+      default: null
+    }
+  },
   computed: {
     userHasLoans () {
       return (Object.keys(this.loans)).length > 0
     },
     loans () {
-      return this.$store.getters['finances/getLoans']
+      if (this.publishedPlanId != null) {
+        return this.$store.getters['published-plans/getLoans'](this.publishedPlanId)
+      } else {
+        return this.$store.getters['finances/getLoans']
+      }
     },
     userHasInvestments () {
       return (Object.keys(this.investments)).length > 0
     },
     investments () {
-      return this.$store.getters['finances/getInvestments']
+      if (this.publishedPlanId != null) {
+        return this.$store.getters['published-plans/getInvestments'](this.publishedPlanId)
+      } else {
+        return this.$store.getters['finances/getInvestments']
+      }
     },
     totalInvestments () {
       let total = 0
@@ -107,7 +121,10 @@ export default {
       return total
     },
     possessiveUserName () {
-      const firstName = this.$store.getters['finances/getFirstName']
+      if (this.publishedPlanId != null) {
+        return ''
+      }
+      const firstName = this.$store.getters['users/getFirstName']
       const posession = firstName.slice(-1) === 's' ? "'" : "'s"
       return `${firstName}${posession}`
     }

@@ -33,10 +33,23 @@
 
 <script>
 export default {
-  props: ['selectedStrategy'],
+  props: {
+    selectedStrategy: {
+      type: String,
+      required: true
+    },
+    publishedPlanId: {
+      type: Number,
+      default: null
+    }
+  },
   computed: {
     milestones () {
-      return this.$store.getters['plan/getMilestones'](this.selectedStrategy)
+      if (this.publishedPlanId != null) {
+        return this.$store.getters['published-plans/getMilestones'](this.publishedPlanId, this.selectedStrategy)
+      } else {
+        return this.$store.getters['plan/getMilestones'](this.selectedStrategy)
+      }
     }
   },
   methods: {
