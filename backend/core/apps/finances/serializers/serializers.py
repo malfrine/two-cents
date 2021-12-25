@@ -55,14 +55,6 @@ class UserFinancesSerializer(serializers.ModelSerializer):
     financial_data = FinancialDataSerializer(read_only=True)
     payment_plan = PaymentPlanSerializer(read_only=True)
 
-    def to_representation(self, instance):
-        rep = super().to_representation(instance)
-        financial_data = rep.get("financial_data", dict())
-        # TODO: update how the data is processed on the FE so we don't have to add financial data fields
-        for field in financial_data:
-            rep[field] = financial_data[field]
-        return rep
-
     class Meta:
         model = User
         fields = (
