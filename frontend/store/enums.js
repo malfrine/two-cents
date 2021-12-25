@@ -60,7 +60,7 @@ const mutations = {
 }
 
 const actions = {
-  getAllEnums (context) {
+  getAllEnumsIfNeeded (context) {
     if (context.getters.getStateExists) {
       return
     }

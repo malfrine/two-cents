@@ -111,7 +111,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @property
     def financial_profile(self):
-        return self.financial_data.financial_profle  # financial_data is a related_name
+        return self.financial_data.financial_profile  # financial_data is a related_name
 
 
 class WaitlistUser(models.Model):

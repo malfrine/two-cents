@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 
 import firebase_admin.auth as firebase_auth
 from django.core.mail import EmailMultiAlternatives
@@ -30,7 +31,9 @@ def send_welcome_email(to_email, referral_id):
     msg.send()
 
 
-def create_user(serializer: UserWriteSerializer):
+def create_user(
+    serializer: UserWriteSerializer, financial_data: Optional[FinancialData] = None
+):
     serializer.is_valid(raise_exception=True)
     email = serializer.validated_data.get("email")
     password = serializer.validated_data.pop("password")
@@ -43,8 +46,12 @@ def create_user(serializer: UserWriteSerializer):
     user: User = User.objects.create_user(email=email, first_name=first_name)
     user.save()
     try:
-        FinancialData.objects.create(user=user)
-        FinancialProfile.objects.create_default(user)
+        if financial_data is None:
+            FinancialData.objects.create(user=user)
+            FinancialProfile.objects.create_default(user)
+        else:
+            financial_data.user = user
+            financial_data.save()
         CurrentPaymentPlan.objects.create_default(user)
     except Exception:
         delete_user(user)
