@@ -106,7 +106,7 @@ export default {
     }
   },
   created () {
-    this.$store.dispatch('enums/getAllEnums')
+    this.$store.dispatch('enums/getAllEnumsIfNeeded')
   },
   methods: {
     onLogoutClick () {

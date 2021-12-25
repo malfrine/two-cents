@@ -171,6 +171,7 @@ export default {
     } else {
       currentProfile = this.$store.getters['finances/getFinancialProfile']
     }
+    console.log(currentProfile)
     return {
       editMode: false,
       defaultFinProfile,

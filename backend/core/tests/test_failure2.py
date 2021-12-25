@@ -6,7 +6,7 @@ from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from core.apps.onboarding.views import OnboardingAPIView
+from core.apps.onboarding.views import SurveyOnboardingAPIView
 from core.apps.plan.views import UserPlanViewSet
 from core.apps.users.models import User
 from core.tests._utilities import delete_firebase_user_if_exists, delete_user_if_exists
@@ -42,7 +42,7 @@ class Failure1TestCase(TestCase):
         pass
 
     def test_onboarding_and_plan_building(self):
-        onboarding_view = OnboardingAPIView.as_view()
+        onboarding_view = SurveyOnboardingAPIView.as_view()
         factory = APIRequestFactory()
         request = factory.post("api/my/account/onboard", data=self.data, format="json")
         request.user = AnonymousUser()

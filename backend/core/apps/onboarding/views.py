@@ -26,7 +26,9 @@ from core.apps.finances.serializers.views.loan import LoanSerializer
 from core.apps.finances.utilities import (
     calculate_instalment_loan_min_payment,
     calculate_revolving_loan_min_payment,
+    copy_financial_data,
 )
+from core.apps.published_plans.models import PublishedPlan
 from core.apps.users.serializers import UserWriteSerializer
 from core.apps.users.utilities import create_user, delete_user
 
@@ -169,7 +171,7 @@ def create_loans(user, data):
         serializer.save(financial_data=user.financial_data)
 
 
-class OnboardingAPIView(views.APIView):
+class SurveyOnboardingAPIView(views.APIView):
 
     MANDATORY_DATA_FIELDS = {
         "account",
@@ -206,6 +208,42 @@ class OnboardingAPIView(views.APIView):
         except serializers.ValidationError as e:
             if user is not None:
                 delete_user(user)
+            data = None
+            if status.is_client_error(e.status_code):
+                data = e.detail
+            logging.error(
+                f"Unable to onboard user because of {e.status_code} status",
+                extra={"data": request.data, "error": data},
+            )
+            return Response(status=e.status_code, data=data)
+        return Response(status=status.HTTP_200_OK)
+
+
+class PublishedPlanOnboardingAPIView(views.APIView):
+    def post(self, request):
+        try:
+            plan_id = request.data.get("published_plan_id")
+            if plan_id is None:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            published_plan: PublishedPlan = PublishedPlan.objects.get(pk=plan_id)
+        except PublishedPlan.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        user = None
+        financial_data = None
+        try:
+            financial_data = copy_financial_data(published_plan.financial_data)
+            user = create_user(
+                UserWriteSerializer(data=request.data.get("account", dict())),
+                financial_data,
+            )
+            if user is None:
+                return serializers.ValidationError(code=status.HTTP_400_BAD_REQUEST)
+            create_mailchimp_user(user, financial_data.financial_profile)
+        except serializers.ValidationError as e:
+            if user is not None:
+                delete_user(user)
+            if financial_data is not None:
+                financial_data.delete()
             data = None
             if status.is_client_error(e.status_code):
                 data = e.detail

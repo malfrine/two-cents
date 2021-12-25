@@ -21,6 +21,7 @@ export default {
     ProfileTabs
   },
   fetch () {
+    this.$store.dispatch('enums/getAllEnumsIfNeeded')
     this.$store.dispatch('published-plans/getPlanIfNotExists', { id: this.publishedPlanId })
   },
   computed: {

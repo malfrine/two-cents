@@ -6,7 +6,7 @@ from rest_framework.test import APIRequestFactory
 from core.apps.finances.models.goals import FinancialGoal
 from core.apps.finances.models.investments import Investment
 from core.apps.finances.models.loans import Loan
-from core.apps.onboarding.views import OnboardingAPIView
+from core.apps.onboarding.views import SurveyOnboardingAPIView
 from core.apps.users.models import User
 from core.apps.users.utilities import delete_user
 from core.tests._utilities import delete_firebase_user_if_exists
@@ -48,7 +48,7 @@ class OnboardingTestCase(TestCase):
             "investments": self.investments,
             "loans": self.loans,
         }
-        self.view = OnboardingAPIView.as_view()
+        self.view = SurveyOnboardingAPIView.as_view()
 
     def test_onboard_post(self):
         factory = APIRequestFactory()

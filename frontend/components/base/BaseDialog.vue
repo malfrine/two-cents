@@ -8,7 +8,7 @@
         <v-divider class="my-5" />
         <slot name="form" />
         <v-card-actions class="justify-center">
-          <v-btn x-large color="primary" @click.stop="$emit('submit')">
+          <v-btn x-large color="primary" @click="$emit('submit')">
             {{ submitText }}
           </v-btn>
         </v-card-actions>
