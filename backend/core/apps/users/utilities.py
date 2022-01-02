@@ -31,9 +31,21 @@ def send_welcome_email(to_email, referral_id):
     msg.send()
 
 
+def user_email_exists(email: str) -> bool:
+    try:
+        User.objects.get(email=email)
+        return True
+    except User.DoesNotExist:
+        return False
+
+
 def create_user(
     serializer: UserWriteSerializer, financial_data: Optional[FinancialData] = None
 ):
+    email = serializer.initial_data.get("email")
+    if user_email_exists(email):
+        detail = {"user_message": "This email is already in use."}
+        raise serializers.ValidationError(detail=detail, code=status.HTTP_409_CONFLICT)
     serializer.is_valid(raise_exception=True)
     email = serializer.validated_data.get("email")
     password = serializer.validated_data.pop("password")

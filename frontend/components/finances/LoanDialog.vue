@@ -96,7 +96,20 @@ import { calculateMinimumAmortizedLoanPayment } from '~/assets/utils.js'
 
 export default {
   mixins: [LoanDetailsMixin],
-  props: ['visible', 'modalName', 'loanId'],
+  props: {
+    visible: {
+      type: Boolean,
+      required: true
+    },
+    modalName: {
+      type: String,
+      required: true
+    },
+    loanId: {
+      type: Number,
+      required: true
+    }
+  },
   data () {
     const loan = this.$store.getters['finances/getLoanById'](this.loanId) || {}
     // const mortgageDetails = loan.mortgage_details || {}

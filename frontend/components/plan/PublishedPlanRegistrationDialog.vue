@@ -98,11 +98,9 @@ export default {
           this.$toast.error('Sorry, could not register your account')
           this.$sentry.captureException('Failed to onboard user', userInfo)
         })
-      console.log('registered user')
       this.$emit('close')
     },
     close () {
-      console.log('closing prompt')
       this.$emit('close')
     },
     mandatoryField,

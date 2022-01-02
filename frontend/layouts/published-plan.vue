@@ -102,11 +102,9 @@ export default {
   },
   methods: {
     openRegistrationPrompt () {
-      console.log('opening registration prompt')
       this.showRegistrationPrompt = true
     },
     closeRegistrationPrompt () {
-      console.log('closing registration prompt')
       this.showRegistrationPrompt = false
     }
   }

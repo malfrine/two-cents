@@ -134,7 +134,16 @@
 
 <script>
 export default {
-  props: ['visible', 'investmentId'],
+  props: {
+    visible: {
+      type: Boolean,
+      required: true
+    },
+    investmentId: {
+      type: Number,
+      required: true
+    }
+  },
   data () {
     const investment = this.$store.getters['finances/getInvestmentById'](this.investmentId)
     if (investment) {
