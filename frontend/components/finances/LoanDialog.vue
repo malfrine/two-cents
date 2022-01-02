@@ -138,7 +138,7 @@ export default {
       },
       minimum_monthly_payment: {
         labelName: 'Minimum Monthly Payment',
-        value: loan.miimum_monthly_payment,
+        value: loan.minimum_monthly_payment,
         type: 'number',
         prefix: '$',
         rules: [
