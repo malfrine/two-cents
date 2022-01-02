@@ -54,8 +54,6 @@
 
 export default {
   layout: 'simple',
-  components: {
-  },
   data () {
     return {
       email: '',
