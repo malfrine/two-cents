@@ -87,7 +87,8 @@ export default {
     '~/plugins/constants.js',
     { src: '~/plugins/stripe.js', ssr: false },
     { src: '~/plugins/vue-toastification.js', mode: 'client' },
-    { src: '~/plugins/typed.js', mode: 'client' }
+    { src: '~/plugins/typed.js', mode: 'client' },
+    { src: '~/plugins/firebase.js', mode: 'client' }
   ],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
