@@ -569,7 +569,8 @@ export default {
           }
         )
         .catch((e) => {
-          this.$toast.error('Sorry, could not register your account')
+          const message = e.response.data.user_message || 'Sorry, could not register your account'
+          this.$toast.error(message)
           this.$sentry.captureException('Failed to onboard user', userInfo)
         })
     }

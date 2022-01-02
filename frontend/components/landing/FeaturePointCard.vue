@@ -24,7 +24,20 @@
 
 <script>
 export default {
-  props: ['text', 'title', 'iconName'],
+  props: {
+    text: {
+      type: String,
+      required: true
+    },
+    title: {
+      type: String,
+      required: true
+    },
+    iconName: {
+      type: String,
+      required: true
+    }
+  },
   data: () => ({
     show: false
   })
