@@ -29,7 +29,7 @@ class MailchimpErrors(Enum):
 
 
 def _make_active_tag(user_tag: MailchimpUserTags):
-    return {"tags": [{"name": user_tag, "status": "active"}]}
+    return {"tags": [{"name": user_tag.value, "status": "active"}]}
 
 
 def make_new_user_tags():
