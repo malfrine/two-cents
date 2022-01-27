@@ -93,7 +93,7 @@ export default {
       return ''
     },
     isPaidUser () {
-      return this.$store.getters['users/getShowFullPlan'] || this.isAdminUser
+      return true // this.$store.getters['users/getShowFullPlan'] || this.isAdminUser
     },
     isAdminUser () {
       return this.$store.getters['users/getIsAdminUser']
