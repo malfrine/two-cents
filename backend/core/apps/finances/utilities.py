@@ -6,9 +6,9 @@ from core.apps.finances.models.financial_data import FinancialData
 from core.apps.payments.models import CurrentPaymentPlan, PlanType
 
 MIN_PAYMENT_THRESHOLD = 10
-BASIC_USER_LOAN_LIMIT = 3
-BASIC_USER_INVESTMENT_LIMIT = 4
-BASIC_USER_GOAL_LIMIT = 3
+BASIC_USER_LOAN_LIMIT = 300
+BASIC_USER_INVESTMENT_LIMIT = 400
+BASIC_USER_GOAL_LIMIT = 300
 
 
 def calculate_months_between_dates(date1: date, date2: date):
