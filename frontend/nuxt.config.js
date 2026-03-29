@@ -26,9 +26,9 @@ if (isDev) {
     appId: '1:471669331840:web:93ef3e302b6a0257289365',
     measurementId: 'G-F876X8NTHY'
   }
-  domain = 'https://two-cents.ca'
+  domain = process.env.DOMAIN || 'https://two-cents.ca'
 }
-const isProdStripe = process.env.STRIPE_TEST.toLowerCase() === 'false'
+const isProdStripe = (process.env.STRIPE_TEST || 'true').toLowerCase() === 'false'
 let stripePublishableKey
 if (isProdStripe) {
   stripePublishableKey = process.env.STRIPE_PROD_PUBLISHABLE_KEY

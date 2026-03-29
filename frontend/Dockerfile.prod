@@ -22,10 +22,10 @@ ENV STRIPE_TEST=${STRIPE_TEST}
 ENV STRIPE_TEST_PUBLISHABLE_KEY=${STRIPE_TEST_PUBLISHABLE_KEY}
 ENV STRIPE_PROD_PUBLISHABLE_KEY=${STRIPE_PROD_PUBLISHABLE_KEY}
 
-COPY ./frontend/package.json ./frontend/package-lock.json /app/
+COPY package.json package-lock.json /app/
 RUN npm install
 
-COPY ./frontend/ /app/
+COPY . /app/
 RUN npm run build
 
 EXPOSE 8000

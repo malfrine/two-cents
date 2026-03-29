@@ -15,7 +15,7 @@ cred = credentials.Certificate(
         "type": "service_account",
         "project_id": os.environ.get("FIREBASE_SA_PROJECT_ID"),
         "private_key_id": os.environ.get("FIREBASE_SA_PRIVATE_KEY_ID"),
-        "private_key": os.environ.get("FIREBASE_SA_PRIVATE_KEY").replace("\\n", "\n"),
+        "private_key": (os.environ.get("FIREBASE_SA_PRIVATE_KEY") or "").replace("\\n", "\n"),
         "client_email": os.environ.get("FIREBASE_SA_CLIENT_EMAIL"),
         "client_id": os.environ.get("FIREBASE_SA_CLIENT_ID"),
         "auth_uri": "https://accounts.google.com/o/oauth2/auth",

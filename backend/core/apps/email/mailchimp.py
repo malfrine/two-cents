@@ -56,6 +56,8 @@ def make_member_info_data(user: User, financial_profile: FinancialProfile):
 
 
 def create_mailchimp_user(user: User, financial_profile: FinancialProfile):
+    if mailchimp is None:
+        return
 
     member_info = make_member_info_data(user, financial_profile)
     tags_data = make_new_user_tags()
@@ -77,6 +79,8 @@ def create_mailchimp_user(user: User, financial_profile: FinancialProfile):
 
 
 def set_mailchimp_user_as_premium(user: User):
+    if mailchimp is None:
+        return
     tags_data = make_premium_user_tags()
     try:
         mailchimp_id = get_mailchimp_id(user.email)
@@ -90,6 +94,8 @@ def set_mailchimp_user_as_premium(user: User):
 
 
 def delete_mailchimp_user(user: User):
+    if mailchimp is None:
+        return
     try:
         mailchimp_id = get_mailchimp_id(user.email)
         mailchimp.lists.delete_list_member(TWO_CENTS_AUDIENCE_ID, mailchimp_id)

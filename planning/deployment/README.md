@@ -23,19 +23,25 @@ planning/deployment/
   step6.md         ← DNS setup (manual — user does this)
   step7.md         ← Railway project creation (manual — user does this)
   step8.md         ← Post-deploy smoke test (manual — user does this)
+  logs/            ← Working logs from each Claude instance
+    log1.md        ← Instance 1 log
+    log2.md        ← Instance 2 log (and so on)
 ```
+
+### Instance Logging
+Each Claude instance should create a log file in `planning/deployment/logs/`:
+- Check for existing log files and create the next one: `log{N+1}.md`
+- Record: what you worked on, decisions made, blockers, and anything the next instance needs to know
+- Update this log at the end of your session before committing
 
 ### How to Work
 
 1. **Read `current.md` first** to see where we left off.
 2. **Read the step file** for the current step (e.g., `step1.md`).
-3. **Do the work** described in the step file. Each step has:
-   - Exact code changes with file paths and line numbers
-   - Files to modify or create
-   - A testing plan with specific commands
-4. **Run the tests** from the step's testing plan after making changes.
-5. **Update `current.md`** — mark the step as DONE, note any issues, move to next step.
-6. **Commit after each step** with a message like: `step 1: make external services optional`
+3. **Break work into testable chunks.** Do ONE step at a time. After making the code changes for a step, run the tests from that step's testing plan BEFORE moving to the next step. Write tests if needed. Do NOT batch all steps and test at the end.
+4. **Run the tests** from the step's testing plan after making changes. If tests can't run locally (e.g. Docker not running, no venv), note this as a blocker and ask the user how to proceed.
+5. **Update `current.md`** — mark the step as DONE only after tests pass, note any issues, move to next step.
+6. **Do NOT commit automatically.** At the end of your session, present a summary of all changes to the user and wait for their explicit approval before committing. Commit with a message like: `step 1: make external services optional`
 
 ### Steps 1-5 are code changes. Steps 6-8 are manual (the user does them).
 

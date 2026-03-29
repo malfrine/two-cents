@@ -9,7 +9,6 @@ https://docs.djangoproject.com/en/dev/ref/settings/
 """
 import environ
 import stripe
-from mailchimp_marketing import Client
 
 ROOT_DIR = environ.Path(__file__) - 3
 
@@ -32,6 +31,7 @@ THIRD_PARTY_APPS = [
     "django_extensions",
     "whitenoise",
     "anymail",
+    "corsheaders",
 ]
 
 LOCAL_APPS = [
@@ -50,6 +50,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -69,16 +70,25 @@ SECRET_KEY = env.str("SECRET_KEY")
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["*"])
 DOMAIN = env.str("DOMAIN", default="localhost")
 
+# CORS
+CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[
+    "http://localhost:8000",
+    "http://localhost:3000",
+])
+CORS_ALLOW_CREDENTIALS = True
+
 # EMAIL CONFIGURATION
 # ------------------------------------------------------------------------------
 if DEBUG:
     EMAIL_PORT = env.int("EMAIL_PORT", default="1025")
     EMAIL_HOST = env.str("EMAIL_HOST", default="mailhog")
 else:
-    EMAIL_BACKEND = "anymail.backends.sendinblue.EmailBackend"
-    ANYMAIL = {
-        "SENDINBLUE_API_KEY": env.str("SENDINBLUE_API_KEY"),
-    }
+    _sendinblue_key = env.str("SENDINBLUE_API_KEY", default="")
+    if _sendinblue_key:
+        EMAIL_BACKEND = "anymail.backends.sendinblue.EmailBackend"
+        ANYMAIL = {"SENDINBLUE_API_KEY": _sendinblue_key}
+    else:
+        EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 # MANAGER CONFIGURATION
 # ------------------------------------------------------------------------------
@@ -256,15 +266,21 @@ RAVEN_MIDDLEWARE = [
 ]
 MIDDLEWARE = RAVEN_MIDDLEWARE + MIDDLEWARE
 
+# Slack
+SLACK_WEBHOOK_URL = env.str("SLACK_WEBHOOK_URL", default="")
+
 # Sentry Configuration
 SENTRY_DSN = "" if DEBUG else env.str("SENTRY_DSN", "")
 SENTRY_CLIENT = "raven.contrib.django.raven_compat.DjangoClient"
+_prod_handlers = ["sentry"]
+if SLACK_WEBHOOK_URL:
+    _prod_handlers.append("slack")
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "root": {
         "level": "WARN",
-        "handlers": ["console"] if DEBUG else ["sentry", "slack"],
+        "handlers": ["console"] if DEBUG else _prod_handlers,
     },
     "formatters": {
         "verbose": {
@@ -326,16 +342,11 @@ stripe.api_key = STRIPE_SECRET_KEY
 stripe = stripe
 
 # Mailchimp
-mailchimp = Client()
-mailchimp.set_config(
-    {
-        "api_key": env.str("MAILCHIMP_API_KEY"),
-        "server": env.str("MAILCHIMP_SERVER_PREFIX"),
-    }
-)
+mailchimp = None
+_mailchimp_api_key = env.str("MAILCHIMP_API_KEY", default="")
+_mailchimp_server = env.str("MAILCHIMP_SERVER_PREFIX", default="")
+if _mailchimp_api_key and _mailchimp_server:
+    from mailchimp_marketing import Client
+    mailchimp = Client()
+    mailchimp.set_config({"api_key": _mailchimp_api_key, "server": _mailchimp_server})
 TWO_CENTS_AUDIENCE_ID = "f4b38887b5"
-
-# Slack
-SLACK_WEBHOOK_URL = (
-    "https://hooks.slack.com/services/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"
-)

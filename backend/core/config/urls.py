@@ -1,5 +1,6 @@
 from django.conf.urls import include
 from django.contrib import admin
+from django.http import JsonResponse
 from django.urls import path
 
 from core.apps.onboarding.views import (
@@ -10,7 +11,12 @@ from core.apps.payments.views import StripeWebhookAPIView
 from core.apps.users.views import SessionAPIView, WaitlistUserAPIView
 from core.config.api import api
 
+def health_check(request):
+    return JsonResponse({"status": "ok"})
+
+
 urlpatterns = [
+    path("api/health/", health_check),
     path("admin/", admin.site.urls, name="admin"),
     path("api/", include(api.urls)),
     path("api/my/session", SessionAPIView.as_view()),
