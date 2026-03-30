@@ -10,25 +10,34 @@ from rest_framework.exceptions import AuthenticationFailed
 
 from core.apps.users.models import User, TwoCentsAnonymousUser
 
-cred = credentials.Certificate(
-    {
-        "type": "service_account",
-        "project_id": os.environ.get("FIREBASE_SA_PROJECT_ID"),
-        "private_key_id": os.environ.get("FIREBASE_SA_PRIVATE_KEY_ID"),
-        "private_key": (os.environ.get("FIREBASE_SA_PRIVATE_KEY") or "").replace("\\n", "\n"),
-        "client_email": os.environ.get("FIREBASE_SA_CLIENT_EMAIL"),
-        "client_id": os.environ.get("FIREBASE_SA_CLIENT_ID"),
-        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-        "token_uri": "https://accounts.google.com/o/oauth2/token",
-        "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-        "client_x509_cert_url": os.environ.get("FIREBASE_CLIENT_CERT_URL"),
-    }
-)
-default_app = firebase_admin.initialize_app(cred)
+_firebase_initialized = False
+_firebase_private_key = os.environ.get("FIREBASE_SA_PRIVATE_KEY")
+if _firebase_private_key:
+    cred = credentials.Certificate(
+        {
+            "type": "service_account",
+            "project_id": os.environ.get("FIREBASE_SA_PROJECT_ID"),
+            "private_key_id": os.environ.get("FIREBASE_SA_PRIVATE_KEY_ID"),
+            "private_key": _firebase_private_key.replace("\\n", "\n"),
+            "client_email": os.environ.get("FIREBASE_SA_CLIENT_EMAIL"),
+            "client_id": os.environ.get("FIREBASE_SA_CLIENT_ID"),
+            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+            "token_uri": "https://accounts.google.com/o/oauth2/token",
+            "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+            "client_x509_cert_url": os.environ.get("FIREBASE_CLIENT_CERT_URL"),
+        }
+    )
+    default_app = firebase_admin.initialize_app(cred)
+    _firebase_initialized = True
+else:
+    logging.warning("Firebase credentials not set — Firebase auth is disabled.")
 
 
 class FirebaseAuthentication(authentication.TokenAuthentication):
     def authenticate(self, request):
+        if not _firebase_initialized:
+            return TwoCentsAnonymousUser, None
+
         header = get_authorization_header(request)
 
         try:
